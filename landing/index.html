@@ -70,10 +70,10 @@
 <div class="hero">
     <h1>SML Fleet</h1>
     <div class="tagline">AI Team บริหารรถขนส่งให้คุณ 24/7</div>
-    <p>ระบบควบคุมรถขนส่งครบวงจร + HiClaw AI Agent Team — CEO สั่งงาน Workers ทำงานอัตโนมัติ ผ่าน 43 MCP Tools</p>
+    <p>ระบบควบคุมรถขนส่งครบวงจร + HiClaw AI Agent Team — CEO สั่งงาน Workers ทำงานอัตโนมัติ ผ่าน 47 MCP Tools + Movement Intelligence ตรวจจับรถเคลื่อนที่ทุก 1 นาที</p>
     <div class="hero-stats">
         <span class="hero-stat"><strong>4</strong> AI Workers</span>
-        <span class="hero-stat"><strong>43</strong> MCP Tools</span>
+        <span class="hero-stat"><strong>47</strong> MCP Tools</span>
         <span class="hero-stat"><strong>60+</strong> API Endpoints</span>
         <span class="hero-stat"><strong>3</strong> Flutter Apps</span>
         <span class="hero-stat"><strong>1</strong> AI Gateway</span>
@@ -92,7 +92,7 @@
                 <h3>Fleet CEO</h3>
                 <div class="role">ผู้บริหาร / สั่งงาน</div>
                 <p>ดูภาพรวม KPI สั่งงาน Workers ตามงาน ตัดสินใจ อนุมัติ สรุปรายงาน</p>
-                <span class="tools-count">43 tools</span>
+                <span class="tools-count">47 tools</span>
             </div>
             <div class="agent-card">
                 <div class="agent-avatar">🚛</div>
@@ -124,7 +124,7 @@
             <span class="flow-arrow">&rarr;</span>
             <div class="flow-step">แจกงาน Workers<br><small>@fleet-ops @fleet-maint</small></div>
             <span class="flow-arrow">&rarr;</span>
-            <div class="flow-step">Workers ทำงาน<br><small>เรียก 43 MCP Tools</small></div>
+            <div class="flow-step">Workers ทำงาน<br><small>เรียก 47 MCP Tools</small></div>
             <span class="flow-arrow">&rarr;</span>
             <div class="flow-step">SML Fleet API<br><small>MongoDB &rarr; Kafka &rarr; PG</small></div>
         </div>
@@ -189,11 +189,34 @@
             <p>AI ทำงานเป็นทีม — Manager-Worker architecture บน Higress AI Gateway</p>
             <ul>
                 <li>4 AI Workers: CEO, Ops, Maintenance, Customer Service</li>
-                <li>43 MCP Tools เชื่อม SML Fleet API ผ่าน Higress</li>
+                <li>47 MCP Tools เชื่อม SML Fleet API ผ่าน Higress</li>
                 <li>สื่อสารผ่าน Matrix Chat (Element Web)</li>
                 <li>Auto-start Workers เมื่อมี task / Auto-stop เมื่อ idle</li>
                 <li>Multi-LLM: Gemini Flash, GPT, Claude ผ่าน OpenRouter</li>
                 <li>MinIO file sync ระหว่าง Manager-Workers</li>
+            </ul>
+        </div>
+
+        <div class="feature-card" style="border-left-color: var(--danger);">
+            <h4 style="color: var(--danger);">🔴 Movement Intelligence (AI อัตโนมัติ)</h4>
+            <p>HiClaw fleet-ops ตรวจจับรถเคลื่อนที่ทุก 1 นาที วิเคราะห์ด้วย AI</p>
+            <ul>
+                <li>Haversine GPS ตรวจจับรถเปลี่ยนตำแหน่ง > 50m</li>
+                <li>AI วิเคราะห์: speeding, geofence, night movement, erratic driving</li>
+                <li>monitoring_prompt กำหนด AI rules ต่อรถแต่ละคัน</li>
+                <li>ส่ง Kafka &rarr; MongoDB log + auto-alert ถ้า warning/critical</li>
+                <li>Infinite Task ทำงานอัตโนมัติ ไม่ต้องสั่ง</li>
+            </ul>
+        </div>
+
+        <div class="feature-card" style="border-left-color: var(--success);">
+            <h4 style="color: var(--success);">🗺️ OSRM Routing (เส้นทางตามถนน)</h4>
+            <p>คำนวณเส้นทางจริงบนถนน ไม่ใช่เส้นตรง — polyline + turn-by-turn</p>
+            <ul>
+                <li>OSRM Demo Server (ฟรี) — พร้อมอัปเกรดเป็น Valhalla self-hosted</li>
+                <li>ระยะทาง + เวลาจริงบนถนน</li>
+                <li>Turn-by-turn navigation ภาษาไทย</li>
+                <li>รองรับจุดแวะ (waypoints) หลายจุด</li>
             </ul>
         </div>
 
@@ -296,6 +319,7 @@
         <div class="tech-card"><div class="icon">📡</div><h4>Apache Kafka</h4><p>Event Stream</p></div>
         <div class="tech-card"><div class="icon">📱</div><h4>Flutter 3.41</h4><p>Mobile + Web</p></div>
         <div class="tech-card"><div class="icon">🗺️</div><h4>OpenStreetMap</h4><p>Free Map</p></div>
+        <div class="tech-card"><div class="icon">🛣️</div><h4>OSRM</h4><p>Road Routing</p></div>
         <div class="tech-card"><div class="icon">🤖</div><h4>Claude / Gemini</h4><p>Multi-LLM</p></div>
         <div class="tech-card"><div class="icon">💬</div><h4>Matrix Chat</h4><p>Agent Comms</p></div>
         <div class="tech-card"><div class="icon">☁️</div><h4>Cloudflare R2</h4><p>File Storage</p></div>
@@ -316,14 +340,14 @@
 
 <!-- FOOTER -->
 <div class="footer">
-    <h3 style="color: white; margin-bottom: 8px;">SML Fleet v1.1 — Powered by HiClaw AI</h3>
-    <p>ระบบควบคุมรถขนส่งครบวงจร + AI Agent Team สำหรับ SME ไทย</p>
+    <h3 style="color: white; margin-bottom: 8px;">SML Fleet v1.2 — Powered by HiClaw AI + Movement Intelligence</h3>
+    <p>ระบบควบคุมรถขนส่งครบวงจร + AI Agent Team + ตรวจจับรถเคลื่อนที่อัตโนมัติ สำหรับ SME ไทย</p>
     <p style="margin-top: 12px;">
         <a href="https://github.com/jaturapornchai/bcfleet">GitHub</a> &middot;
         BC AI Solution Co., Ltd.
     </p>
     <p style="margin-top: 8px; font-size: 0.85em;">
-        4 AI Workers &middot; 43 MCP Tools &middot; 60+ APIs &middot; Go + Flutter + HiClaw + Higress + MongoDB + Kafka + PostgreSQL
+        4 AI Workers &middot; 47 MCP Tools &middot; 60+ APIs &middot; Movement Intelligence &middot; OSRM Routing &middot; Go + Flutter + HiClaw + Higress + MongoDB + Kafka + PostgreSQL
     </p>
 </div>
 

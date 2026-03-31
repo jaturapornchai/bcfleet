@@ -4,7 +4,6 @@ import 'bloc/trip_bloc.dart';
 import 'bloc/gps_bloc.dart';
 import 'bloc/expense_bloc.dart';
 import 'bloc/checklist_bloc.dart';
-import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 
 class DriverApp extends StatelessWidget {
@@ -63,9 +62,9 @@ class DriverApp extends StatelessWidget {
           Locale('th', 'TH'),
           Locale('en', 'US'),
         ],
-        initialRoute: '/login',
+        initialRoute: '/home',
         routes: {
-          '/login': (_) => const LoginScreen(),
+          '/login': (_) => const HomeScreen(), // demo: skip login
           '/home': (_) => const HomeScreen(),
         },
       ),

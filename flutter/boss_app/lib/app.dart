@@ -30,7 +30,7 @@ class BossApp extends StatelessWidget {
         darkTheme: _buildTheme(Brightness.dark),
         themeMode: ThemeMode.system,
         locale: const Locale('th', 'TH'),
-        home: const LoginScreen(),
+        home: const DashboardScreen(),
         routes: {
           '/login': (_) => const LoginScreen(),
           '/dashboard': (_) => const DashboardScreen(),

@@ -5,11 +5,11 @@ import (
 	"log"
 	"time"
 
-	"bc-fleet/internal/config"
-	"bc-fleet/internal/database"
-	"bc-fleet/internal/handler"
-	"bc-fleet/internal/middleware"
-	"bc-fleet/internal/service"
+	"sml-fleet/internal/config"
+	"sml-fleet/internal/database"
+	"sml-fleet/internal/handler"
+	"sml-fleet/internal/middleware"
+	"sml-fleet/internal/service"
 
 	"github.com/gin-gonic/gin"
 )
@@ -42,7 +42,7 @@ func main() {
 
 	// Health check (ไม่ต้อง auth)
 	r.GET("/health", func(c *gin.Context) {
-		c.JSON(200, gin.H{"status": "ok", "service": "bc-fleet"})
+		c.JSON(200, gin.H{"status": "ok", "service": "sml-fleet"})
 	})
 
 	// REST API routes (ต้อง auth)
@@ -76,7 +76,7 @@ func main() {
 		}
 	}()
 
-	log.Printf("BC Fleet API starting on port %s", cfg.Port)
+	log.Printf("SML Fleet API starting on port %s", cfg.Port)
 	if err := r.Run(":" + cfg.Port); err != nil {
 		log.Fatalf("Server failed: %v", err)
 	}

@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 
-	pgquery "bc-fleet/internal/repository/postgres"
+	pgquery "sml-fleet/internal/repository/postgres"
 )
 
 // DashboardService business logic สำหรับ dashboard และรายงาน (read-only, ไม่มี Kafka)

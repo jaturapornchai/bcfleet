@@ -1,8 +1,8 @@
 #!/bin/bash
-# Deploy BC Fleet
+# Deploy SML Fleet
 set -e
 
-echo "=== BC Fleet Deploy ==="
+echo "=== SML Fleet Deploy ==="
 
 # Build Go binaries
 echo "1. Building Go backend..."

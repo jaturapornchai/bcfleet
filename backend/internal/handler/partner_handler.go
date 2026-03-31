@@ -4,11 +4,11 @@ import (
 	"net/http"
 	"strconv"
 
-	"bc-fleet/internal/database"
-	"bc-fleet/internal/eventlog"
-	mongorepo "bc-fleet/internal/repository/mongo"
-	pgquery "bc-fleet/internal/repository/postgres"
-	"bc-fleet/internal/service"
+	"sml-fleet/internal/database"
+	"sml-fleet/internal/eventlog"
+	mongorepo "sml-fleet/internal/repository/mongo"
+	pgquery "sml-fleet/internal/repository/postgres"
+	"sml-fleet/internal/service"
 
 	"github.com/gin-gonic/gin"
 )

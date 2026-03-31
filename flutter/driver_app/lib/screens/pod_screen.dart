@@ -214,17 +214,26 @@ class _PodScreenState extends State<PodScreen> {
             ),
             const SizedBox(height: 24),
 
-            ElevatedButton.icon(
-              onPressed: _isSaving ? null : _savePod,
-              icon: _isSaving
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                          strokeWidth: 2, color: Colors.white),
-                    )
-                  : const Icon(Icons.save),
-              label: Text(_isSaving ? 'กำลังบันทึก...' : 'บันทึก POD'),
+            SafeArea(
+              top: false,
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: _isSaving ? null : _savePod,
+                  icon: _isSaving
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2, color: Colors.white),
+                        )
+                      : const Icon(Icons.save),
+                  label: Text(_isSaving ? 'กำลังบันทึก...' : 'บันทึก POD'),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 52),
+                  ),
+                ),
+              ),
             ),
           ],
         ),

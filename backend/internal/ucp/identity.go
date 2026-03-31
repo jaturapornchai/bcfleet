@@ -25,14 +25,14 @@ func (h *IdentityHandler) GetMerchant(c *gin.Context) {
 	// ในระบบจริงจะดึงจาก DB ตาม shopID
 	merchant := map[string]interface{}{
 		"shop_id":     shopID,
-		"name":        getEnvOrDefault("SHOP_NAME", "BC Fleet Transport"),
+		"name":        getEnvOrDefault("SHOP_NAME", "SML Fleet Transport"),
 		"description": "บริการขนส่งสินค้าครบวงจรสำหรับ SME ไทย ภาคเหนือ",
 		"category":    "transportation",
 		"subcategory": "freight",
 		"contact": map[string]interface{}{
 			"phone":   getEnvOrDefault("SHOP_PHONE", "053-000-000"),
-			"email":   getEnvOrDefault("SHOP_EMAIL", "contact@bcfleet.com"),
-			"line_id": getEnvOrDefault("SHOP_LINE_ID", "@bcfleet"),
+			"email":   getEnvOrDefault("SHOP_EMAIL", "contact@smlfleet.com"),
+			"line_id": getEnvOrDefault("SHOP_LINE_ID", "@smlfleet"),
 			"address": getEnvOrDefault("SHOP_ADDRESS", "เชียงใหม่ ประเทศไทย"),
 		},
 		"coverage": map[string]interface{}{

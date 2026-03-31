@@ -3,7 +3,7 @@ package ucp
 import (
 	"net/http"
 
-	"bc-fleet/internal/service"
+	"sml-fleet/internal/service"
 
 	"github.com/gin-gonic/gin"
 )
@@ -225,7 +225,7 @@ func (h *FulfillmentHandler) Confirm(c *gin.Context) {
 		"status":        "completed",
 		"receiver_name": req.ReceiverName,
 		"rating":        req.Rating,
-		"message":       "ยืนยันรับสินค้าสำเร็จ ขอบคุณที่ใช้บริการ BC Fleet",
+		"message":       "ยืนยันรับสินค้าสำเร็จ ขอบคุณที่ใช้บริการ SML Fleet",
 	})
 }
 

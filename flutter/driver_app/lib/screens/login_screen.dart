@@ -82,7 +82,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   Icon(Icons.local_shipping, size: 80, color: Colors.white),
                   SizedBox(height: 12),
                   Text(
-                    'BC Fleet Driver',
+                    'SML Fleet Driver',
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,

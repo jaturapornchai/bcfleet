@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"bc-fleet/internal/database"
-	pgquery "bc-fleet/internal/repository/postgres"
-	"bc-fleet/internal/service"
+	"sml-fleet/internal/database"
+	pgquery "sml-fleet/internal/repository/postgres"
+	"sml-fleet/internal/service"
 
 	"github.com/gin-gonic/gin"
 )

@@ -1,4 +1,4 @@
-# BC Fleet API Documentation
+# SML Fleet API Documentation
 
 ## Base URL
 ```

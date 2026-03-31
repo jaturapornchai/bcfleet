@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"time"
 
-	"bc-fleet/internal/database"
-	"bc-fleet/internal/models"
-	mongorepo "bc-fleet/internal/repository/mongo"
-	pgquery "bc-fleet/internal/repository/postgres"
+	"sml-fleet/internal/database"
+	"sml-fleet/internal/models"
+	mongorepo "sml-fleet/internal/repository/mongo"
+	pgquery "sml-fleet/internal/repository/postgres"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )

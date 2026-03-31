@@ -123,7 +123,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
                     TileLayer(
                       urlTemplate:
                           'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      userAgentPackageName: 'com.bcfleet.driver',
+                      userAgentPackageName: 'com.smlfleet.driver',
                     ),
                     PolylineLayer(polylines: [polyline]),
                     MarkerLayer(markers: markers),
@@ -184,8 +184,10 @@ class _NavigationScreenState extends State<NavigationScreen> {
           ),
 
           // Bottom panel
-          Container(
-            padding: const EdgeInsets.all(16),
+          SafeArea(
+           top: false,
+           child: Container(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
             decoration: BoxDecoration(
               color: Colors.white,
               boxShadow: [
@@ -236,6 +238,7 @@ class _NavigationScreenState extends State<NavigationScreen> {
                 ),
               ],
             ),
+           ),
           ),
         ],
       ),

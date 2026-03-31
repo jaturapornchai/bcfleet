@@ -4,9 +4,9 @@ import (
 	"context"
 	"log"
 
-	"bc-fleet/internal/config"
-	"bc-fleet/internal/database"
-	"bc-fleet/internal/kafka"
+	"sml-fleet/internal/config"
+	"sml-fleet/internal/database"
+	"sml-fleet/internal/kafka"
 )
 
 // Rebuild PostgreSQL จาก MongoDB — รันได้ทุกเมื่อ

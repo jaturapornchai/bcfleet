@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-const _apiBase = 'https://bcfleet.satistang.com/api/v1/fleet';
+const _apiBase = 'https://smlfleet.satistang.com/api/v1/fleet';
 
 class VehicleListScreen extends StatefulWidget {
   const VehicleListScreen({super.key});
@@ -63,6 +63,9 @@ class _VehicleListScreenState extends State<VehicleListScreen> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final width = MediaQuery.of(context).size.width;
+    final isMobile = width < 600;
+    final isTablet = width >= 600 && width < 1024;
     final filtered = _filtered;
     final pageStart = _currentPage * _rowsPerPage;
     final pageEnd = (pageStart + _rowsPerPage).clamp(0, filtered.length);
@@ -70,77 +73,125 @@ class _VehicleListScreenState extends State<VehicleListScreen> {
     final totalPages = (filtered.length / _rowsPerPage).ceil().clamp(1, 9999);
 
     return Padding(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(isMobile ? 12 : 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header
           Row(
             children: [
-              Text('ทะเบียนรถทั้งหมด', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
-              const Spacer(),
+              Expanded(
+                child: Text('ทะเบียนรถทั้งหมด',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+              ),
               if (_loading)
                 const Padding(
-                  padding: EdgeInsets.only(right: 12),
-                  child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+                  padding: EdgeInsets.only(right: 8),
+                  child: SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)),
                 ),
               IconButton(icon: const Icon(Icons.refresh), onPressed: _loadData, tooltip: 'รีเฟรช'),
-              const SizedBox(width: 8),
+              const SizedBox(width: 4),
               FilledButton.icon(
                 onPressed: () {},
                 icon: const Icon(Icons.add, size: 18),
-                label: const Text('เพิ่มรถ'),
+                label: isMobile ? const SizedBox.shrink() : const Text('เพิ่มรถ'),
               ),
-            ],
-          ),
-          const SizedBox(height: 16),
-
-          // Filters Row
-          Row(
-            children: [
-              SizedBox(
-                width: 280,
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: 'ค้นหาทะเบียน / ยี่ห้อ / คนขับ...',
-                    prefixIcon: const Icon(Icons.search, size: 20),
-                    isDense: true,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                    contentPadding: const EdgeInsets.symmetric(vertical: 10),
-                  ),
-                  onChanged: (v) => setState(() { _search = v; _currentPage = 0; }),
-                ),
-              ),
-              const SizedBox(width: 12),
-              DropdownButton<String>(
-                value: _filterStatus,
-                items: const [
-                  DropdownMenuItem(value: 'all', child: Text('ทุกสถานะ')),
-                  DropdownMenuItem(value: 'active', child: Text('ใช้งาน')),
-                  DropdownMenuItem(value: 'maintenance', child: Text('ซ่อมบำรุง')),
-                  DropdownMenuItem(value: 'inactive', child: Text('ไม่ใช้งาน')),
-                ],
-                onChanged: (v) => setState(() { _filterStatus = v!; _currentPage = 0; }),
-              ),
-              const SizedBox(width: 12),
-              DropdownButton<String>(
-                value: _filterType,
-                items: const [
-                  DropdownMenuItem(value: 'all', child: Text('ทุกประเภท')),
-                  DropdownMenuItem(value: '4ล้อ', child: Text('4 ล้อ')),
-                  DropdownMenuItem(value: '6ล้อ', child: Text('6 ล้อ')),
-                  DropdownMenuItem(value: '10ล้อ', child: Text('10 ล้อ')),
-                  DropdownMenuItem(value: 'หัวลาก', child: Text('หัวลาก')),
-                ],
-                onChanged: (v) => setState(() { _filterType = v!; _currentPage = 0; }),
-              ),
-              const Spacer(),
-              Text('${filtered.length} รายการ', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
             ],
           ),
           const SizedBox(height: 12),
 
-          // Table
+          // Filters — wrap on mobile
+          if (isMobile) ...[
+            TextField(
+              decoration: InputDecoration(
+                hintText: 'ค้นหาทะเบียน / ยี่ห้อ...',
+                prefixIcon: const Icon(Icons.search, size: 20),
+                isDense: true,
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                contentPadding: const EdgeInsets.symmetric(vertical: 10),
+              ),
+              onChanged: (v) => setState(() { _search = v; _currentPage = 0; }),
+            ),
+            const SizedBox(height: 8),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  DropdownButton<String>(
+                    value: _filterStatus,
+                    isDense: true,
+                    items: const [
+                      DropdownMenuItem(value: 'all', child: Text('ทุกสถานะ')),
+                      DropdownMenuItem(value: 'active', child: Text('ใช้งาน')),
+                      DropdownMenuItem(value: 'maintenance', child: Text('ซ่อมบำรุง')),
+                      DropdownMenuItem(value: 'inactive', child: Text('ไม่ใช้งาน')),
+                    ],
+                    onChanged: (v) => setState(() { _filterStatus = v!; _currentPage = 0; }),
+                  ),
+                  const SizedBox(width: 12),
+                  DropdownButton<String>(
+                    value: _filterType,
+                    isDense: true,
+                    items: const [
+                      DropdownMenuItem(value: 'all', child: Text('ทุกประเภท')),
+                      DropdownMenuItem(value: '4ล้อ', child: Text('4 ล้อ')),
+                      DropdownMenuItem(value: '6ล้อ', child: Text('6 ล้อ')),
+                      DropdownMenuItem(value: '10ล้อ', child: Text('10 ล้อ')),
+                      DropdownMenuItem(value: 'หัวลาก', child: Text('หัวลาก')),
+                    ],
+                    onChanged: (v) => setState(() { _filterType = v!; _currentPage = 0; }),
+                  ),
+                  const SizedBox(width: 12),
+                  Text('${filtered.length} รายการ', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
+                ],
+              ),
+            ),
+          ] else
+            Row(
+              children: [
+                SizedBox(
+                  width: 280,
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: 'ค้นหาทะเบียน / ยี่ห้อ / คนขับ...',
+                      prefixIcon: const Icon(Icons.search, size: 20),
+                      isDense: true,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                    ),
+                    onChanged: (v) => setState(() { _search = v; _currentPage = 0; }),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                DropdownButton<String>(
+                  value: _filterStatus,
+                  items: const [
+                    DropdownMenuItem(value: 'all', child: Text('ทุกสถานะ')),
+                    DropdownMenuItem(value: 'active', child: Text('ใช้งาน')),
+                    DropdownMenuItem(value: 'maintenance', child: Text('ซ่อมบำรุง')),
+                    DropdownMenuItem(value: 'inactive', child: Text('ไม่ใช้งาน')),
+                  ],
+                  onChanged: (v) => setState(() { _filterStatus = v!; _currentPage = 0; }),
+                ),
+                const SizedBox(width: 12),
+                DropdownButton<String>(
+                  value: _filterType,
+                  items: const [
+                    DropdownMenuItem(value: 'all', child: Text('ทุกประเภท')),
+                    DropdownMenuItem(value: '4ล้อ', child: Text('4 ล้อ')),
+                    DropdownMenuItem(value: '6ล้อ', child: Text('6 ล้อ')),
+                    DropdownMenuItem(value: '10ล้อ', child: Text('10 ล้อ')),
+                    DropdownMenuItem(value: 'หัวลาก', child: Text('หัวลาก')),
+                  ],
+                  onChanged: (v) => setState(() { _filterType = v!; _currentPage = 0; }),
+                ),
+                const Spacer(),
+                Text('${filtered.length} รายการ', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
+              ],
+            ),
+          const SizedBox(height: 12),
+
+          // Content
           Expanded(
             child: Card(
               elevation: 0,
@@ -155,69 +206,92 @@ class _VehicleListScreenState extends State<VehicleListScreen> {
                       : Column(
                           children: [
                             Expanded(
-                              child: SingleChildScrollView(
-                                child: DataTable(
-                                  sortColumnIndex: _sortColumnIndex,
-                                  sortAscending: _sortAscending,
-                                  headingRowColor: WidgetStateProperty.all(cs.surfaceContainerLow),
-                                  columns: [
-                                    DataColumn(label: const Text('ทะเบียน'), onSort: (i, a) => setState(() { _sortColumnIndex = i; _sortAscending = a; })),
-                                    DataColumn(label: const Text('ยี่ห้อ / รุ่น'), onSort: (i, a) => setState(() { _sortColumnIndex = i; _sortAscending = a; })),
-                                    const DataColumn(label: Text('ประเภท')),
-                                    const DataColumn(label: Text('ปี')),
-                                    const DataColumn(label: Text('คนขับประจำ')),
-                                    const DataColumn(label: Text('เลขไมล์'), numeric: true),
-                                    const DataColumn(label: Text('ประเภทการเป็นเจ้าของ')),
-                                    const DataColumn(label: Text('สุขภาพรถ')),
-                                    const DataColumn(label: Text('สถานะ')),
-                                    const DataColumn(label: Text('จัดการ')),
-                                  ],
-                                  rows: pageRows.map((v) => DataRow(
-                                    cells: [
-                                      DataCell(Text(v['plate'] as String? ?? '', style: const TextStyle(fontWeight: FontWeight.w600))),
-                                      DataCell(Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Text(v['brand'] as String? ?? '', style: const TextStyle(fontSize: 13)),
-                                          Text(v['model'] as String? ?? '', style: TextStyle(fontSize: 11, color: Colors.grey[500])),
-                                        ],
-                                      )),
-                                      DataCell(Text(v['type'] as String? ?? '')),
-                                      DataCell(Text('${v['year'] ?? ''}')),
-                                      DataCell(Text(v['driver_name'] as String? ?? v['current_driver_id'] as String? ?? '-')),
-                                      DataCell(Text('${v['mileage_km'] ?? '-'} กม.')),
-                                      DataCell(_OwnershipChip(ownership: v['ownership'] as String? ?? '')),
-                                      DataCell(_HealthDot(health: v['health_status'] as String? ?? 'green')),
-                                      DataCell(_StatusChip(status: v['status'] as String? ?? '')),
-                                      DataCell(Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          IconButton(icon: const Icon(Icons.visibility_outlined, size: 18), onPressed: () {}, tooltip: 'ดูรายละเอียด'),
-                                          IconButton(icon: const Icon(Icons.edit_outlined, size: 18), onPressed: () {}, tooltip: 'แก้ไข'),
-                                        ],
-                                      )),
-                                    ],
-                                  )).toList(),
-                                ),
-                              ),
+                              child: isMobile
+                                  // Mobile: card list
+                                  ? ListView.separated(
+                                      padding: const EdgeInsets.all(8),
+                                      itemCount: pageRows.length,
+                                      separatorBuilder: (_, __) => const SizedBox(height: 8),
+                                      itemBuilder: (_, i) => _buildVehicleCard(context, pageRows[i]),
+                                    )
+                                  : isTablet
+                                      // Tablet: 2-col grid
+                                      ? GridView.builder(
+                                          padding: const EdgeInsets.all(12),
+                                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                            crossAxisCount: 2,
+                                            mainAxisSpacing: 12,
+                                            crossAxisSpacing: 12,
+                                            childAspectRatio: 2.6,
+                                          ),
+                                          itemCount: pageRows.length,
+                                          itemBuilder: (_, i) => _buildVehicleCard(context, pageRows[i]),
+                                        )
+                                      // Desktop: DataTable
+                                      : SingleChildScrollView(
+                                          child: DataTable(
+                                            sortColumnIndex: _sortColumnIndex,
+                                            sortAscending: _sortAscending,
+                                            headingRowColor: WidgetStateProperty.all(cs.surfaceContainerLow),
+                                            columns: [
+                                              DataColumn(label: const Text('ทะเบียน'), onSort: (i, a) => setState(() { _sortColumnIndex = i; _sortAscending = a; })),
+                                              DataColumn(label: const Text('ยี่ห้อ / รุ่น'), onSort: (i, a) => setState(() { _sortColumnIndex = i; _sortAscending = a; })),
+                                              const DataColumn(label: Text('ประเภท')),
+                                              const DataColumn(label: Text('ปี')),
+                                              const DataColumn(label: Text('คนขับประจำ')),
+                                              const DataColumn(label: Text('เลขไมล์'), numeric: true),
+                                              const DataColumn(label: Text('ประเภทเจ้าของ')),
+                                              const DataColumn(label: Text('สุขภาพ')),
+                                              const DataColumn(label: Text('สถานะ')),
+                                              const DataColumn(label: Text('จัดการ')),
+                                            ],
+                                            rows: pageRows.map((v) => DataRow(
+                                              cells: [
+                                                DataCell(Text(v['plate'] as String? ?? '', style: const TextStyle(fontWeight: FontWeight.w600))),
+                                                DataCell(Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  children: [
+                                                    Text(v['brand'] as String? ?? '', style: const TextStyle(fontSize: 13)),
+                                                    Text(v['model'] as String? ?? '', style: TextStyle(fontSize: 11, color: Colors.grey[500])),
+                                                  ],
+                                                )),
+                                                DataCell(Text(v['type'] as String? ?? '')),
+                                                DataCell(Text('${v['year'] ?? ''}')),
+                                                DataCell(Text(v['driver_name'] as String? ?? v['current_driver_id'] as String? ?? '-')),
+                                                DataCell(Text('${v['mileage_km'] ?? '-'} กม.')),
+                                                DataCell(_OwnershipChip(ownership: v['ownership'] as String? ?? '')),
+                                                DataCell(_HealthDot(health: v['health_status'] as String? ?? 'green')),
+                                                DataCell(_StatusChip(status: v['status'] as String? ?? '')),
+                                                DataCell(Row(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  children: [
+                                                    IconButton(icon: const Icon(Icons.visibility_outlined, size: 18), onPressed: () {}, tooltip: 'ดูรายละเอียด'),
+                                                    IconButton(icon: const Icon(Icons.edit_outlined, size: 18), onPressed: () {}, tooltip: 'แก้ไข'),
+                                                  ],
+                                                )),
+                                              ],
+                                            )).toList(),
+                                          ),
+                                        ),
                             ),
                             // Pagination
                             const Divider(height: 1),
                             Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                               child: Row(
                                 children: [
-                                  Text('แถวต่อหน้า: ', style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant)),
-                                  DropdownButton<int>(
-                                    value: _rowsPerPage,
-                                    underline: const SizedBox(),
-                                    items: [10, 25, 50].map((n) => DropdownMenuItem(value: n, child: Text('$n'))).toList(),
-                                    onChanged: (v) => setState(() { _rowsPerPage = v!; _currentPage = 0; }),
-                                  ),
+                                  if (!isMobile) ...[
+                                    Text('แถวต่อหน้า: ', style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant)),
+                                    DropdownButton<int>(
+                                      value: _rowsPerPage,
+                                      underline: const SizedBox(),
+                                      items: [10, 25, 50].map((n) => DropdownMenuItem(value: n, child: Text('$n'))).toList(),
+                                      onChanged: (v) => setState(() { _rowsPerPage = v!; _currentPage = 0; }),
+                                    ),
+                                  ],
                                   const Spacer(),
-                                  Text('หน้า ${_currentPage + 1} จาก $totalPages', style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant)),
-                                  const SizedBox(width: 8),
+                                  Text('${_currentPage + 1}/$totalPages', style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant)),
                                   IconButton(icon: const Icon(Icons.chevron_left), onPressed: _currentPage > 0 ? () => setState(() => _currentPage--) : null),
                                   IconButton(icon: const Icon(Icons.chevron_right), onPressed: _currentPage < totalPages - 1 ? () => setState(() => _currentPage++) : null),
                                 ],
@@ -228,6 +302,71 @@ class _VehicleListScreenState extends State<VehicleListScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildVehicleCard(BuildContext context, Map<String, dynamic> v) {
+    final cs = Theme.of(context).colorScheme;
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+        side: BorderSide(color: cs.outlineVariant),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: cs.primaryContainer,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(Icons.local_shipping, color: cs.primary, size: 22),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(v['plate'] as String? ?? '', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                      const SizedBox(width: 8),
+                      _HealthDot(health: v['health_status'] as String? ?? 'green'),
+                    ],
+                  ),
+                  Text('${v['brand'] ?? ''} ${v['model'] ?? ''} · ${v['type'] ?? ''}',
+                      style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant)),
+                  const SizedBox(height: 4),
+                  Wrap(
+                    spacing: 6,
+                    children: [
+                      _StatusChip(status: v['status'] as String? ?? ''),
+                      _OwnershipChip(ownership: v['ownership'] as String? ?? ''),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text('${v['mileage_km'] ?? '-'} กม.', style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant)),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(constraints: const BoxConstraints(), padding: const EdgeInsets.all(4), icon: const Icon(Icons.visibility_outlined, size: 18), onPressed: () {}),
+                    IconButton(constraints: const BoxConstraints(), padding: const EdgeInsets.all(4), icon: const Icon(Icons.edit_outlined, size: 18), onPressed: () {}),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

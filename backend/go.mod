@@ -1,4 +1,4 @@
-module bc-fleet
+module sml-fleet
 
 go 1.23
 

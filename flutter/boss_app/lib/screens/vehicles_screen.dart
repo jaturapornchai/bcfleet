@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../app.dart' show Responsive;
 import '../bloc/vehicle_bloc.dart';
 import 'package:fleet_core/models/vehicle.dart';
 
@@ -83,15 +84,16 @@ class _VehiclesScreenState extends State<VehiclesScreen> {
                       ),
                     );
                   }
+                  final cols = Responsive.gridColumns(context, mobile: 1, tablet: 2, desktop: 3);
                   return RefreshIndicator(
                     onRefresh: () async => context.read<VehicleBloc>().add(RefreshVehicles()),
                     child: GridView.builder(
-                      padding: const EdgeInsets.all(12),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
+                      padding: EdgeInsets.all(Responsive.padding(context)),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: cols,
                         crossAxisSpacing: 8,
                         mainAxisSpacing: 8,
-                        childAspectRatio: 1.1,
+                        childAspectRatio: cols == 1 ? 2.8 : 1.1,
                       ),
                       itemCount: vehicles.length,
                       itemBuilder: (context, i) => _VehicleCard(vehicle: vehicles[i]),

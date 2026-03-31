@@ -22,7 +22,7 @@ type Config struct {
 	AccessKey string
 	SecretKey string
 	Bucket    string
-	PublicURL string // e.g. https://files.bcfleet.com
+	PublicURL string // e.g. https://files.smlfleet.com
 }
 
 // Client is the Cloudflare R2 storage client (S3-compatible).

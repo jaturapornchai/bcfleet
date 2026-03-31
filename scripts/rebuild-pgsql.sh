@@ -4,11 +4,11 @@
 
 set -e
 
-echo "=== BC Fleet: Rebuild PostgreSQL from MongoDB ==="
+echo "=== SML Fleet: Rebuild PostgreSQL from MongoDB ==="
 echo ""
 
 # ตรวจสอบ environment variables
-POSTGRES_URI="${POSTGRES_URI:-postgres://bcfleet:bcfleet_password@localhost:5432/bcfleet?sslmode=disable}"
+POSTGRES_URI="${POSTGRES_URI:-postgres://smlfleet:smlfleet_password@localhost:5432/smlfleet?sslmode=disable}"
 
 echo "1. Dropping all fleet_* tables..."
 psql "$POSTGRES_URI" <<'EOF'

@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	"bc-fleet/internal/service"
+	"sml-fleet/internal/service"
 
 	"github.com/gin-gonic/gin"
 )
@@ -216,7 +216,7 @@ func (h *DiscoveryHandler) GetCoverage(c *gin.Context) {
 		return
 	}
 
-	// พื้นที่บริการหลักของ BC Fleet (Northern Thailand)
+	// พื้นที่บริการหลักของ SML Fleet (Northern Thailand)
 	coverage := []map[string]interface{}{
 		{
 			"zone":        "เชียงใหม่",

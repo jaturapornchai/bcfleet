@@ -1,4 +1,4 @@
-# BC Fleet Deployment Guide
+# SML Fleet Deployment Guide
 
 ---
 
@@ -17,8 +17,8 @@
 ## 1. Clone + Setup
 
 ```bash
-git clone https://github.com/bcaisolution/bc-fleet.git
-cd bc-fleet
+git clone https://github.com/bcaisolution/sml-fleet.git
+cd sml-fleet
 
 # Copy env file
 cp .env.example .env
@@ -30,8 +30,8 @@ nano .env
 ### .env ที่ต้องกรอก
 
 ```
-MONGO_URI=mongodb://localhost:27017/bcfleet
-POSTGRES_URI=postgres://bcfleet:bcfleet_password@localhost:5432/bcfleet
+MONGO_URI=mongodb://localhost:27017/smlfleet
+POSTGRES_URI=postgres://smlfleet:smlfleet_password@localhost:5432/smlfleet
 KAFKA_BROKERS=localhost:9092
 LONGDO_MAP_API_KEY=<your_key>
 LINE_CHANNEL_SECRET=<your_secret>
@@ -40,7 +40,7 @@ ANTHROPIC_API_KEY=<your_key>
 R2_ACCOUNT_ID=<your_id>
 R2_ACCESS_KEY=<your_key>
 R2_SECRET_KEY=<your_key>
-R2_BUCKET=bcfleet-files
+R2_BUCKET=smlfleet-files
 JWT_SECRET=<random_32_chars>
 ```
 
@@ -72,7 +72,7 @@ docker compose logs -f kafka
 ./scripts/create-kafka-topics.sh
 
 # หรือรันด้วยตัวเอง
-docker exec bc-fleet-kafka-1 kafka-topics.sh \
+docker exec sml-fleet-kafka-1 kafka-topics.sh \
   --create --bootstrap-server localhost:9092 \
   --topic fleet.vehicles --partitions 3 --replication-factor 1
 
@@ -242,8 +242,8 @@ ngrok http 8080
 
 ## 11. Cloudflare R2 Setup
 
-1. สร้าง R2 bucket ชื่อ `bcfleet-files`
-2. ตั้ง custom domain (เช่น `files.bcfleet.com`)
+1. สร้าง R2 bucket ชื่อ `smlfleet-files`
+2. ตั้ง custom domain (เช่น `files.smlfleet.com`)
 3. สร้าง API token ที่มีสิทธิ์ R2 read/write
 4. กรอกใน `.env`:
 
@@ -251,8 +251,8 @@ ngrok http 8080
 R2_ACCOUNT_ID=xxxxxxxxxxxx
 R2_ACCESS_KEY=xxxxxxxxxxxx
 R2_SECRET_KEY=xxxxxxxxxxxx
-R2_BUCKET=bcfleet-files
-R2_PUBLIC_URL=https://files.bcfleet.com
+R2_BUCKET=smlfleet-files
+R2_PUBLIC_URL=https://files.smlfleet.com
 ```
 
 ---
@@ -270,7 +270,7 @@ psql $POSTGRES_URI -c "SELECT COUNT(*) FROM fleet_vehicles;"
 mongosh $MONGO_URI --eval "db.fleet_vehicles.countDocuments()"
 
 # Kafka topics
-docker exec bc-fleet-kafka-1 kafka-topics.sh \
+docker exec sml-fleet-kafka-1 kafka-topics.sh \
   --list --bootstrap-server localhost:9092
 ```
 
@@ -280,12 +280,12 @@ docker exec bc-fleet-kafka-1 kafka-topics.sh \
 
 ```bash
 # Build + tag + push
-docker build -t ghcr.io/bcai/bcfleet-api:latest ./backend
-docker push ghcr.io/bcai/bcfleet-api:latest
+docker build -t ghcr.io/bcai/smlfleet-api:latest ./backend
+docker push ghcr.io/bcai/smlfleet-api:latest
 
 # Pull + deploy ใน production server
 ssh prod-server
-cd /opt/bc-fleet
+cd /opt/sml-fleet
 docker compose pull
 docker compose up -d --no-build
 ```
@@ -315,7 +315,7 @@ make clean          # Clean build artifacts
 
 ```bash
 # ดู consumer lag
-docker exec bc-fleet-kafka-1 kafka-consumer-groups.sh \
+docker exec sml-fleet-kafka-1 kafka-consumer-groups.sh \
   --bootstrap-server localhost:9092 \
   --group fleet-pgsql-sync --describe
 ```
@@ -331,7 +331,7 @@ docker exec bc-fleet-kafka-1 kafka-consumer-groups.sh \
 
 ```bash
 # ตรวจสอบ topic fleet.gps
-docker exec bc-fleet-kafka-1 kafka-console-consumer.sh \
+docker exec sml-fleet-kafka-1 kafka-console-consumer.sh \
   --bootstrap-server localhost:9092 \
   --topic fleet.gps --from-beginning --max-messages 10
 ```

@@ -15,7 +15,7 @@ const (
 	maxIterations = 10
 	agentTimeout  = 120 * time.Second
 
-	systemPromptThai = `คุณเป็นผู้ช่วย AI ของระบบขนส่ง BC Fleet สำหรับ SME ไทย
+	systemPromptThai = `คุณเป็นผู้ช่วย AI ของระบบขนส่ง SML Fleet สำหรับ SME ไทย
 
 หน้าที่ของคุณ:
 - ตอบคำถามเกี่ยวกับรถขนส่ง คนขับ และเที่ยววิ่ง

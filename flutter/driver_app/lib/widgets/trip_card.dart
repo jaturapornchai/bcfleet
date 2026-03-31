@@ -36,16 +36,21 @@ class TripCard extends StatelessWidget {
             children: [
               // Header row
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text(
-                    tripNo,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                      color: Color(0xFF1565C0),
+                  Expanded(
+                    child: Text(
+                      tripNo,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        color: Color(0xFF1565C0),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
+                  const SizedBox(width: 8),
                   StatusBadge(status: status),
                 ],
               ),
@@ -70,7 +75,7 @@ class TripCard extends StatelessWidget {
                 child: Container(
                   width: 2,
                   height: 16,
-                  color: Colors.grey.shade300,
+                  color: const Color(0xFF9E9E9E),
                   margin: const EdgeInsets.symmetric(vertical: 2),
                 ),
               ),
@@ -92,12 +97,12 @@ class TripCard extends StatelessWidget {
               // Cargo info
               Row(
                 children: [
-                  Icon(Icons.inventory_2_outlined, size: 14, color: Colors.grey.shade600),
+                  const Icon(Icons.inventory_2_outlined, size: 14, color: Color(0xFF616161)),
                   const SizedBox(width: 4),
                   Expanded(
                     child: Text(
                       cargo,
-                      style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                      style: const TextStyle(fontSize: 13, color: Color(0xFF616161)),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -111,22 +116,22 @@ class TripCard extends StatelessWidget {
               Row(
                 children: [
                   if (distance != null) ...[
-                    Icon(Icons.route, size: 14, color: Colors.grey.shade600),
+                    const Icon(Icons.route, size: 14, color: Color(0xFF616161)),
                     const SizedBox(width: 4),
                     Text(
                       '${(distance is num) ? distance.toStringAsFixed(0) : distance} กม.',
-                      style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                      style: const TextStyle(fontSize: 13, color: Color(0xFF616161)),
                     ),
                     const SizedBox(width: 16),
                   ],
                   if (revenue != null) ...[
-                    Icon(Icons.payments_outlined, size: 14, color: Colors.green.shade600),
+                    const Icon(Icons.payments_outlined, size: 14, color: Color(0xFF2E7D32)),
                     const SizedBox(width: 4),
                     Text(
                       '฿${(revenue is num) ? revenue.toStringAsFixed(0) : revenue}',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 13,
-                        color: Colors.green.shade700,
+                        color: Color(0xFF2E7D32),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -152,45 +157,72 @@ class _ActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     String label;
-    Color color;
+    Color bgColor;
+    bool isFilled;
 
     switch (status) {
       case 'pending':
         label = 'รับงาน';
-        color = Colors.orange;
+        bgColor = const Color(0xFFFF8F00);
+        isFilled = true;
         break;
       case 'accepted':
         label = 'เริ่มวิ่ง';
-        color = Colors.blue;
+        bgColor = const Color(0xFF1565C0);
+        isFilled = true;
         break;
       case 'started':
       case 'arrived':
         label = 'ดูรายละเอียด';
-        color = const Color(0xFF1565C0);
+        bgColor = const Color(0xFF1565C0);
+        isFilled = false;
         break;
       case 'completed':
         label = 'ดู POD';
-        color = Colors.green;
+        bgColor = const Color(0xFF2E7D32);
+        isFilled = false;
         break;
       default:
         return const SizedBox.shrink();
     }
 
+    final onTap = () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => TripDetailScreen(trip: trip),
+        ),
+      );
+    };
+
+    if (isFilled) {
+      return SizedBox(
+        height: 32,
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: bgColor,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            minimumSize: Size.zero,
+            elevation: 1,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(6),
+            ),
+          ),
+          onPressed: onTap,
+          child: Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+        ),
+      );
+    }
+
     return TextButton(
       style: TextButton.styleFrom(
-        foregroundColor: color,
+        foregroundColor: bgColor,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         minimumSize: Size.zero,
       ),
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => TripDetailScreen(trip: trip),
-          ),
-        );
-      },
-      child: Text(label, style: const TextStyle(fontSize: 13)),
+      onPressed: onTap,
+      child: Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
     );
   }
 }

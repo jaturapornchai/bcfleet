@@ -4,12 +4,12 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"bc-fleet/internal/database"
-	"bc-fleet/internal/eventlog"
-	"bc-fleet/internal/mcp/fleet_tools"
-	mongorepo "bc-fleet/internal/repository/mongo"
-	pgquery "bc-fleet/internal/repository/postgres"
-	"bc-fleet/internal/service"
+	"sml-fleet/internal/database"
+	"sml-fleet/internal/eventlog"
+	"sml-fleet/internal/mcp/fleet_tools"
+	mongorepo "sml-fleet/internal/repository/mongo"
+	pgquery "sml-fleet/internal/repository/postgres"
+	"sml-fleet/internal/service"
 
 	"github.com/gin-gonic/gin"
 )
@@ -153,7 +153,7 @@ func (s *MCPServer) handleInitialize(c *gin.Context, req MCPRequest) {
 		Result: map[string]interface{}{
 			"protocolVersion": "2024-11-05",
 			"serverInfo": map[string]interface{}{
-				"name":    "bc-fleet-mcp",
+				"name":    "sml-fleet-mcp",
 				"version": "1.0.0",
 			},
 			"capabilities": map[string]interface{}{

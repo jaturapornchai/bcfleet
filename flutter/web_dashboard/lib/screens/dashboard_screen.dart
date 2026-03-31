@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-const _apiBase = 'https://bcfleet.satistang.com/api/v1/fleet';
+const _apiBase = 'https://smlfleet.satistang.com/api/v1/fleet';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -97,93 +97,120 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final width = MediaQuery.of(context).size.width;
+    final isMobile = width < 600;
+    final isTablet = width >= 600 && width < 1024;
+    final padding = isMobile ? 16.0 : 24.0;
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(padding),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header
           Row(
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('แดชบอร์ดภาพรวม', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
-                  Text('BC Fleet — ข้อมูลจาก API จริง', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
-                ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('แดชบอร์ดภาพรวม', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                    Text('SML Fleet — ข้อมูลจาก API จริง', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
+                  ],
+                ),
               ),
-              const Spacer(),
               if (_loading)
-                const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2)),
-              const SizedBox(width: 12),
+                const Padding(
+                  padding: EdgeInsets.only(right: 8),
+                  child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+                ),
               FilledButton.icon(
                 onPressed: _loadData,
-                icon: const Icon(Icons.refresh, size: 18),
-                label: const Text('รีเฟรช'),
+                icon: const Icon(Icons.refresh, size: 16),
+                label: isMobile ? const SizedBox.shrink() : const Text('รีเฟรช'),
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: isMobile ? 16 : 24),
 
-          // KPI Cards Row
-          Row(
-            children: _kpiData.map((k) => Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(right: 16),
-                child: _buildKpiCard(context, k),
-              ),
-            )).toList(),
-          ),
-          const SizedBox(height: 24),
-
-          // Charts + Alerts row
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Chart 1 — placeholder
-              Expanded(
-                flex: 3,
-                child: _buildChartPlaceholder(
-                  context,
-                  title: 'เที่ยววิ่งรายสัปดาห์',
-                  subtitle: '7 วันที่ผ่านมา',
-                  height: 220,
-                  icon: Icons.bar_chart,
-                  color: cs.primary,
+          // KPI Cards — 2 cols on mobile, 4 cols on tablet+
+          if (isMobile)
+            GridView.count(
+              crossAxisCount: 2,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 1.4,
+              children: _kpiData.map((k) => _buildKpiCard(context, k, compact: true)).toList(),
+            )
+          else
+            Row(
+              children: _kpiData.map((k) => Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 16),
+                  child: _buildKpiCard(context, k, compact: false),
                 ),
-              ),
-              const SizedBox(width: 16),
-              // Chart 2 — placeholder
-              Expanded(
-                flex: 2,
-                child: _buildChartPlaceholder(
-                  context,
-                  title: 'สัดส่วนต้นทุน',
-                  subtitle: 'เดือนปัจจุบัน',
-                  height: 220,
-                  icon: Icons.pie_chart,
-                  color: cs.tertiary,
-                ),
-              ),
-              const SizedBox(width: 16),
-              // Alerts sidebar
-              SizedBox(
-                width: 300,
-                child: _buildAlertsCard(context),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
+              )).toList(),
+            ),
+          SizedBox(height: isMobile ? 16 : 24),
 
-          // Recent Trips Table
+          // Charts + Alerts
+          if (isMobile) ...[
+            // Mobile: stack vertically, charts scrollable
+            _buildChartPlaceholder(context, title: 'เที่ยววิ่งรายสัปดาห์', subtitle: '7 วันที่ผ่านมา', height: 180, icon: Icons.bar_chart, color: cs.primary),
+            const SizedBox(height: 12),
+            _buildChartPlaceholder(context, title: 'สัดส่วนต้นทุน', subtitle: 'เดือนปัจจุบัน', height: 180, icon: Icons.pie_chart, color: cs.tertiary),
+            const SizedBox(height: 12),
+            _buildAlertsCard(context),
+          ] else if (isTablet) ...[
+            // Tablet: 2 charts side by side, alerts below
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: _buildChartPlaceholder(context, title: 'เที่ยววิ่งรายสัปดาห์', subtitle: '7 วันที่ผ่านมา', height: 200, icon: Icons.bar_chart, color: cs.primary),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildChartPlaceholder(context, title: 'สัดส่วนต้นทุน', subtitle: 'เดือนปัจจุบัน', height: 200, icon: Icons.pie_chart, color: cs.tertiary),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            _buildAlertsCard(context),
+          ] else ...[
+            // Desktop: charts + alerts side by side
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: _buildChartPlaceholder(context, title: 'เที่ยววิ่งรายสัปดาห์', subtitle: '7 วันที่ผ่านมา', height: 220, icon: Icons.bar_chart, color: cs.primary),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  flex: 2,
+                  child: _buildChartPlaceholder(context, title: 'สัดส่วนต้นทุน', subtitle: 'เดือนปัจจุบัน', height: 220, icon: Icons.pie_chart, color: cs.tertiary),
+                ),
+                const SizedBox(width: 16),
+                SizedBox(width: 280, child: _buildAlertsCard(context)),
+              ],
+            ),
+          ],
+          SizedBox(height: isMobile ? 16 : 24),
+
+          // Recent Trips
           _buildRecentTripsTable(context),
         ],
       ),
     );
   }
 
-  Widget _buildKpiCard(BuildContext context, _KpiCard k) {
+  Widget _buildKpiCard(BuildContext context, _KpiCard k, {bool compact = false}) {
+    final pad = compact ? 12.0 : 20.0;
+    final iconSize = compact ? 36.0 : 48.0;
+    final valueSize = compact ? 20.0 : 24.0;
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -191,31 +218,58 @@ class _DashboardScreenState extends State<DashboardScreen> {
         side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Row(
-          children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: k.color.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(k.icon, color: k.color, size: 26),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
+        padding: EdgeInsets.all(pad),
+        child: compact
+            ? Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(k.label, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
-                  Text(k.value, style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: k.color)),
-                  Text(k.sub, style: TextStyle(fontSize: 11, color: Colors.grey[500])),
+                  Row(
+                    children: [
+                      Container(
+                        width: iconSize,
+                        height: iconSize,
+                        decoration: BoxDecoration(
+                          color: k.color.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(k.icon, color: k.color, size: 20),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(k.label, style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(k.value, style: TextStyle(fontSize: valueSize, fontWeight: FontWeight.bold, color: k.color)),
+                  Text(k.sub, style: TextStyle(fontSize: 10, color: Colors.grey[500])),
+                ],
+              )
+            : Row(
+                children: [
+                  Container(
+                    width: iconSize,
+                    height: iconSize,
+                    decoration: BoxDecoration(
+                      color: k.color.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(k.icon, color: k.color, size: 26),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(k.label, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+                        Text(k.value, style: TextStyle(fontSize: valueSize, fontWeight: FontWeight.bold, color: k.color)),
+                        Text(k.sub, style: TextStyle(fontSize: 11, color: Colors.grey[500])),
+                      ],
+                    ),
+                  ),
                 ],
               ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -353,6 +407,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildRecentTripsTable(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final isMobile = MediaQuery.of(context).size.width < 600;
+
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -360,7 +416,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         side: BorderSide(color: cs.outlineVariant),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(isMobile ? 12 : 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -384,65 +440,127 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 padding: EdgeInsets.all(32),
                 child: Text('ไม่มีข้อมูลเที่ยววิ่ง', style: TextStyle(color: Colors.grey)),
               ))
+            else if (isMobile)
+              // Mobile: card list
+              Column(
+                children: _recentTrips.map((t) => _buildTripCard(context, t)).toList(),
+              )
             else
-              Table(
-                columnWidths: const {
-                  0: FlexColumnWidth(2),
-                  1: FlexColumnWidth(2),
-                  2: FlexColumnWidth(2),
-                  3: FlexColumnWidth(2),
-                  4: FlexColumnWidth(1.5),
-                  5: FlexColumnWidth(1.5),
-                },
-                children: [
-                  TableRow(
-                    decoration: BoxDecoration(color: cs.surfaceContainerLow, borderRadius: BorderRadius.circular(6)),
-                    children: ['เลขที่เที่ยว', 'ต้นทาง', 'ปลายทาง', 'คนขับ / รถ', 'สถานะ', 'รายได้']
-                        .map((h) => Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                              child: Text(h, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12)),
-                            ))
-                        .toList(),
-                  ),
-                  ..._recentTrips.map((t) {
-                    final origin = (t['origin'] as Map?)
-                      ?? {'name': t['origin_name'] ?? ''};
-                    final destinations = t['destinations'] as List?;
-                    final dest = destinations?.isNotEmpty == true
-                        ? (destinations!.first as Map?)
-                        : null;
-                    final driverName = t['driver_name'] ?? t['driver_id'] ?? '';
-                    final plate = t['vehicle_plate'] ?? t['vehicle_id'] ?? '';
-                    final status = t['status'] as String? ?? '';
-                    final revenue = t['costs']?['revenue'] ?? t['revenue'] ?? '';
-                    return TableRow(
-                      decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Color(0xFFEEEEEE)))),
-                      children: [
-                        _cell(t['trip_no'] as String? ?? ''),
-                        _cell(origin['name'] as String? ?? ''),
-                        _cell(dest?['name'] as String? ?? ''),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(driverName.toString(), style: const TextStyle(fontSize: 12)),
-                              Text(plate.toString(), style: TextStyle(fontSize: 11, color: Colors.grey[500])),
-                            ],
+              // Tablet/Desktop: table (horizontal scroll)
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Table(
+                  defaultColumnWidth: const IntrinsicColumnWidth(),
+                  children: [
+                    TableRow(
+                      decoration: BoxDecoration(color: cs.surfaceContainerLow, borderRadius: BorderRadius.circular(6)),
+                      children: ['เลขที่เที่ยว', 'ต้นทาง', 'ปลายทาง', 'คนขับ / รถ', 'สถานะ', 'รายได้']
+                          .map((h) => Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                child: Text(h, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12)),
+                              ))
+                          .toList(),
+                    ),
+                    ..._recentTrips.map((t) {
+                      final origin = (t['origin'] as Map?) ?? {'name': t['origin_name'] ?? ''};
+                      final destinations = t['destinations'] as List?;
+                      final dest = destinations?.isNotEmpty == true ? (destinations!.first as Map?) : null;
+                      final driverName = t['driver_name'] ?? t['driver_id'] ?? '';
+                      final plate = t['vehicle_plate'] ?? t['vehicle_id'] ?? '';
+                      final status = t['status'] as String? ?? '';
+                      final revenue = t['costs']?['revenue'] ?? t['revenue'] ?? '';
+                      return TableRow(
+                        decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Color(0xFFEEEEEE)))),
+                        children: [
+                          _cell(t['trip_no'] as String? ?? ''),
+                          _cell(origin['name'] as String? ?? ''),
+                          _cell(dest?['name'] as String? ?? ''),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(driverName.toString(), style: const TextStyle(fontSize: 12)),
+                                Text(plate.toString(), style: TextStyle(fontSize: 11, color: Colors.grey[500])),
+                              ],
+                            ),
                           ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                          child: _StatusBadge(status: status),
-                        ),
-                        _cell(revenue != '' ? '฿$revenue' : '-'),
-                      ],
-                    );
-                  }),
-                ],
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                            child: _StatusBadge(status: status),
+                          ),
+                          _cell(revenue != '' ? '฿$revenue' : '-'),
+                        ],
+                      );
+                    }),
+                  ],
+                ),
               ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildTripCard(BuildContext context, Map<String, dynamic> t) {
+    final cs = Theme.of(context).colorScheme;
+    final origin = (t['origin'] as Map?) ?? {'name': t['origin_name'] ?? ''};
+    final destinations = t['destinations'] as List?;
+    final dest = destinations?.isNotEmpty == true ? (destinations!.first as Map?) : null;
+    final driverName = t['driver_name'] ?? t['driver_id'] ?? '-';
+    final plate = t['vehicle_plate'] ?? t['vehicle_id'] ?? '-';
+    final status = t['status'] as String? ?? '';
+    final revenue = t['costs']?['revenue'] ?? t['revenue'] ?? '';
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        border: Border.all(color: cs.outlineVariant),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(t['trip_no'] as String? ?? '', style: const TextStyle(fontSize: 12, fontFamily: 'monospace', fontWeight: FontWeight.w600)),
+              ),
+              _StatusBadge(status: status),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Row(
+            children: [
+              const Icon(Icons.circle, size: 8, color: Colors.green),
+              const SizedBox(width: 6),
+              Expanded(child: Text(origin['name'] as String? ?? '', style: const TextStyle(fontSize: 12))),
+            ],
+          ),
+          const SizedBox(height: 2),
+          Row(
+            children: [
+              const Icon(Icons.location_on, size: 8, color: Colors.red),
+              const SizedBox(width: 6),
+              Expanded(child: Text(dest?['name'] as String? ?? '-', style: const TextStyle(fontSize: 12))),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Row(
+            children: [
+              Icon(Icons.person_outline, size: 14, color: Colors.grey[500]),
+              const SizedBox(width: 4),
+              Text(driverName.toString(), style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+              const SizedBox(width: 8),
+              Icon(Icons.local_shipping_outlined, size: 14, color: Colors.grey[500]),
+              const SizedBox(width: 4),
+              Text(plate.toString(), style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+              const Spacer(),
+              if (revenue != '')
+                Text('฿$revenue', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF2E7D32))),
+            ],
+          ),
+        ],
       ),
     );
   }

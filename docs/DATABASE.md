@@ -1,4 +1,4 @@
-# BC Fleet Database Schema
+# SML Fleet Database Schema
 
 ## Architecture
 

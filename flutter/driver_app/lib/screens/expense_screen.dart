@@ -212,17 +212,26 @@ class _ExpenseScreenState extends State<ExpenseScreen> {
             ),
             const SizedBox(height: 24),
 
-            ElevatedButton.icon(
-              onPressed: _isSaving ? null : _save,
-              icon: _isSaving
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                          strokeWidth: 2, color: Colors.white),
-                    )
-                  : const Icon(Icons.save),
-              label: Text(_isSaving ? 'กำลังบันทึก...' : 'บันทึก'),
+            SafeArea(
+              top: false,
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: _isSaving ? null : _save,
+                  icon: _isSaving
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2, color: Colors.white),
+                        )
+                      : const Icon(Icons.save),
+                  label: Text(_isSaving ? 'กำลังบันทึก...' : 'บันทึก'),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 52),
+                  ),
+                ),
+              ),
             ),
           ],
         ),

@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"bc-fleet/internal/database"
+	"sml-fleet/internal/database"
 )
 
 type ReportQuery struct {

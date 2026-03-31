@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../app.dart' show Responsive;
 import '../bloc/alert_bloc.dart';
 
 class AlertsScreen extends StatefulWidget {
@@ -55,7 +56,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
             return RefreshIndicator(
               onRefresh: () async => context.read<AlertBloc>().add(RefreshAlerts()),
               child: ListView(
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(Responsive.padding(context)),
                 children: [
                   if (active.isNotEmpty) ...[
                     Padding(

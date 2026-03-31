@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:http/http.dart' as http;
+// ignore: unused_import — used in build() for Responsive.isMobile
+import '../app.dart' show Responsive;
 
-const _apiBase = 'https://bcfleet.satistang.com/api/v1/fleet';
+const _apiBase = 'https://smlfleet.satistang.com/api/v1/fleet';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -120,93 +122,200 @@ class _MapScreenState extends State<MapScreen> {
     return markers;
   }
 
+  void _selectVehicle(String id) {
+    setState(() => _selectedVehicleId = id);
+    final v = _vehicles.firstWhere((v) => v['id'] == id, orElse: () => {});
+    final lat = v['current_lat'];
+    final lng = v['current_lng'];
+    if (lat != null && lng != null) {
+      _mapController.move(
+        LatLng((lat as num).toDouble(), (lng as num).toDouble()),
+        14.0,
+      );
+    }
+  }
+
+  void _showVehicleListSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: 0.5,
+        minChildSize: 0.25,
+        maxChildSize: 0.85,
+        builder: (_, scrollController) => Column(
+          children: [
+            const SizedBox(height: 8),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+              child: Row(
+                children: [
+                  Text('รายการรถ (${_vehicles.length} คัน)',
+                      style: Theme.of(context).textTheme.titleSmall
+                          ?.copyWith(fontWeight: FontWeight.bold)),
+                ],
+              ),
+            ),
+            Expanded(
+              child: ListView.builder(
+                controller: scrollController,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                itemCount: _vehicles.length,
+                itemBuilder: (context, i) {
+                  final v = _vehicles[i];
+                  final id = v['id'] as String? ?? '';
+                  final isSelected = id == _selectedVehicleId;
+                  return ListTile(
+                    dense: true,
+                    selected: isSelected,
+                    leading: Container(
+                      width: 10,
+                      height: 10,
+                      decoration: BoxDecoration(
+                        color: _healthColor(v['health_status'] as String?),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    title: Text(v['plate'] as String? ?? '-',
+                        style: const TextStyle(fontWeight: FontWeight.bold)),
+                    subtitle: Text('${v['type'] ?? '-'} · ${v['brand'] ?? ''}'),
+                    trailing: v['current_lat'] != null
+                        ? const Icon(Icons.location_on, size: 16, color: Colors.green)
+                        : const Icon(Icons.location_off, size: 16, color: Colors.grey),
+                    onTap: () {
+                      Navigator.pop(context);
+                      _selectVehicle(id);
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isMobile = Responsive.isMobile(context);
     final markers = _buildMarkers();
 
+    final mapWidget = _loading
+        ? const Center(child: CircularProgressIndicator())
+        : FlutterMap(
+            mapController: _mapController,
+            options: const MapOptions(
+              initialCenter: LatLng(18.7883, 98.9853),
+              initialZoom: 11.0,
+            ),
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'com.smlfleet.boss',
+              ),
+              MarkerLayer(markers: markers),
+              RichAttributionWidget(
+                attributions: [
+                  TextSourceAttribution('OpenStreetMap contributors', onTap: () {}),
+                ],
+              ),
+            ],
+          );
+
+    final statusBar = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      color: theme.cardColor,
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              'รถทั้งหมด ${_vehicles.length} คัน  •  บนแผนที่ ${markers.length} คัน',
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          if (_loading)
+            const SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+        ],
+      ),
+    );
+
+    if (isMobile) {
+      // Mobile: full screen map + FAB to open vehicle list bottom sheet
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('แผนที่รถ Real-time'),
+          actions: [
+            IconButton(icon: const Icon(Icons.refresh_rounded), onPressed: _loadVehicles),
+          ],
+        ),
+        body: Stack(
+          children: [
+            Positioned.fill(child: mapWidget),
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: statusBar,
+            ),
+          ],
+        ),
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () => _showVehicleListSheet(context),
+          icon: const Icon(Icons.list_rounded),
+          label: Text('รายการรถ (${_vehicles.length})'),
+        ),
+      );
+    }
+
+    // Tablet / Desktop: map + side panel
     return Scaffold(
       appBar: AppBar(
         title: const Text('แผนที่รถ Real-time'),
         actions: [
-          IconButton(
-              icon: const Icon(Icons.refresh_rounded), onPressed: _loadVehicles),
+          IconButton(icon: const Icon(Icons.refresh_rounded), onPressed: _loadVehicles),
         ],
       ),
-      body: Column(
+      body: Row(
         children: [
-          // Map
-          Expanded(
-            flex: 3,
-            child: _loading
-                ? const Center(child: CircularProgressIndicator())
-                : FlutterMap(
-                    mapController: _mapController,
-                    options: const MapOptions(
-                      initialCenter: LatLng(18.7883, 98.9853),
-                      initialZoom: 11.0,
-                    ),
-                    children: [
-                      TileLayer(
-                        urlTemplate:
-                            'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                        userAgentPackageName: 'com.bcfleet.boss',
-                      ),
-                      MarkerLayer(markers: markers),
-                      RichAttributionWidget(
-                        attributions: [
-                          TextSourceAttribution(
-                              'OpenStreetMap contributors',
-                              onTap: () {}),
-                        ],
-                      ),
-                    ],
-                  ),
-          ),
-
-          // Bottom bar
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            color: theme.cardColor,
-            child: Row(
+          // Vehicle list side panel
+          SizedBox(
+            width: 260,
+            child: Column(
               children: [
-                Text(
-                  'รถทั้งหมด ${_vehicles.length} คัน  •  แสดงบนแผนที่ ${markers.length} คัน',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+                statusBar,
+                Expanded(
+                  child: _VehicleListPanel(
+                    vehicles: _vehicles,
+                    selectedId: _selectedVehicleId,
+                    onSelect: _selectVehicle,
+                    healthColor: _healthColor,
+                  ),
                 ),
-                const Spacer(),
-                if (_loading)
-                  const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2)),
               ],
             ),
           ),
-
-          // Vehicle list panel
-          Expanded(
-            flex: 2,
-            child: _VehicleListPanel(
-              vehicles: _vehicles,
-              selectedId: _selectedVehicleId,
-              onSelect: (id) {
-                setState(() => _selectedVehicleId = id);
-                // Move map to selected vehicle
-                final v = _vehicles.firstWhere((v) => v['id'] == id,
-                    orElse: () => {});
-                final lat = v['current_lat'];
-                final lng = v['current_lng'];
-                if (lat != null && lng != null) {
-                  _mapController.move(
-                      LatLng(
-                          (lat as num).toDouble(), (lng as num).toDouble()),
-                      14.0);
-                }
-              },
-              healthColor: _healthColor,
-            ),
-          ),
+          const VerticalDivider(width: 1),
+          // Map fills remaining space
+          Expanded(child: mapWidget),
         ],
       ),
     );

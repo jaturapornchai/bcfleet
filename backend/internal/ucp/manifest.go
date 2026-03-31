@@ -45,7 +45,7 @@ func GetManifest(shopName string) map[string]interface{} {
 // GetAgentCard คืน A2A Agent Card JSON
 func GetAgentCard(baseURL string) map[string]interface{} {
 	return map[string]interface{}{
-		"name":        "BC Fleet Transport Agent",
+		"name":        "SML Fleet Transport Agent",
 		"description": "จัดการรถขนส่งสำหรับ SME ไทย — จอง ติดตาม และรับ POD",
 		"url":         baseURL + "/a2a",
 		"version":     "1.0",

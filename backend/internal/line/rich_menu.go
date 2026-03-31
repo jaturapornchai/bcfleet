@@ -62,7 +62,7 @@ type richMenuClient struct {
 	httpClient   *http.Client
 }
 
-// CreateDefaultRichMenu สร้าง Rich Menu มาตรฐาน 3x2 สำหรับ BC Fleet
+// CreateDefaultRichMenu สร้าง Rich Menu มาตรฐาน 3x2 สำหรับ SML Fleet
 //
 // Layout (3x2 grid, 2500x1686 px):
 //
@@ -81,7 +81,7 @@ func CreateDefaultRichMenu(client *MessagingClient) error {
 	menu := RichMenuRequest{
 		Size:        RichMenuSize{Width: 2500, Height: 1686},
 		Selected:    true,
-		Name:        "BC Fleet Main Menu",
+		Name:        "SML Fleet Main Menu",
 		ChatBarText: "เมนูหลัก",
 		Areas: []RichMenuArea{
 			// Row 1

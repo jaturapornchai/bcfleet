@@ -3,7 +3,7 @@ package postgres
 import (
 	"context"
 
-	"bc-fleet/internal/database"
+	"sml-fleet/internal/database"
 )
 
 type DashboardQuery struct {

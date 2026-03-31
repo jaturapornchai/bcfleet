@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"bc-fleet/internal/database"
-	"bc-fleet/internal/models"
+	"sml-fleet/internal/database"
+	"sml-fleet/internal/models"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"

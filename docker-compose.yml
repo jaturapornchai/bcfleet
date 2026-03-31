@@ -1,66 +1,21 @@
 version: '3.8'
 
 services:
-  # MongoDB — Source of Truth
-  mongodb:
-    image: mongo:7
-    container_name: bcfleet-mongodb
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongodb_data:/data/db
-    environment:
-      MONGO_INITDB_DATABASE: bcfleet
-    restart: unless-stopped
-
-  # PostgreSQL — Query Layer (rebuildable จาก MongoDB)
-  postgres:
-    image: postgres:16-alpine
-    container_name: bcfleet-postgres
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./backend/migrations/postgres:/docker-entrypoint-initdb.d
-    environment:
-      POSTGRES_DB: bcfleet
-      POSTGRES_USER: bcfleet
-      POSTGRES_PASSWORD: bcfleet_password
-    restart: unless-stopped
-
-  # Kafka (KRaft mode — ไม่ต้อง Zookeeper)
-  kafka:
-    image: apache/kafka:3.7.0
-    container_name: bcfleet-kafka
-    ports:
-      - "9094:9094"
-    environment:
-      KAFKA_NODE_ID: 1
-      KAFKA_PROCESS_ROLES: broker,controller
-      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9094,CONTROLLER://0.0.0.0:9095
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9094
-      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9095
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_LOG_RETENTION_HOURS: 720
-    volumes:
-      - kafka_data:/var/lib/kafka/data
-    restart: unless-stopped
-
-  # Go API Server
+  # Go API Server (SML Fleet)
   api:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: bcfleet-api
+    container_name: smlfleet-api
     ports:
-      - "8081:8080"
-    depends_on:
-      - mongodb
-      - postgres
-      - kafka
+      - "8082:8080"
+    networks:
+      - smlfleet
+      - bcfleet_bcfleet
     env_file:
       - .env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     command: ["./api"]
     restart: unless-stopped
 
@@ -69,17 +24,19 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: bcfleet-kafka-consumer
-    depends_on:
-      - mongodb
-      - postgres
-      - kafka
+    container_name: smlfleet-kafka-consumer
+    networks:
+      - smlfleet
+      - bcfleet_bcfleet
     env_file:
       - .env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     command: ["./kafka-consumer"]
     restart: unless-stopped
 
-volumes:
-  mongodb_data:
-  postgres_data:
-  kafka_data:
+networks:
+  smlfleet:
+    driver: bridge
+  bcfleet_bcfleet:
+    external: true

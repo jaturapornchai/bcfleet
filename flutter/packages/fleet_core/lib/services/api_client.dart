@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 
-/// FleetApiClient — HTTP client สำหรับเชื่อมต่อ BC Fleet API
+/// FleetApiClient — HTTP client สำหรับเชื่อมต่อ SML Fleet API
 class FleetApiClient {
   final Dio _dio;
 

@@ -84,7 +84,7 @@ class _TripListPage extends StatelessWidget {
       length: 3,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('BC Fleet Driver'),
+          title: const Text('SML Fleet Driver'),
           actions: [
             IconButton(
               icon: const Icon(Icons.notifications_outlined),
@@ -112,9 +112,14 @@ class _TripListPage extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                    Icon(Icons.error_outline, size: 48,
+                        color: Theme.of(context).colorScheme.error),
                     const SizedBox(height: 8),
-                    Text(state.message),
+                    Text(state.message,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontSize: 15,
+                        )),
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () => context.read<TripBloc>().add(LoadTrips()),
@@ -136,11 +141,54 @@ class _TripListPage extends StatelessWidget {
                   .where((t) => ['completed', 'cancelled'].contains(t['status']))
                   .toList();
 
-              return TabBarView(
+              return Column(
                 children: [
-                  _TripTab(trips: pending, emptyText: 'ไม่มีงานรอรับ'),
-                  _TripTab(trips: inProgress, emptyText: 'ไม่มีงานที่กำลังวิ่ง'),
-                  _TripTab(trips: completed, emptyText: 'ยังไม่มีงานที่เสร็จวันนี้'),
+                  // Summary header
+                  Container(
+                    width: double.infinity,
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Color(0xFF1565C0), Color(0xFF0D47A1)],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                    ),
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                    child: Row(
+                      children: [
+                        _SummaryChip(
+                          icon: Icons.pending_actions,
+                          count: pending.length,
+                          label: 'รอรับ',
+                          color: const Color(0xFFFF8F00),
+                        ),
+                        const SizedBox(width: 12),
+                        _SummaryChip(
+                          icon: Icons.local_shipping,
+                          count: inProgress.length,
+                          label: 'กำลังวิ่ง',
+                          color: const Color(0xFF00897B),
+                        ),
+                        const SizedBox(width: 12),
+                        _SummaryChip(
+                          icon: Icons.check_circle,
+                          count: completed.length,
+                          label: 'เสร็จแล้ว',
+                          color: const Color(0xFF2E7D32),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Trip tabs
+                  Expanded(
+                    child: TabBarView(
+                      children: [
+                        _TripTab(trips: pending, emptyText: 'ไม่มีงานรอรับ'),
+                        _TripTab(trips: inProgress, emptyText: 'ไม่มีงานที่กำลังวิ่ง'),
+                        _TripTab(trips: completed, emptyText: 'ยังไม่มีงานที่เสร็จวันนี้'),
+                      ],
+                    ),
+                  ),
                 ],
               );
             }
@@ -166,10 +214,10 @@ class _TripTab extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.local_shipping_outlined,
-                size: 64, color: Colors.grey[400]),
+                size: 64, color: const Color(0xFF9E9E9E)),
             const SizedBox(height: 12),
             Text(emptyText,
-                style: TextStyle(color: Colors.grey[600], fontSize: 16)),
+                style: const TextStyle(color: Color(0xFF757575), fontSize: 16)),
           ],
         ),
       );
@@ -182,6 +230,59 @@ class _TripTab extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         itemCount: trips.length,
         itemBuilder: (context, index) => TripCard(trip: trips[index]),
+      ),
+    );
+  }
+}
+
+class _SummaryChip extends StatelessWidget {
+  final IconData icon;
+  final int count;
+  final String label;
+  final Color color;
+
+  const _SummaryChip({
+    required this.icon,
+    required this.count,
+    required this.label,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.15),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.25),
+          ),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: color, size: 22),
+            const SizedBox(height: 4),
+            Text(
+              '$count',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text(
+              label,
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.9),
+                fontSize: 12,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
       ),
     );
   }

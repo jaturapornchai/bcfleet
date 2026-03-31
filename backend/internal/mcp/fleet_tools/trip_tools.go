@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"bc-fleet/internal/models"
-	"bc-fleet/internal/service"
+	"sml-fleet/internal/models"
+	"sml-fleet/internal/service"
 )
 
 // RegisterTripTools ลงทะเบียน trip tools ทั้งหมด (8 tools)

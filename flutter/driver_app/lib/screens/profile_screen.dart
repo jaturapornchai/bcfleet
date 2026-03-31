@@ -347,12 +347,16 @@ class _InfoTile extends StatelessWidget {
         children: [
           Icon(icon, size: 18, color: Colors.grey.shade500),
           const SizedBox(width: 12),
-          SizedBox(
-            width: 110,
-            child: Text(label,
-                style: TextStyle(
-                    fontSize: 13, color: Colors.grey.shade600)),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 110),
+            child: Text(
+              label,
+              style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
+          const SizedBox(width: 8),
           Expanded(
             child: Text(
               value,
@@ -361,6 +365,8 @@ class _InfoTile extends StatelessWidget {
                 fontWeight: FontWeight.w500,
                 color: valueColor,
               ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],

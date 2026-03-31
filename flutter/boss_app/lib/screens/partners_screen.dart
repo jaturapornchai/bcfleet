@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../app.dart' show Responsive;
 import '../bloc/partner_bloc.dart';
 import 'package:fleet_core/models/partner_vehicle.dart';
 
@@ -61,7 +62,7 @@ class _PartnersScreenState extends State<PartnersScreen> {
             return RefreshIndicator(
               onRefresh: () async => context.read<PartnerBloc>().add(RefreshPartners()),
               child: ListView.builder(
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(Responsive.padding(context)),
                 itemCount: state.partners.length,
                 itemBuilder: (context, i) => _PartnerCard(partner: state.partners[i]),
               ),

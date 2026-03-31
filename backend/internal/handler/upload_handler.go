@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"bc-fleet/internal/r2"
+	"sml-fleet/internal/r2"
 
 	"github.com/gin-gonic/gin"
 )

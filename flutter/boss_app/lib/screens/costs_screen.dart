@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../app.dart' show Responsive;
 import '../bloc/dashboard_bloc.dart';
 import '../widgets/cost_chart.dart';
 
@@ -49,45 +50,47 @@ class _CostsContent extends StatelessWidget {
     final theme = Theme.of(context);
     final t = state.todayTrips;
 
+    final pad = Responsive.padding(context);
+    final cols = Responsive.gridColumns(context, mobile: 2, tablet: 4, desktop: 4);
+
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(pad),
       children: [
-        // Summary cards
-        Row(
+        // Summary cards — 2 cols mobile, 4 cols tablet/desktop
+        GridView.count(
+          crossAxisCount: cols,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
+          childAspectRatio: cols == 2 ? 1.6 : 1.8,
           children: [
-            Expanded(child: _SummaryCard(
+            _SummaryCard(
               label: 'รายได้วันนี้',
               value: '฿${_formatCurrency(t.totalRevenue)}',
               icon: Icons.payments_rounded,
               color: Colors.green,
-            )),
-            const SizedBox(width: 8),
-            Expanded(child: _SummaryCard(
+            ),
+            _SummaryCard(
               label: 'ต้นทุนวันนี้',
               value: '฿${_formatCurrency(t.totalCost)}',
               icon: Icons.receipt_long_rounded,
               color: Colors.red,
-            )),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            Expanded(child: _SummaryCard(
+            ),
+            _SummaryCard(
               label: 'กำไรวันนี้',
               value: '฿${_formatCurrency(t.totalProfit)}',
               icon: Icons.trending_up_rounded,
               color: Colors.indigo,
-            )),
-            const SizedBox(width: 8),
-            Expanded(child: _SummaryCard(
+            ),
+            _SummaryCard(
               label: 'อัตรากำไร',
               value: t.totalRevenue > 0
                   ? '${(t.totalProfit / t.totalRevenue * 100).toStringAsFixed(1)}%'
                   : '0%',
               icon: Icons.percent_rounded,
               color: Colors.teal,
-            )),
+            ),
           ],
         ),
         const SizedBox(height: 16),
@@ -146,28 +149,25 @@ class _CostsContent extends StatelessWidget {
                 Text('สรุปน้ำมันเดือนนี้',
                     style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 12),
-                Row(
+                // Wrap ป้องกัน overflow บน mobile จอแคบ
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
                   children: [
-                    Expanded(
-                      child: _FuelStatItem(
-                        label: 'ปริมาณรวม',
-                        value: '1,240 ลิตร',
-                        icon: Icons.local_gas_station_rounded,
-                      ),
+                    _FuelStatItem(
+                      label: 'ปริมาณรวม',
+                      value: '1,240 ลิตร',
+                      icon: Icons.local_gas_station_rounded,
                     ),
-                    Expanded(
-                      child: _FuelStatItem(
-                        label: 'ค่าเฉลี่ย',
-                        value: '฿28.5/ลิตร',
-                        icon: Icons.attach_money_rounded,
-                      ),
+                    _FuelStatItem(
+                      label: 'ค่าเฉลี่ย',
+                      value: '฿28.5/ลิตร',
+                      icon: Icons.attach_money_rounded,
                     ),
-                    Expanded(
-                      child: _FuelStatItem(
-                        label: 'ประสิทธิภาพ',
-                        value: '5.2 km/L',
-                        icon: Icons.speed_rounded,
-                      ),
+                    _FuelStatItem(
+                      label: 'ประสิทธิภาพ',
+                      value: '5.2 km/L',
+                      icon: Icons.speed_rounded,
                     ),
                   ],
                 ),

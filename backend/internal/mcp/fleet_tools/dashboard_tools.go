@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"bc-fleet/internal/service"
+	"sml-fleet/internal/service"
 )
 
 // RegisterDashboardTools ลงทะเบียน dashboard tools ทั้งหมด (6 tools)

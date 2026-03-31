@@ -1,19 +1,19 @@
-# 🚛 BC Fleet — ระบบควบคุมรถขนส่งครบวงจรสำหรับ SME ไทย
+# 🚛 SML Fleet — ระบบควบคุมรถขนส่งครบวงจรสำหรับ SME ไทย
 
 > โมดูลขยายจาก BC Account ERP — บริหารจัดการรถ คนขับ เที่ยววิ่ง ซ่อมบำรุง รถร่วม ต้นทุน ทั้งหมดในที่เดียว
 
 ## 🌐 Demo
 
-**https://bcfleet.satistang.com**
+**https://smlfleet.satistang.com**
 
 | URL | ระบบ | สำหรับ |
 |-----|------|--------|
-| [bcfleet.satistang.com](https://bcfleet.satistang.com) | Landing Page | หน้าแรก เลือกระบบ |
-| [/dashboard/](https://bcfleet.satistang.com/dashboard/) | Web Dashboard | แอดมิน / ฝ่ายบัญชี |
-| [/boss/](https://bcfleet.satistang.com/boss/) | Boss App (Web) | เจ้าของ / ผู้จัดการ |
-| [/driver/](https://bcfleet.satistang.com/driver/) | Driver App (Web) | คนขับรถ |
-| [/health](https://bcfleet.satistang.com/health) | Health Check | API Status |
-| [/docs/](https://bcfleet.satistang.com/docs/index.html) | Documentation | Showcase + API Docs |
+| [smlfleet.satistang.com](https://smlfleet.satistang.com) | Landing Page | หน้าแรก เลือกระบบ |
+| [/dashboard/](https://smlfleet.satistang.com/dashboard/) | Web Dashboard | แอดมิน / ฝ่ายบัญชี |
+| [/boss/](https://smlfleet.satistang.com/boss/) | Boss App (Web) | เจ้าของ / ผู้จัดการ |
+| [/driver/](https://smlfleet.satistang.com/driver/) | Driver App (Web) | คนขับรถ |
+| [/health](https://smlfleet.satistang.com/health) | Health Check | API Status |
+| [/docs/](https://smlfleet.satistang.com/docs/index.html) | Documentation | Showcase + API Docs |
 
 ## 📊 สถาปัตยกรรม
 
@@ -77,15 +77,15 @@ Flutter/Web/LINE → Go API (Gin) → MongoDB (Source of Truth)
 
 ```bash
 # 1. Clone
-git clone https://github.com/jaturapornchai/bcfleet.git
-cd bcfleet
+git clone https://github.com/jaturapornchai/smlfleet.git
+cd smlfleet
 
 # 2. Start infrastructure
 docker compose up -d mongodb postgres kafka
 
 # 3. Run migrations
 for f in backend/migrations/postgres/*.sql; do
-  psql -h localhost -U bcfleet -d bcfleet -f "$f"
+  psql -h localhost -U smlfleet -d smlfleet -f "$f"
 done
 
 # 4. Build & Start API
@@ -117,7 +117,7 @@ flutter run -d chrome
 ## 📁 โครงสร้างโปรเจค
 
 ```
-bc-fleet/
+sml-fleet/
 ├── backend/                    # Go Backend (82 Go files)
 │   ├── cmd/                    # Entry points (api, kafka-consumer, rebuild)
 │   ├── internal/

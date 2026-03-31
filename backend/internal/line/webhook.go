@@ -158,7 +158,7 @@ func (h *WebhookHandler) handleTextMessage(text, userID, replyToken string) {
 
 // handleFollow จัดการเมื่อผู้ใช้ follow OA
 func (h *WebhookHandler) handleFollow(event WebhookEvent) {
-	welcomeMsg := "ยินดีต้อนรับสู่ BC Fleet ระบบจัดการรถขนส่งครับ!\n\n" +
+	welcomeMsg := "ยินดีต้อนรับสู่ SML Fleet ระบบจัดการรถขนส่งครับ!\n\n" +
 		"สามารถถามข้อมูลได้เลย เช่น:\n" +
 		"• มีรถ 6 ล้อว่างวันพรุ่งนี้ไหม\n" +
 		"• ดูต้นทุนเที่ยวนี้\n" +
@@ -201,7 +201,7 @@ func (h *WebhookHandler) handlePostback(event WebhookEvent) {
 	case "action=view_costs":
 		h.handleTextMessage("ดูต้นทุนขนส่งวันนี้", userID, replyToken)
 	case "action=chat_ai":
-		if err := h.messaging.ReplyText(replyToken, "สวัสดีครับ ฉันคือ AI ผู้ช่วยของ BC Fleet พิมพ์คำถามได้เลยครับ"); err != nil {
+		if err := h.messaging.ReplyText(replyToken, "สวัสดีครับ ฉันคือ AI ผู้ช่วยของ SML Fleet พิมพ์คำถามได้เลยครับ"); err != nil {
 			log.Printf("[LINE] reply error: %v", err)
 		}
 	default:

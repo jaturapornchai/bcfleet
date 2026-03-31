@@ -9,6 +9,42 @@ import 'bloc/alert_bloc.dart';
 import 'screens/login_screen.dart';
 import 'screens/dashboard_screen.dart';
 
+// ─── Responsive Breakpoints ───────────────────────────────────────────────────
+class Responsive {
+  static const double mobileMax = 600;
+  static const double tabletMax = 1024;
+
+  static bool isMobile(BuildContext context) =>
+      MediaQuery.of(context).size.width < mobileMax;
+
+  static bool isTablet(BuildContext context) {
+    final w = MediaQuery.of(context).size.width;
+    return w >= mobileMax && w < tabletMax;
+  }
+
+  static bool isDesktop(BuildContext context) =>
+      MediaQuery.of(context).size.width >= tabletMax;
+
+  static bool isTabletOrDesktop(BuildContext context) =>
+      MediaQuery.of(context).size.width >= mobileMax;
+
+  /// padding: 8 mobile, 16 tablet, 24 desktop
+  static double padding(BuildContext context) {
+    final w = MediaQuery.of(context).size.width;
+    if (w >= tabletMax) return 24;
+    if (w >= mobileMax) return 16;
+    return 8;
+  }
+
+  /// crossAxisCount for grid layouts
+  static int gridColumns(BuildContext context, {int mobile = 1, int tablet = 2, int desktop = 3}) {
+    final w = MediaQuery.of(context).size.width;
+    if (w >= tabletMax) return desktop;
+    if (w >= mobileMax) return tablet;
+    return mobile;
+  }
+}
+
 class BossApp extends StatelessWidget {
   const BossApp({super.key});
 
@@ -24,7 +60,7 @@ class BossApp extends StatelessWidget {
         BlocProvider(create: (_) => AlertBloc()),
       ],
       child: MaterialApp(
-        title: 'BC Fleet Boss',
+        title: 'SML Fleet Boss',
         debugShowCheckedModeBanner: false,
         theme: _buildTheme(Brightness.light),
         darkTheme: _buildTheme(Brightness.dark),

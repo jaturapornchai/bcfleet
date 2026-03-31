@@ -1,5 +1,5 @@
 name: web_dashboard
-description: BC Fleet Web Dashboard - แดชบอร์ดสำหรับแอดมิน/ฝ่ายบัญชี
+description: SML Fleet Web Dashboard - แดชบอร์ดสำหรับแอดมิน/ฝ่ายบัญชี
 version: 1.0.0+1
 publish_to: 'none'
 

@@ -21,6 +21,8 @@ class StatusBadge extends StatelessWidget {
           fontSize: 12,
           fontWeight: FontWeight.w600,
         ),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
       ),
     );
   }
@@ -28,23 +30,23 @@ class StatusBadge extends StatelessWidget {
   Map<String, dynamic> _statusConfig(String status) {
     switch (status) {
       case 'draft':
-        return {'label': 'แบบร่าง', 'color': Colors.grey};
+        return {'label': 'แบบร่าง', 'color': const Color(0xFF757575)};
       case 'pending':
-        return {'label': 'รอรับงาน', 'color': Colors.orange};
+        return {'label': 'รอรับงาน', 'color': const Color(0xFFE65100)};
       case 'accepted':
-        return {'label': 'รับงานแล้ว', 'color': Colors.blue.shade600};
+        return {'label': 'รับงานแล้ว', 'color': const Color(0xFFFF8F00)};
       case 'started':
-        return {'label': 'กำลังวิ่ง', 'color': Colors.indigo};
+        return {'label': 'กำลังวิ่ง', 'color': const Color(0xFF1565C0)};
       case 'arrived':
-        return {'label': 'ถึงจุดส่ง', 'color': Colors.teal};
+        return {'label': 'ถึงจุดส่ง', 'color': const Color(0xFF6A1B9A)};
       case 'delivering':
-        return {'label': 'กำลังส่ง', 'color': Colors.cyan.shade700};
+        return {'label': 'กำลังส่ง', 'color': const Color(0xFF00838F)};
       case 'completed':
-        return {'label': 'เสร็จสิ้น', 'color': Colors.green.shade600};
+        return {'label': 'เสร็จสิ้น', 'color': const Color(0xFF2E7D32)};
       case 'cancelled':
-        return {'label': 'ยกเลิก', 'color': Colors.red};
+        return {'label': 'ยกเลิก', 'color': const Color(0xFFD32F2F)};
       default:
-        return {'label': status, 'color': Colors.grey};
+        return {'label': status, 'color': const Color(0xFF757575)};
     }
   }
 }

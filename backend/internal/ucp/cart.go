@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	"bc-fleet/internal/models"
-	"bc-fleet/internal/service"
+	"sml-fleet/internal/models"
+	"sml-fleet/internal/service"
 
 	"github.com/gin-gonic/gin"
 )

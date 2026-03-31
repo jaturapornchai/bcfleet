@@ -207,14 +207,20 @@ class _RouteRow extends StatelessWidget {
       children: [
         Icon(icon, size: 14, color: color),
         const SizedBox(width: 8),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(label,
-                style: TextStyle(fontSize: 11, color: Colors.grey.shade600)),
-            Text(value,
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
-          ],
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label,
+                  style: TextStyle(fontSize: 11, color: Colors.grey.shade600)),
+              Text(
+                value,
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -297,27 +303,33 @@ class _ActionButton extends StatelessWidget {
         return const SizedBox.shrink();
     }
 
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: color,
-        minimumSize: const Size(double.infinity, 52),
+    return SafeArea(
+      top: false,
+      child: SizedBox(
+        width: double.infinity,
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: color,
+            minimumSize: const Size(double.infinity, 52),
+          ),
+          onPressed: () {
+            context.read<TripBloc>().add(
+                  UpdateTripStatus(tripId: tripId, newStatus: nextStatus),
+                );
+            if (nextStatus == 'delivering') {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => PodScreen(tripId: tripId),
+                ),
+              );
+            } else {
+              Navigator.pop(context);
+            }
+          },
+          child: Text(label, style: const TextStyle(fontSize: 16)),
+        ),
       ),
-      onPressed: () {
-        context.read<TripBloc>().add(
-              UpdateTripStatus(tripId: tripId, newStatus: nextStatus),
-            );
-        if (nextStatus == 'delivering') {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => PodScreen(tripId: tripId),
-            ),
-          );
-        } else {
-          Navigator.pop(context);
-        }
-      },
-      child: Text(label, style: const TextStyle(fontSize: 16)),
     );
   }
 }

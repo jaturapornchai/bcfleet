@@ -7,7 +7,7 @@ import (
 	"log"
 	"time"
 
-	"bc-fleet/internal/database"
+	"sml-fleet/internal/database"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"

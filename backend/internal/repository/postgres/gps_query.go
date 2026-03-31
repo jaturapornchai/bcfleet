@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"bc-fleet/internal/database"
+	"sml-fleet/internal/database"
 )
 
 // GPSQuery PostgreSQL queries สำหรับ GPS (เก็บแค่ current location)

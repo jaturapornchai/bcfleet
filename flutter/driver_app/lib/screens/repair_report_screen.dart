@@ -257,21 +257,26 @@ class _RepairReportScreenState extends State<RepairReportScreen> {
                 ),
               ),
 
-            ElevatedButton.icon(
-              onPressed: _isSending ? null : _submit,
-              icon: _isSending
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                          strokeWidth: 2, color: Colors.white),
-                    )
-                  : const Icon(Icons.send),
-              label: Text(_isSending ? 'กำลังส่ง...' : 'ส่งแจ้งซ่อม'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _urgency == 'emergency'
-                    ? Colors.red
-                    : null,
+            SafeArea(
+              top: false,
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: _isSending ? null : _submit,
+                  icon: _isSending
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2, color: Colors.white),
+                        )
+                      : const Icon(Icons.send),
+                  label: Text(_isSending ? 'กำลังส่ง...' : 'ส่งแจ้งซ่อม'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _urgency == 'emergency' ? Colors.red : null,
+                    minimumSize: const Size(double.infinity, 52),
+                  ),
+                ),
               ),
             ),
           ],

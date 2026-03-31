@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../app.dart' show Responsive;
 import '../bloc/dashboard_bloc.dart';
 import '../bloc/alert_bloc.dart';
 import '../widgets/kpi_card.dart';
@@ -24,12 +25,20 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   int _selectedIndex = 0;
 
-  final _screens = const [
+  static const _screens = [
     _DashboardBody(),
     MapScreen(),
     TripsScreen(),
     VehiclesScreen(),
     _MoreScreen(),
+  ];
+
+  static const _destinations = [
+    (icon: Icons.dashboard_outlined, selectedIcon: Icons.dashboard, label: 'ภาพรวม'),
+    (icon: Icons.map_outlined, selectedIcon: Icons.map, label: 'แผนที่'),
+    (icon: Icons.route_outlined, selectedIcon: Icons.route, label: 'เที่ยววิ่ง'),
+    (icon: Icons.local_shipping_outlined, selectedIcon: Icons.local_shipping, label: 'รถ'),
+    (icon: Icons.more_horiz, selectedIcon: Icons.more_horiz, label: 'เพิ่มเติม'),
   ];
 
   @override
@@ -41,6 +50,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isWide = Responsive.isTabletOrDesktop(context);
+
+    if (isWide) {
+      // Tablet / Desktop: NavigationRail on the left
+      return Scaffold(
+        body: Row(
+          children: [
+            NavigationRail(
+              selectedIndex: _selectedIndex,
+              onDestinationSelected: (i) => setState(() => _selectedIndex = i),
+              labelType: NavigationRailLabelType.all,
+              destinations: _destinations.map((d) => NavigationRailDestination(
+                icon: Icon(d.icon),
+                selectedIcon: Icon(d.selectedIcon),
+                label: Text(d.label),
+              )).toList(),
+            ),
+            const VerticalDivider(thickness: 1, width: 1),
+            Expanded(
+              child: IndexedStack(
+                index: _selectedIndex,
+                children: _screens,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Mobile: BottomNavigationBar
     return Scaffold(
       body: IndexedStack(
         index: _selectedIndex,
@@ -49,13 +88,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
         onDestinationSelected: (i) => setState(() => _selectedIndex = i),
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.dashboard_outlined), selectedIcon: Icon(Icons.dashboard), label: 'ภาพรวม'),
-          NavigationDestination(icon: Icon(Icons.map_outlined), selectedIcon: Icon(Icons.map), label: 'แผนที่'),
-          NavigationDestination(icon: Icon(Icons.route_outlined), selectedIcon: Icon(Icons.route), label: 'เที่ยววิ่ง'),
-          NavigationDestination(icon: Icon(Icons.local_shipping_outlined), selectedIcon: Icon(Icons.local_shipping), label: 'รถ'),
-          NavigationDestination(icon: Icon(Icons.more_horiz), label: 'เพิ่มเติม'),
-        ],
+        destinations: _destinations.map((d) => NavigationDestination(
+          icon: Icon(d.icon),
+          selectedIcon: Icon(d.selectedIcon),
+          label: d.label,
+        )).toList(),
       ),
     );
   }
@@ -68,7 +105,7 @@ class _DashboardBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('BC Fleet'),
+        title: const Text('SML Fleet'),
         actions: [
           BlocBuilder<AlertBloc, AlertState>(
             builder: (context, state) {
@@ -135,10 +172,13 @@ class _DashboardContent extends StatelessWidget {
     final t = state.todayTrips;
     final kpi = state.kpi;
 
+    final cols = Responsive.gridColumns(context, mobile: 2, tablet: 4, desktop: 4);
+    final pad = Responsive.padding(context);
+
     return RefreshIndicator(
       onRefresh: () async => context.read<DashboardBloc>().add(RefreshDashboard()),
       child: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(pad),
         children: [
           // Header date
           Text(
@@ -149,14 +189,14 @@ class _DashboardContent extends StatelessWidget {
           ),
           const SizedBox(height: 12),
 
-          // KPI row 1: รถ, เที่ยว, รายได้, แจ้งเตือน
+          // KPI grid: 2 cols mobile, 4 cols tablet/desktop
           GridView.count(
-            crossAxisCount: 2,
+            crossAxisCount: cols,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             crossAxisSpacing: 8,
             mainAxisSpacing: 8,
-            childAspectRatio: 1.5,
+            childAspectRatio: cols == 2 ? 1.6 : 1.5,
             children: [
               KpiCard(
                 icon: Icons.local_shipping_rounded,

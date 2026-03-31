@@ -7,7 +7,7 @@ import (
 	stdSync "sync"
 	"strings"
 
-	"bc-fleet/internal/database"
+	"sml-fleet/internal/database"
 
 	kafkago "github.com/segmentio/kafka-go"
 )

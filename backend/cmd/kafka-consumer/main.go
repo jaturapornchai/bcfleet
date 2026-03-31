@@ -7,9 +7,9 @@ import (
 	"os/signal"
 	"syscall"
 
-	"bc-fleet/internal/config"
-	"bc-fleet/internal/database"
-	"bc-fleet/internal/kafka"
+	"sml-fleet/internal/config"
+	"sml-fleet/internal/database"
+	"sml-fleet/internal/kafka"
 )
 
 func main() {
@@ -38,7 +38,7 @@ func main() {
 		cancel()
 	}()
 
-	log.Println("BC Fleet Kafka Consumer starting...")
+	log.Println("SML Fleet Kafka Consumer starting...")
 	if err := consumer.Start(ctx); err != nil {
 		log.Fatalf("Consumer failed: %v", err)
 	}

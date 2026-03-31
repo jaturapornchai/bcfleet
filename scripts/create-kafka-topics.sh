@@ -1,5 +1,5 @@
 #!/bin/bash
-# create-kafka-topics.sh — สร้าง Kafka topics สำหรับ BC Fleet
+# create-kafka-topics.sh — สร้าง Kafka topics สำหรับ SML Fleet
 
 set -e
 
@@ -19,7 +19,7 @@ TOPICS=(
     "fleet.event-logs"
 )
 
-echo "=== BC Fleet — สร้าง Kafka Topics ==="
+echo "=== SML Fleet — สร้าง Kafka Topics ==="
 echo "Broker: $BROKER"
 echo ""
 

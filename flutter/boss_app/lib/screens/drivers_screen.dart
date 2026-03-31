@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../app.dart' show Responsive;
 import '../bloc/vehicle_bloc.dart';
 
 class DriversScreen extends StatefulWidget {
@@ -103,7 +104,7 @@ class _DriverListBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.all(Responsive.padding(context)),
       itemCount: _mockDrivers.length,
       itemBuilder: (context, i) => _DriverCard(driver: _mockDrivers[i]),
     );
@@ -269,26 +270,40 @@ class _DriverCard extends StatelessWidget {
             const Divider(height: 1),
             const SizedBox(height: 10),
 
-            // KPI row
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _KpiItem(
-                  label: 'เที่ยวรวม',
-                  value: '${driver.totalTrips}',
-                  icon: Icons.route_rounded,
-                ),
-                _KpiItem(
-                  label: 'ตรงเวลา',
-                  value: '${(driver.onTimeRate * 100).toStringAsFixed(0)}%',
-                  icon: Icons.access_time_rounded,
-                ),
-                _KpiItem(
-                  label: 'โทรศัพท์',
-                  value: driver.phone,
-                  icon: Icons.phone_rounded,
-                ),
-              ],
+            // KPI row — ใช้ LayoutBuilder เพื่อป้องกัน overflow บน mobile
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final itemWidth = (constraints.maxWidth - 16) / 3;
+                return Row(
+                  children: [
+                    SizedBox(
+                      width: itemWidth,
+                      child: _KpiItem(
+                        label: 'เที่ยวรวม',
+                        value: '${driver.totalTrips}',
+                        icon: Icons.route_rounded,
+                      ),
+                    ),
+                    SizedBox(
+                      width: itemWidth,
+                      child: _KpiItem(
+                        label: 'ตรงเวลา',
+                        value: '${(driver.onTimeRate * 100).toStringAsFixed(0)}%',
+                        icon: Icons.access_time_rounded,
+                      ),
+                    ),
+                    SizedBox(
+                      width: itemWidth,
+                      child: _KpiItem(
+                        label: 'โทรศัพท์',
+                        value: driver.phone,
+                        icon: Icons.phone_rounded,
+                        overflow: true,
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
           ],
         ),
@@ -301,8 +316,14 @@ class _KpiItem extends StatelessWidget {
   final String label;
   final String value;
   final IconData icon;
+  final bool overflow;
 
-  const _KpiItem({required this.label, required this.value, required this.icon});
+  const _KpiItem({
+    required this.label,
+    required this.value,
+    required this.icon,
+    this.overflow = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -311,8 +332,17 @@ class _KpiItem extends StatelessWidget {
       children: [
         Icon(icon, size: 16, color: theme.colorScheme.primary),
         const SizedBox(height: 2),
-        Text(value, style: theme.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.bold)),
-        Text(label, style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+        Text(
+          value,
+          style: theme.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.bold),
+          maxLines: 1,
+          overflow: overflow ? TextOverflow.ellipsis : TextOverflow.clip,
+        ),
+        Text(
+          label,
+          style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+          maxLines: 1,
+        ),
       ],
     );
   }

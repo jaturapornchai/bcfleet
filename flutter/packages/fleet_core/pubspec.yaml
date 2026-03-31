@@ -1,5 +1,5 @@
 name: fleet_core
-description: Shared models, services, and utilities for BC Fleet apps
+description: Shared models, services, and utilities for SML Fleet apps
 version: 1.0.0
 
 environment:

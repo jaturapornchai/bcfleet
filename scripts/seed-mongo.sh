@@ -2,9 +2,9 @@
 # Seed ข้อมูลตัวอย่างลง MongoDB สำหรับทดสอบ
 set -e
 
-MONGO_URI="${MONGO_URI:-mongodb://localhost:27017/bcfleet}"
+MONGO_URI="${MONGO_URI:-mongodb://localhost:27017/smlfleet}"
 
-echo "=== BC Fleet: Seed Test Data ==="
+echo "=== SML Fleet: Seed Test Data ==="
 
 mongosh "$MONGO_URI" <<'SEED'
 

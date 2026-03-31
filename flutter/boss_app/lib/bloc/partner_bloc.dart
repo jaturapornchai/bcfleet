@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fleet_core/models/partner_vehicle.dart';
 import 'package:http/http.dart' as http;
 
-const _apiBase = 'https://bcfleet.satistang.com/api/v1/fleet';
+const _apiBase = 'https://smlfleet.satistang.com/api/v1/fleet';
 
 // ─── Events ───────────────────────────────────────────────────────────────────
 

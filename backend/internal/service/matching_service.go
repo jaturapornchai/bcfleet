@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"sort"
 
-	pgquery "bc-fleet/internal/repository/postgres"
+	pgquery "sml-fleet/internal/repository/postgres"
 )
 
 // MatchRequest คำขอค้นหารถร่วมที่เหมาะสม

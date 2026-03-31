@@ -14,7 +14,7 @@ rebuild:
 
 # รัน API + consumer พร้อมกัน
 dev:
-	@echo "Starting BC Fleet development..."
+	@echo "Starting SML Fleet development..."
 	$(MAKE) -j2 api consumer
 
 # Docker

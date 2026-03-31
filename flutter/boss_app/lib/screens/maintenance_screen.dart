@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../app.dart' show Responsive;
 import '../bloc/maintenance_bloc.dart';
 import '../widgets/approval_dialog.dart';
 import 'package:fleet_core/models/maintenance.dart';
@@ -89,7 +90,7 @@ class _MaintenanceScreenState extends State<MaintenanceScreen>
               onRefresh: () async =>
                   context.read<MaintenanceBloc>().add(RefreshWorkOrders()),
               child: ListView.builder(
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(Responsive.padding(context)),
                 itemCount: orders.length,
                 itemBuilder: (context, i) => _WorkOrderCard(
                   workOrder: orders[i],

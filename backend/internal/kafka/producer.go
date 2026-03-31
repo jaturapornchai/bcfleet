@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"bc-fleet/internal/database"
+	"sml-fleet/internal/database"
 
 	"github.com/google/uuid"
 )

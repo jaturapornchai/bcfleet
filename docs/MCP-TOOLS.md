@@ -1,4 +1,4 @@
-# BC Fleet MCP Tools Reference
+# SML Fleet MCP Tools Reference
 
 MCP Server endpoint: `POST /mcp`  
 Protocol: JSON-RPC 2.0  

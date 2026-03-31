@@ -74,16 +74,25 @@ class _ChecklistScreenState extends State<ChecklistScreen> {
                   },
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    context.read<ChecklistBloc>().add(
-                          SubmitChecklist(tripId: widget.tripId),
-                        );
-                  },
-                  icon: const Icon(Icons.check_circle),
-                  label: const Text('ยืนยัน Checklist'),
+              SafeArea(
+                top: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        context.read<ChecklistBloc>().add(
+                              SubmitChecklist(tripId: widget.tripId),
+                            );
+                      },
+                      icon: const Icon(Icons.check_circle),
+                      label: const Text('ยืนยัน Checklist'),
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 52),
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -144,20 +153,24 @@ class _ChecklistItemCard extends StatelessWidget {
                       fontSize: 15, fontWeight: FontWeight.w500)),
             ),
             const SizedBox(width: 8),
-            DropdownButton<String>(
-              value: status,
-              underline: const SizedBox.shrink(),
-              isDense: true,
-              items: const [
-                DropdownMenuItem(value: 'ok', child: Text('ปกติ')),
-                DropdownMenuItem(
-                    value: 'warning', child: Text('ต้องระวัง')),
-                DropdownMenuItem(
-                    value: 'fail', child: Text('ผิดปกติ')),
-              ],
-              onChanged: (val) {
-                if (val != null) onStatusChanged(val);
-              },
+            SizedBox(
+              width: 88,
+              child: DropdownButton<String>(
+                value: status,
+                underline: const SizedBox.shrink(),
+                isDense: true,
+                isExpanded: true,
+                items: const [
+                  DropdownMenuItem(value: 'ok', child: Text('ปกติ')),
+                  DropdownMenuItem(
+                      value: 'warning', child: Text('ต้องระวัง')),
+                  DropdownMenuItem(
+                      value: 'fail', child: Text('ผิดปกติ')),
+                ],
+                onChanged: (val) {
+                  if (val != null) onStatusChanged(val);
+                },
+              ),
             ),
             const SizedBox(width: 8),
             IconButton(

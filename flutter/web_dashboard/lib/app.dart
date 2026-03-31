@@ -20,13 +20,13 @@ import 'screens/costs/pl_per_vehicle_screen.dart';
 import 'screens/reports/kpi_dashboard_screen.dart';
 import 'screens/reports/export_screen.dart';
 
-class BCFleetWebApp extends StatelessWidget {
-  const BCFleetWebApp({super.key});
+class SMLFleetWebApp extends StatelessWidget {
+  const SMLFleetWebApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'BC Fleet Dashboard',
+      title: 'SML Fleet Dashboard',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
@@ -131,140 +131,360 @@ class _AppShellState extends State<AppShell> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final subMenus = _subMenuLabels[_selected];
+  void _selectSection(NavSection section) {
+    setState(() {
+      _selected = section;
+      _subIndex = 0;
+    });
+  }
 
-    return Scaffold(
-      body: Row(
+  /// Drawer content — used for mobile
+  Widget _buildDrawer(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Drawer(
+      child: Column(
         children: [
-          // Sidebar Navigation
+          // Header
           Container(
-            width: 220,
-            color: colorScheme.surfaceContainerLow,
-            child: Column(
+            height: 80,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            color: cs.primary,
+            alignment: Alignment.centerLeft,
+            child: SafeArea(
+              child: Row(
+                children: [
+                  Icon(Icons.local_shipping, color: cs.onPrimary, size: 26),
+                  const SizedBox(width: 10),
+                  Text(
+                    'SML Fleet',
+                    style: TextStyle(
+                      color: cs.onPrimary,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              children: _navItems.map((item) {
+                final (section, outlineIcon, filledIcon, label) = item;
+                final isSelected = _selected == section;
+                return ListTile(
+                  leading: Icon(
+                    isSelected ? filledIcon : outlineIcon,
+                    color: isSelected ? cs.primary : cs.onSurfaceVariant,
+                  ),
+                  title: Text(
+                    label,
+                    style: TextStyle(
+                      color: isSelected ? cs.primary : cs.onSurfaceVariant,
+                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                    ),
+                  ),
+                  selected: isSelected,
+                  selectedTileColor: cs.primaryContainer,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                  onTap: () {
+                    _selectSection(section);
+                    Navigator.of(context).pop(); // close drawer
+                  },
+                );
+              }).toList(),
+            ),
+          ),
+          const Divider(height: 1),
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
               children: [
-                // Logo / App Header
-                Container(
-                  height: 64,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  color: colorScheme.primary,
-                  alignment: Alignment.centerLeft,
-                  child: Row(
-                    children: [
-                      Icon(Icons.local_shipping, color: colorScheme.onPrimary, size: 28),
-                      const SizedBox(width: 10),
-                      Text(
-                        'BC Fleet',
-                        style: TextStyle(
-                          color: colorScheme.onPrimary,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
+                CircleAvatar(
+                  radius: 16,
+                  backgroundColor: cs.primaryContainer,
+                  child: Icon(Icons.person, size: 18, color: cs.primary),
                 ),
-                // Nav Items
+                const SizedBox(width: 8),
                 Expanded(
-                  child: ListView(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    children: _navItems.map((item) {
-                      final (section, outlineIcon, filledIcon, label) = item;
-                      final isSelected = _selected == section;
-                      return InkWell(
-                        onTap: () => setState(() {
-                          _selected = section;
-                          _subIndex = 0;
-                        }),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 150),
-                          margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                          decoration: BoxDecoration(
-                            color: isSelected ? colorScheme.primaryContainer : Colors.transparent,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                isSelected ? filledIcon : outlineIcon,
-                                color: isSelected ? colorScheme.primary : colorScheme.onSurfaceVariant,
-                                size: 22,
-                              ),
-                              const SizedBox(width: 12),
-                              Text(
-                                label,
-                                style: TextStyle(
-                                  color: isSelected ? colorScheme.primary : colorScheme.onSurfaceVariant,
-                                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-                // User footer
-                const Divider(height: 1),
-                Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Row(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      CircleAvatar(
-                        radius: 16,
-                        backgroundColor: colorScheme.primaryContainer,
-                        child: Icon(Icons.person, size: 18, color: colorScheme.primary),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('แอดมิน', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: colorScheme.onSurface)),
-                            Text('admin@bcfleet.com', style: TextStyle(fontSize: 11, color: colorScheme.onSurfaceVariant)),
-                          ],
-                        ),
-                      ),
+                      Text('แอดมิน', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: cs.onSurface)),
+                      Text('admin@smlfleet.com', style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant), overflow: TextOverflow.ellipsis),
                     ],
                   ),
                 ),
               ],
             ),
           ),
+        ],
+      ),
+    );
+  }
 
-          // Main content area
+  /// Sidebar — used for tablet & desktop
+  Widget _buildSidebar(BuildContext context, {required bool extended}) {
+    final cs = Theme.of(context).colorScheme;
+    final width = extended ? 220.0 : 72.0;
+
+    return Container(
+      width: width,
+      color: cs.surfaceContainerLow,
+      child: Column(
+        children: [
+          // Logo
+          Container(
+            height: 64,
+            padding: EdgeInsets.symmetric(horizontal: extended ? 16 : 0),
+            color: cs.primary,
+            alignment: extended ? Alignment.centerLeft : Alignment.center,
+            child: extended
+                ? Row(
+                    children: [
+                      Icon(Icons.local_shipping, color: cs.onPrimary, size: 26),
+                      const SizedBox(width: 10),
+                      Text('SML Fleet', style: TextStyle(color: cs.onPrimary, fontSize: 20, fontWeight: FontWeight.bold)),
+                    ],
+                  )
+                : Icon(Icons.local_shipping, color: cs.onPrimary, size: 26),
+          ),
+          // Nav items
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              children: _navItems.map((item) {
+                final (section, outlineIcon, filledIcon, label) = item;
+                final isSelected = _selected == section;
+                if (extended) {
+                  return InkWell(
+                    onTap: () => _selectSection(section),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 150),
+                      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: isSelected ? cs.primaryContainer : Colors.transparent,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            isSelected ? filledIcon : outlineIcon,
+                            color: isSelected ? cs.primary : cs.onSurfaceVariant,
+                            size: 22,
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            label,
+                            style: TextStyle(
+                              color: isSelected ? cs.primary : cs.onSurfaceVariant,
+                              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                } else {
+                  // collapsed — icons only with tooltip
+                  return Tooltip(
+                    message: label,
+                    preferBelow: false,
+                    child: InkWell(
+                      onTap: () => _selectSection(section),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 150),
+                        margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        decoration: BoxDecoration(
+                          color: isSelected ? cs.primaryContainer : Colors.transparent,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Center(
+                          child: Icon(
+                            isSelected ? filledIcon : outlineIcon,
+                            color: isSelected ? cs.primary : cs.onSurfaceVariant,
+                            size: 22,
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }
+              }).toList(),
+            ),
+          ),
+          // User footer
+          const Divider(height: 1),
+          Padding(
+            padding: EdgeInsets.all(extended ? 12 : 8),
+            child: extended
+                ? Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 14,
+                        backgroundColor: cs.primaryContainer,
+                        child: Icon(Icons.person, size: 16, color: cs.primary),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('แอดมิน', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: cs.onSurface)),
+                            Text('admin@smlfleet.com', style: TextStyle(fontSize: 10, color: cs.onSurfaceVariant), overflow: TextOverflow.ellipsis),
+                          ],
+                        ),
+                      ),
+                    ],
+                  )
+                : Tooltip(
+                    message: 'แอดมิน',
+                    child: CircleAvatar(
+                      radius: 14,
+                      backgroundColor: cs.primaryContainer,
+                      child: Icon(Icons.person, size: 16, color: cs.primary),
+                    ),
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Sub-menu tabs bar
+  Widget _buildSubMenuBar(BuildContext context, List<String> subMenus) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      height: 48,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        color: cs.surface,
+        border: Border(bottom: BorderSide(color: cs.outlineVariant)),
+      ),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: subMenus.asMap().entries.map((e) => Padding(
+            padding: const EdgeInsets.only(right: 4),
+            child: TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor: _subIndex == e.key ? cs.primaryContainer : null,
+                foregroundColor: _subIndex == e.key ? cs.primary : cs.onSurfaceVariant,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              onPressed: () => setState(() => _subIndex = e.key),
+              child: Text(e.value, style: const TextStyle(fontSize: 13)),
+            ),
+          )).toList(),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final width = MediaQuery.of(context).size.width;
+    final isMobile = width < 600;
+    final isTablet = width >= 600 && width < 1024;
+    final subMenus = _subMenuLabels[_selected];
+
+    // --------- MOBILE layout ---------
+    if (isMobile) {
+      return Scaffold(
+        appBar: AppBar(
+          backgroundColor: cs.primary,
+          foregroundColor: cs.onPrimary,
+          titleSpacing: 0,
+          title: Row(
+            children: [
+              const Icon(Icons.local_shipping, size: 22),
+              const SizedBox(width: 8),
+              const Text('SML Fleet', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            ],
+          ),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.notifications_outlined, color: cs.onPrimary),
+              onPressed: () {},
+              tooltip: 'แจ้งเตือน',
+            ),
+          ],
+        ),
+        drawer: _buildDrawer(context),
+        body: Column(
+          children: [
+            // Sub-menu tabs (scrollable horizontal)
+            if (subMenus != null) _buildSubMenuBar(context, subMenus),
+            Expanded(child: _buildContent()),
+          ],
+        ),
+        bottomNavigationBar: NavigationBar(
+          selectedIndex: NavSection.values.indexOf(_selected),
+          onDestinationSelected: (i) => _selectSection(NavSection.values[i]),
+          labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
+          destinations: _navItems.map((item) {
+            final (_, outlineIcon, filledIcon, label) = item;
+            return NavigationDestination(
+              icon: Icon(outlineIcon),
+              selectedIcon: Icon(filledIcon),
+              label: label,
+            );
+          }).toList(),
+        ),
+      );
+    }
+
+    // --------- TABLET / DESKTOP layout ---------
+    return Scaffold(
+      body: Row(
+        children: [
+          _buildSidebar(context, extended: !isTablet),
           Expanded(
             child: Column(
               children: [
                 // Top App Bar
                 Container(
-                  height: 64,
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  height: 56,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
                   decoration: BoxDecoration(
-                    color: colorScheme.surface,
-                    border: Border(bottom: BorderSide(color: colorScheme.outlineVariant)),
+                    color: cs.surface,
+                    border: Border(bottom: BorderSide(color: cs.outlineVariant)),
                   ),
                   child: Row(
                     children: [
-                      // Sub-menu tabs
                       if (subMenus != null)
-                        ...subMenus.asMap().entries.map((e) => Padding(
-                          padding: const EdgeInsets.only(right: 4),
-                          child: TextButton(
-                            style: TextButton.styleFrom(
-                              backgroundColor: _subIndex == e.key ? colorScheme.primaryContainer : null,
-                              foregroundColor: _subIndex == e.key ? colorScheme.primary : colorScheme.onSurfaceVariant,
+                        Expanded(
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: subMenus.asMap().entries.map((e) => Padding(
+                                padding: const EdgeInsets.only(right: 4),
+                                child: TextButton(
+                                  style: TextButton.styleFrom(
+                                    backgroundColor: _subIndex == e.key ? cs.primaryContainer : null,
+                                    foregroundColor: _subIndex == e.key ? cs.primary : cs.onSurfaceVariant,
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                    minimumSize: Size.zero,
+                                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  ),
+                                  onPressed: () => setState(() => _subIndex = e.key),
+                                  child: Text(e.value, style: const TextStyle(fontSize: 13)),
+                                ),
+                              )).toList(),
                             ),
-                            onPressed: () => setState(() => _subIndex = e.key),
-                            child: Text(e.value, style: const TextStyle(fontSize: 13)),
                           ),
-                        )),
-                      const Spacer(),
+                        )
+                      else
+                        const Spacer(),
+                      if (subMenus == null) const Spacer(),
                       IconButton(
                         icon: const Icon(Icons.notifications_outlined),
                         onPressed: () {},
@@ -279,9 +499,7 @@ class _AppShellState extends State<AppShell> {
                   ),
                 ),
                 // Screen content
-                Expanded(
-                  child: _buildContent(),
-                ),
+                Expanded(child: _buildContent()),
               ],
             ),
           ),

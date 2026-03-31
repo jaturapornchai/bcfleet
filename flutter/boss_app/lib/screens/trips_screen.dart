@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../app.dart' show Responsive;
 import '../bloc/trip_bloc.dart';
 import 'package:fleet_core/models/trip.dart';
 
@@ -73,7 +74,7 @@ class _TripsScreenState extends State<TripsScreen> with SingleTickerProviderStat
             return RefreshIndicator(
               onRefresh: () async => context.read<TripBloc>().add(RefreshTrips()),
               child: ListView.builder(
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(Responsive.padding(context)),
                 itemCount: trips.length,
                 itemBuilder: (context, i) => _TripCard(trip: trips[i]),
               ),

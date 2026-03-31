@@ -93,7 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'BC Fleet',
+                    'SML Fleet',
                     style: theme.textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: theme.colorScheme.primary,
@@ -198,7 +198,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   // Footer
                   Text(
-                    'BC Fleet v1.0 — BC Ai Solution Co., Ltd.',
+                    'SML Fleet v1.0 — BC Ai Solution Co., Ltd.',
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),

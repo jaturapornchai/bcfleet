@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"bc-fleet/internal/service"
+	"sml-fleet/internal/service"
 )
 
 // RegisterVehicleTools ลงทะเบียน vehicle tools ทั้งหมด (8 tools)

@@ -123,12 +123,15 @@ class _SalaryScreenState extends State<SalaryScreen> {
                     style: TextStyle(color: Colors.white70, fontSize: 14),
                   ),
                   const SizedBox(height: 8),
-                  Text(
-                    '฿${_netPay.toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      '฿${_netPay.toStringAsFixed(2)}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -341,11 +344,17 @@ class _SalaryRow extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label,
+          Flexible(
+            child: Text(
+              label,
               style: TextStyle(
                   fontSize: 14,
-                  fontWeight:
-                      isBold ? FontWeight.bold : FontWeight.normal)),
+                  fontWeight: isBold ? FontWeight.bold : FontWeight.normal),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const SizedBox(width: 8),
           Text(
             '${isDeduction ? '-' : '+'}฿${amount.toStringAsFixed(2)}',
             style: TextStyle(

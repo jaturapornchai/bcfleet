@@ -1,4 +1,4 @@
-# BC Fleet UCP Manifest
+# SML Fleet UCP Manifest
 
 UCP (Universal Commerce Protocol) — มาตรฐาน open protocol สำหรับ AI Agent ซื้อ-ขายบริการ
 
@@ -60,7 +60,7 @@ UCP (Universal Commerce Protocol) — มาตรฐาน open protocol สำ
 
 ```json
 {
-  "name": "BC Fleet Transport Agent",
+  "name": "SML Fleet Transport Agent",
   "description": "AI Agent สำหรับจัดการรถขนส่ง SME ไทย — จอง ติดตาม และรับ POD",
   "url": "https://fleet.bcaccount.com/a2a",
   "version": "1.0",
@@ -77,7 +77,7 @@ UCP (Universal Commerce Protocol) — มาตรฐาน open protocol สำ
   "languages": ["th", "en"],
   "contact": {
     "email": "api@bcaccount.com",
-    "line": "@bcfleet"
+    "line": "@smlfleet"
   }
 }
 ```
@@ -339,10 +339,10 @@ UCP (Universal Commerce Protocol) — มาตรฐาน open protocol สำ
   "delivered_at": "2024-12-20T10:15:00+07:00",
   "receiver_name": "สมปอง",
   "photos": [
-    "https://files.bcfleet.com/pod/pod_001.jpg",
-    "https://files.bcfleet.com/pod/pod_002.jpg"
+    "https://files.smlfleet.com/pod/pod_001.jpg",
+    "https://files.smlfleet.com/pod/pod_002.jpg"
   ],
-  "signature_url": "https://files.bcfleet.com/pod/sig_001.png",
+  "signature_url": "https://files.smlfleet.com/pod/sig_001.png",
   "notes": "รับครบ ไม่มีความเสียหาย"
 }
 ```

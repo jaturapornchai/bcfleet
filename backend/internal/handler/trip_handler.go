@@ -6,6 +6,7 @@ import (
 
 	"sml-fleet/internal/database"
 	"sml-fleet/internal/eventlog"
+	"sml-fleet/internal/osrm"
 	mongorepo "sml-fleet/internal/repository/mongo"
 	pgquery "sml-fleet/internal/repository/postgres"
 	"sml-fleet/internal/service"
@@ -29,6 +30,7 @@ func RegisterTripRoutes(rg *gin.RouterGroup, mongo *database.MongoDB, pg *databa
 	rg.GET("/trips/:id/tracking", getTripTracking(svc))
 	rg.GET("/trips/:id/pod", getTripPOD(svc))
 	rg.GET("/trips/:id/cost", getTripCostBreakdown(svc))
+	rg.POST("/trips/calculate-route", calculateRoute())
 }
 
 func listTrips(svc *service.TripService) gin.HandlerFunc {
@@ -191,5 +193,48 @@ func getTripCostBreakdown(svc *service.TripService) gin.HandlerFunc {
 			return
 		}
 		c.JSON(http.StatusOK, gin.H{"data": cost})
+	}
+}
+
+// CalculateRouteRequest คำขอคำนวณเส้นทาง
+type CalculateRouteRequest struct {
+	FromLat    float64       `json:"from_lat" binding:"required"`
+	FromLng    float64       `json:"from_lng" binding:"required"`
+	ToLat      float64       `json:"to_lat" binding:"required"`
+	ToLng      float64       `json:"to_lng" binding:"required"`
+	Waypoints  []WaypointReq `json:"waypoints"`
+}
+
+// WaypointReq จุดแวะระหว่างทาง
+type WaypointReq struct {
+	Lat float64 `json:"lat"`
+	Lng float64 `json:"lng"`
+}
+
+func calculateRoute() gin.HandlerFunc {
+	client := osrm.NewClient("") // ใช้ OSRM Demo Server
+
+	return func(c *gin.Context) {
+		var req CalculateRouteRequest
+		if err := c.ShouldBindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		from := osrm.LatLng{Lat: req.FromLat, Lng: req.FromLng}
+		to := osrm.LatLng{Lat: req.ToLat, Lng: req.ToLng}
+
+		var waypoints []osrm.LatLng
+		for _, wp := range req.Waypoints {
+			waypoints = append(waypoints, osrm.LatLng{Lat: wp.Lat, Lng: wp.Lng})
+		}
+
+		result, err := client.Route(c.Request.Context(), from, to, waypoints)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"data": result})
 	}
 }

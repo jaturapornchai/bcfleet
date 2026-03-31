@@ -317,6 +317,34 @@ tools:
     method: POST
     argsToJsonBody: true
 
+- name: calculate_route
+  description: "คำนวณเส้นทาง OSRM — ระยะทาง เวลา polyline เส้นทางตามถนนจริง turn-by-turn navigation ผ่านจุดแวะได้"
+  args:
+  - name: from_lat
+    description: "ละติจูดต้นทาง"
+    type: number
+    required: true
+  - name: from_lng
+    description: "ลองจิจูดต้นทาง"
+    type: number
+    required: true
+  - name: to_lat
+    description: "ละติจูดปลายทาง"
+    type: number
+    required: true
+  - name: to_lng
+    description: "ลองจิจูดปลายทาง"
+    type: number
+    required: true
+  - name: waypoints
+    description: "จุดแวะระหว่างทาง [{lat,lng},...] (optional)"
+    type: array
+    required: false
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/trips/calculate-route"
+    method: POST
+    argsToJsonBody: true
+
 - name: calculate_route_cost
   description: "คำนวณค่าขนส่ง — ระยะทาง เวลา น้ำมัน ทางด่วน คนขับ"
   args:

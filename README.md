@@ -197,4 +197,4 @@ curl http://localhost:8082/health
 
 ## License
 
-Private — BC AI Solution Co., Ltd.
+Private — SML AI Solution Co., Ltd.

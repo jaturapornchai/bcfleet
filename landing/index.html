@@ -4,352 +4,586 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SML Fleet — AI-Powered Fleet Management for Thai SME</title>
+    <!-- Google Font Prompt for Premium Thai Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #1565C0; --primary-dark: #0D47A1; --accent: #FF6F00; --bg: #F5F7FA; --card: #fff; --success: #2E7D32; --warning: #F57F17; --danger: #C62828; --hiclaw: #7C3AED; --hiclaw-dark: #5B21B6; }
+        :root { 
+            --primary: #1E3A8A; 
+            --primary-dark: #0F172A; 
+            --primary-light: #3B82F6;
+            --accent: #F59E0B; 
+            --bg: #F8FAFC; 
+            --card-bg: rgba(255, 255, 255, 0.9); 
+            --text-main: #1E293B;
+            --text-muted: #64748B;
+            --success: #10B981; 
+            --warning: #F59E0B; 
+            --danger: #EF4444; 
+            --hiclaw: #8B5CF6; 
+            --hiclaw-dark: #6D28D9; 
+            --glass-border: 1px solid rgba(255,255,255,0.4);
+        }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Sarabun', 'Segoe UI', sans-serif; background: var(--bg); color: #212121; line-height: 1.6; }
-        .hero { background: linear-gradient(135deg, #5B21B6, #7C3AED, #1E88E5); color: white; padding: 60px 20px; text-align: center; }
-        .hero h1 { font-size: 2.8em; margin-bottom: 12px; }
-        .hero .tagline { font-size: 1.4em; opacity: 0.95; max-width: 700px; margin: 0 auto 8px; font-weight: 600; }
-        .hero p { font-size: 1.1em; opacity: 0.85; max-width: 650px; margin: 0 auto 20px; }
-        .hero-stats { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-top: 20px; }
-        .hero-stat { background: rgba(255,255,255,0.15); padding: 8px 20px; border-radius: 24px; }
-        .hero-stat strong { font-size: 1.3em; }
-        .container { max-width: 1100px; margin: 0 auto; padding: 40px 20px; }
-        .section-title { text-align: center; font-size: 1.8em; color: var(--primary-dark); margin-bottom: 8px; }
-        .section-sub { text-align: center; color: #666; margin-bottom: 24px; }
+        body { font-family: 'Prompt', sans-serif; background: var(--bg); color: var(--text-main); line-height: 1.6; overflow-x: hidden; }
+        a { text-decoration: none; color: inherit; }
 
-        /* HiClaw Hero Section */
-        .hiclaw-hero { background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460); color: white; padding: 48px 20px; }
-        .hiclaw-hero .container { max-width: 1100px; margin: 0 auto; }
-        .hiclaw-hero h2 { font-size: 2em; text-align: center; margin-bottom: 8px; }
-        .hiclaw-hero h2 span { color: #A78BFA; }
-        .hiclaw-hero .subtitle { text-align: center; color: #94A3B8; margin-bottom: 32px; font-size: 1.1em; }
-        .agents-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 20px; }
-        .agent-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 24px; text-align: center; transition: transform 0.2s, border-color 0.2s; }
-        .agent-card:hover { transform: translateY(-4px); border-color: #A78BFA; }
-        .agent-avatar { font-size: 48px; margin-bottom: 12px; }
-        .agent-card h3 { color: #E0E7FF; font-size: 1.1em; margin-bottom: 4px; }
-        .agent-card .role { color: #A78BFA; font-size: 0.85em; font-weight: 600; margin-bottom: 8px; }
-        .agent-card p { color: #94A3B8; font-size: 0.85em; }
-        .agent-card .tools-count { display: inline-block; background: rgba(167,139,250,0.2); color: #C4B5FD; padding: 2px 10px; border-radius: 10px; font-size: 0.8em; margin-top: 8px; }
-        .hiclaw-flow { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; margin-top: 32px; padding: 20px; background: rgba(255,255,255,0.04); border-radius: 12px; }
-        .flow-step { background: rgba(167,139,250,0.15); border: 1px solid rgba(167,139,250,0.3); border-radius: 10px; padding: 10px 16px; text-align: center; color: #E0E7FF; font-size: 0.9em; }
-        .flow-arrow { color: #A78BFA; font-size: 1.4em; }
+        /* HERO SECTION */
+        .hero { background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 100%); color: white; padding: 100px 20px 80px; position: relative; overflow: hidden; }
+        .hero::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, rgba(15, 23, 42, 0) 50%); pointer-events: none;
+        }
+        .hero-container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; position: relative; z-index: 2; }
+        .hero-text h1 { font-size: 3.5em; line-height: 1.2; margin-bottom: 20px; font-weight: 700; background: linear-gradient(to right, #60A5FA, #E879F9); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero-text .tagline { font-size: 1.4em; color: #E2E8F0; margin-bottom: 16px; font-weight: 500; }
+        .hero-text p { font-size: 1.1em; color: #94A3B8; margin-bottom: 32px; }
+        .hero-stats { display: flex; flex-wrap: wrap; gap: 16px; }
+        .stat-badge { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px); padding: 10px 20px; border-radius: 30px; font-size: 1em; color: #E2E8F0; }
+        .stat-badge strong { color: white; font-size: 1.1em; }
+        
+        .hero-image { border-radius: 24px; overflow: hidden; box-shadow: 0 24px 48px rgba(0,0,0,0.4); transform: perspective(1000px) rotateY(-5deg); transition: transform 0.6s ease; border: 1px solid rgba(255,255,255,0.1); }
+        .hero-image:hover { transform: perspective(1000px) rotateY(0deg) scale(1.02); }
+        .hero-image img { width: 100%; height: auto; display: block; }
 
-        .apps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
-        .app-card { background: var(--card); border-radius: 16px; padding: 32px; text-align: center; box-shadow: 0 4px 16px rgba(0,0,0,0.1); transition: transform 0.2s; text-decoration: none; color: #212121; display: block; }
-        .app-card:hover { transform: translateY(-6px); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
-        .app-icon { font-size: 48px; margin-bottom: 16px; }
-        .app-card h3 { font-size: 1.3em; color: var(--primary); margin-bottom: 8px; }
-        .app-card p { color: #666; font-size: 0.95em; margin-bottom: 16px; }
-        .app-card .badge { background: #E3F2FD; color: var(--primary); padding: 4px 12px; border-radius: 12px; font-size: 0.85em; }
-        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-        .feature-card { background: var(--card); border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 4px solid var(--primary); }
-        .feature-card h4 { color: var(--primary-dark); margin-bottom: 8px; font-size: 1.05em; }
-        .feature-card p { color: #555; font-size: 0.9em; }
-        .feature-card ul { margin-top: 8px; padding-left: 20px; color: #555; font-size: 0.9em; }
-        .feature-card ul li { margin-bottom: 4px; }
-        .tech-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
-        .tech-card { background: var(--card); border-radius: 10px; padding: 16px; text-align: center; box-shadow: 0 1px 6px rgba(0,0,0,0.06); }
-        .tech-card .icon { font-size: 32px; margin-bottom: 8px; }
-        .tech-card h4 { color: var(--primary); font-size: 0.95em; }
-        .tech-card p { color: #888; font-size: 0.8em; }
-        .api-info { background: var(--card); border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-top: 24px; }
-        .api-info code { background: #263238; color: #A5D6A7; padding: 12px; border-radius: 8px; display: block; margin-top: 8px; font-size: 0.9em; }
-        .footer { background: #263238; color: #B0BEC5; text-align: center; padding: 40px 20px; }
-        .footer a { color: #4FC3F7; text-decoration: none; }
-        .status { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #4CAF50; margin-right: 6px; }
-        .divider { border: none; border-top: 1px solid #E0E0E0; margin: 48px 0; }
-        @media (max-width: 768px) { .hero h1 { font-size: 2em; } .hero-stats { gap: 12px; } .hiclaw-hero h2 { font-size: 1.5em; } .flow-arrow { display: none; } }
+        /* COMMON LAYOUT */
+        .container { max-width: 1200px; margin: 0 auto; padding: 80px 20px; }
+        .section-header { text-align: center; margin-bottom: 48px; }
+        .section-header h2 { font-size: 2.4em; color: var(--primary-dark); margin-bottom: 12px; font-weight: 700; }
+        .section-header p { font-size: 1.1em; color: var(--text-muted); max-width: 700px; margin: 0 auto; }
+
+        /* HICLAW AI TEAM (Dark Glassmorphism UI) */
+        .ai-team-section { background: var(--primary-dark); color: white; padding: 100px 20px; position: relative; }
+        .ai-team-section h2 { font-size: 2.6em; text-align: center; margin-bottom: 16px; background: linear-gradient(to right, #A855F7, #F472B6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700; }
+        .ai-team-section > p { text-align: center; color: #94A3B8; font-size: 1.15em; margin-bottom: 60px; max-width: 800px; margin-left: auto; margin-right: auto; }
+        
+        .ai-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; max-width: 1200px; margin: 0 auto; }
+        .ai-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 32px 24px; text-align: center; backdrop-filter: blur(12px); box-shadow: 0 8px 32px rgba(0,0,0,0.2); transition: all 0.3s ease; }
+        .ai-card:hover { transform: translateY(-10px); border-color: #A855F7; background: rgba(255,255,255,0.06); }
+        .ai-avatar { width: 110px; height: 110px; border-radius: 50%; object-fit: cover; margin: 0 auto 20px; border: 3px solid #6D28D9; box-shadow: 0 0 20px rgba(109, 40, 217, 0.4); }
+        .ai-card h3 { color: #F8FAFC; font-size: 1.4em; margin-bottom: 6px; }
+        .ai-card .role { color: #C084FC; font-size: 0.95em; font-weight: 600; margin-bottom: 16px; }
+        .ai-card p { color: #94A3B8; font-size: 0.95em; line-height: 1.6; }
+        .ai-card .badge { display: inline-block; background: rgba(168,85,247,0.2); border: 1px solid rgba(168,85,247,0.3); color: #E9D5FF; padding: 4px 12px; border-radius: 20px; font-size: 0.8em; margin-top: 16px; font-weight: 500; }
+
+        /* MCP EXPLANATION LOGIC (NEW SECTION) */
+        .mcp-section { background: white; padding: 100px 20px; }
+        .mcp-container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+        .mcp-image-wrap { border-radius: 24px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.1); border: var(--glass-border); }
+        .mcp-image-wrap img { width: 100%; height: auto; display: block; }
+        .mcp-text h2 { font-size: 2.2em; color: var(--primary-dark); margin-bottom: 20px; line-height: 1.3; }
+        .mcp-text h2 span { color: var(--primary-light); }
+        .mcp-text p { font-size: 1.1em; color: var(--text-muted); margin-bottom: 24px; }
+        .mcp-features { list-style: none; margin-top: 30px; }
+        .mcp-features li { display: flex; align-items: flex-start; margin-bottom: 20px; }
+        .mcp-features .m-icon { width: 36px; height: 36px; background: #E0E7FF; color: var(--primary-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 16px; font-size: 1.2em; flex-shrink: 0; }
+        .mcp-features .m-desc h4 { color: var(--text-main); font-size: 1.1em; margin-bottom: 4px; }
+        .mcp-features .m-desc p { font-size: 0.95em; color: var(--text-muted); margin-bottom: 0; }
+
+        /* DEMO APPS & FEATURES CLOUMN GRID */
+        .grid-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; }
+        .app-card { background: var(--card-bg); border-radius: 20px; padding: 36px 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.03); transition: all 0.3s; display: block; }
+        .app-card:hover { transform: translateY(-8px); box-shadow: 0 15px 40px rgba(0,0,0,0.1); border-color: var(--primary-light); }
+        .app-card .icon { font-size: 40px; margin-bottom: 20px; color: var(--primary-light); }
+        .app-card h3 { font-size: 1.4em; color: var(--primary-light); margin-bottom: 12px; }
+        .app-card p { color: var(--text-muted); margin-bottom: 20px; }
+        .app-card .pill { background: #F1F5F9; color: var(--primary); padding: 6px 14px; border-radius: 20px; font-size: 0.85em; font-weight: 500; }
+        
+        /* FEATURES LIST GRID */
+        .feature-box { background: white; padding: 28px; border-radius: 20px; border-left: 5px solid var(--primary-light); box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+        .feature-box.ai { border-left-color: var(--hiclaw); }
+        .feature-box.danger { border-left-color: var(--danger); }
+        .feature-box.success { border-left-color: var(--success); }
+        .feature-box h4 { font-size: 1.2em; color: var(--primary-dark); margin-bottom: 12px; }
+        .feature-box.ai h4 { color: var(--hiclaw-dark); }
+        .feature-box p { color: var(--text-muted); font-size: 0.95em; margin-bottom: 16px; }
+        .feature-box ul { padding-left: 20px; color: var(--text-muted); font-size: 0.95em; }
+        .feature-box ul li { margin-bottom: 6px; }
+
+        /* TECH STACK */
+        .tech-container { max-width: 1200px; margin: 0 auto; padding: 80px 20px; text-align: center; }
+        .tech-tags { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 40px; }
+        .tech-tag { background: white; padding: 12px 24px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); font-weight: 500; color: var(--primary-dark); display: flex; align-items: center; gap: 10px; border: 1px solid #E2E8F0; }
+        .tech-tag span { font-size: 1.2em; }
+        
+        /* FOOTER */
+        .site-footer { background: var(--primary-dark); color: #94A3B8; padding: 60px 20px; text-align: center; }
+        .site-footer h3 { color: white; margin-bottom: 12px; font-size: 1.4em; }
+        .site-footer a { color: #60A5FA; font-weight: 500; }
+        .site-footer a:hover { text-decoration: underline; }
+
+        @media (max-width: 900px) {
+            .hero-container, .mcp-container { grid-template-columns: 1fr; }
+            .hero-text { text-align: center; }
+            .hero-text p { margin-left: auto; margin-right: auto; }
+            .hero-stats { justify-content: center; }
+            .mcp-text { padding-top: 20px; }
+        }
+        @media (max-width: 600px) {
+            .hero-text h1 { font-size: 2.5em; }
+        }
     </style>
 </head>
 <body>
 
-<!-- HERO -->
-<div class="hero">
-    <h1>SML Fleet</h1>
-    <div class="tagline">AI Team บริหารรถขนส่งให้คุณ 24/7</div>
-    <p>ระบบควบคุมรถขนส่งครบวงจร + HiClaw AI Agent Team — CEO สั่งงาน Workers ทำงานอัตโนมัติ ผ่าน 47 MCP Tools + Movement Intelligence ตรวจจับรถเคลื่อนที่ทุก 1 นาที</p>
-    <div class="hero-stats">
-        <span class="hero-stat"><strong>4</strong> AI Workers</span>
-        <span class="hero-stat"><strong>47</strong> MCP Tools</span>
-        <span class="hero-stat"><strong>60+</strong> API Endpoints</span>
-        <span class="hero-stat"><strong>3</strong> Flutter Apps</span>
-        <span class="hero-stat"><strong>1</strong> AI Gateway</span>
-    </div>
-</div>
+    <!-- HERO SECTION -->
+    <header class="hero">
+        <div class="hero-container">
+            <div class="hero-text">
+                <h1>SML Fleet Management</h1>
+                <div class="tagline">ระบบบริหารรถขนส่งคู่คิด SME ไทย + AI Agent</div>
+                <p>ยกระดับธุรกิจขนส่งของคุณด้วยแพลตฟอร์มควบคุมรถครบวงจร ทำงานร่วมกับ HiClaw AI Agent Team ที่วิเคราะห์ข้อมูลและให้คำแนะนำแบบ Real-time ตลอด 24 ชั่วโมง</p>
+                <div class="hero-stats">
+                    <span class="stat-badge"><strong>4</strong> AI Workers</span>
+                    <span class="stat-badge"><strong>47</strong> MCP Tools</span>
+                    <span class="stat-badge"><strong>60+</strong> API Endpoints</span>
+                    <span class="stat-badge"><strong>1</strong> AI Gateway</span>
+                </div>
+            </div>
+            <div class="hero-image">
+                <img src="assets/hero_realistic.png" alt="SME Fleet Owner and Trucks">
+            </div>
+        </div>
+    </header>
 
-<!-- HICLAW AI TEAM -->
-<div class="hiclaw-hero">
-    <div class="container" style="padding-top:0;padding-bottom:0;">
-        <h2>HiClaw <span>AI Agent Team</span></h2>
-        <p class="subtitle">AI ทำงานเป็นทีม — CEO แจกงาน Workers ลงมือทำ สื่อสารผ่าน Matrix Chat</p>
-
-        <div class="agents-grid">
-            <div class="agent-card">
-                <div class="agent-avatar">👔</div>
+    <!-- HICLAW AI TEAM -->
+    <section class="ai-team-section">
+        <h2>ทีมงาน HiClaw AI Agent</h2>
+        <p>ยกระดับการจัดการด้วยโครงสร้าง Manager-Worker แบบอัตโนมัติ ผู้บริหารสั่งงานผ่านแชท ส่วน AI Workers จะแบ่งหน้ากันไปดึงข้อมูลและทำรายงานให้คุณทันที</p>
+        
+        <div class="ai-grid">
+            <div class="ai-card">
+                <img src="assets/ceo_realistic.png" alt="Fleet CEO" class="ai-avatar">
                 <h3>Fleet CEO</h3>
-                <div class="role">ผู้บริหาร / สั่งงาน</div>
-                <p>ดูภาพรวม KPI สั่งงาน Workers ตามงาน ตัดสินใจ อนุมัติ สรุปรายงาน</p>
-                <span class="tools-count">47 tools</span>
+                <div class="role">ผู้บริหาร / ผู้สั่งงานรวม</div>
+                <p>ดูแลภาพรวม KPI มอบหมายงานให้ Workers ฝ่ายอื่น ประมวลผลและตัดสินใจเรื่องสำคัญ พร้อมสรุปอัปเดตสถานะแบบจบในแชทเดียว</p>
+                <span class="badge">47 Tools</span>
             </div>
-            <div class="agent-card">
-                <div class="agent-avatar">🚛</div>
+            <div class="ai-card">
+                <img src="assets/ops_realistic.png" alt="Fleet Ops" class="ai-avatar">
                 <h3>Fleet Ops</h3>
-                <div class="role">จัดการรถ + คนขับ + เที่ยววิ่ง</div>
-                <p>ลงทะเบียนรถ มอบหมายงาน ติดตาม GPS จัดเที่ยววิ่ง คำนวณราคา</p>
-                <span class="tools-count">20 tools</span>
+                <div class="role">ฝ่ายปฏิบัติการขนส่ง</div>
+                <p>ดูแลข้อมูลทะเบียนรถ คนขับ จัดเที่ยววิ่ง คำนวณรายได้-รายจ่าย และติดตาม GPS ช่วยคุณตัดสินใจด้านเส้นทางได้ทันที</p>
+                <span class="badge">20 Tools</span>
             </div>
-            <div class="agent-card">
-                <div class="agent-avatar">🔧</div>
+            <div class="ai-card">
+                <img src="assets/maint_realistic.png" alt="Fleet Maintenance" class="ai-avatar">
                 <h3>Fleet Maint</h3>
-                <div class="role">ซ่อมบำรุง + อะไหล่</div>
-                <p>สร้างใบสั่งซ่อม อนุมัติ ตรวจสต๊อก แจ้งเตือนประกัน/ภาษี/พ.ร.บ.</p>
-                <span class="tools-count">12 tools</span>
+                <div class="role">ฝ่ายซ่อมบำรุงและอะไหล่</div>
+                <p>รับผิดชอบสร้างใบแจ้งซ่อม ตรวจสอบระยะทางการซ่อมบำรุง เช็คสต๊อกอะไหล่พัง/ต่ำกว่ากำหนด และระบบแจ้งเตือนต่อภาษีประจำปี</p>
+                <span class="badge">12 Tools</span>
             </div>
-            <div class="agent-card">
-                <div class="agent-avatar">💬</div>
+            <div class="ai-card">
+                <img src="assets/cs_realistic.png" alt="Fleet CS" class="ai-avatar">
                 <h3>Fleet CS</h3>
-                <div class="role">บริการลูกค้า + จอง</div>
-                <p>รับจอง ค้นหารถว่าง คำนวณราคา ติดตาม ดู POD จัดหารถร่วม</p>
-                <span class="tools-count">15 tools</span>
+                <div class="role">ฝ่ายบริการลูกค้า</div>
+                <p>รับการจองรถ หารถว่างประเมินจุดหมาย คำนวณราคาขนส่ง ตรวจเช็คสถานะส่งของ (POD) และรองรับการหารถร่วมบริการให้ลูกค้า</p>
+                <span class="badge">15 Tools</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- WHY SML FLEET — BUSINESS VALUE -->
+    <section class="container" style="background: linear-gradient(180deg, #F0F9FF 0%, #F8FAFC 100%); padding: 100px 20px;">
+        <div class="section-header">
+            <h2>ทำไมต้อง SML Fleet?</h2>
+            <p>เปรียบเทียบกับระบบ Fleet Management ทั่วไป — SML Fleet ให้ AI ทำงานแทนคน ลดต้นทุน เพิ่มประสิทธิภาพ</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 28px; max-width: 1200px; margin: 0 auto;">
+            <!-- Business Card 1 -->
+            <div style="background: white; border-radius: 20px; padding: 36px; box-shadow: 0 8px 24px rgba(0,0,0,0.06); border-top: 4px solid #10B981;">
+                <div style="font-size: 48px; margin-bottom: 16px;">💰</div>
+                <h3 style="font-size: 1.4em; color: #065F46; margin-bottom: 12px;">ลดต้นทุนได้ทันที</h3>
+                <ul style="color: var(--text-muted); font-size: 0.95em; padding-left: 20px; line-height: 2;">
+                    <li><strong>ไม่ต้องจ้าง Dispatcher</strong> — AI fleet-ops จัดรถ จัดคนขับ มอบหมายงานให้อัตโนมัติ</li>
+                    <li><strong>ไม่ต้องจ้างคนตาม GPS</strong> — Movement Intelligence ตรวจจับรถ 24/7 ไม่ต้องนั่งเฝ้าจอ</li>
+                    <li><strong>ลดน้ำมัน</strong> — OSRM คำนวณเส้นทางจริงบนถนน หาเส้นทางสั้นที่สุด</li>
+                    <li><strong>ลดค่าซ่อม</strong> — AI แจ้งเตือนซ่อมตามรอบ ก่อนพังจริง (Preventive)</li>
+                    <li><strong>P&L ต่อคัน</strong> — รู้ทันทีว่ารถคันไหนกำไร คันไหนขาดทุน</li>
+                </ul>
+            </div>
+
+            <!-- Business Card 2 -->
+            <div style="background: white; border-radius: 20px; padding: 36px; box-shadow: 0 8px 24px rgba(0,0,0,0.06); border-top: 4px solid #3B82F6;">
+                <div style="font-size: 48px; margin-bottom: 16px;">⚡</div>
+                <h3 style="font-size: 1.4em; color: #1E40AF; margin-bottom: 12px;">เร็วกว่า — ทำงานทันที</h3>
+                <ul style="color: var(--text-muted); font-size: 0.95em; padding-left: 20px; line-height: 2;">
+                    <li><strong>พิมพ์แชท → AI ทำเลย</strong> — "มีรถ 6 ล้อว่างพรุ่งนี้ไหม" → ค้นหา + ตอบ + จอง ใน 5 วินาที</li>
+                    <li><strong>1 นาที = ตรวจรถทั้งกอง</strong> — AI วิเคราะห์ GPS ทุกคันอัตโนมัติ ไม่ต้องเปิดแผนที่ดู</li>
+                    <li><strong>Alert ทันที</strong> — รถขับเร็วเกิน, ออกนอกเส้นทาง, วิ่งกลางคืน → แจ้ง Boss ทันที</li>
+                    <li><strong>ไม่มีเวลาทำการ</strong> — AI Workers ทำงาน 24/7 ไม่มีวันหยุด</li>
+                    <li><strong>สรุปรายวัน</strong> — CEO สรุป KPI + ปัญหา + คำแนะนำ ให้ทุกเช้า</li>
+                </ul>
+            </div>
+
+            <!-- Business Card 3 -->
+            <div style="background: white; border-radius: 20px; padding: 36px; box-shadow: 0 8px 24px rgba(0,0,0,0.06); border-top: 4px solid #8B5CF6;">
+                <div style="font-size: 48px; margin-bottom: 16px;">🧠</div>
+                <h3 style="font-size: 1.4em; color: #5B21B6; margin-bottom: 12px;">ฉลาดกว่า — AI คิดเอง</h3>
+                <ul style="color: var(--text-muted); font-size: 0.95em; padding-left: 20px; line-height: 2;">
+                    <li><strong>ไม่ใช่แค่ rule-based</strong> — AI เข้าใจบริบท "90 กม./ชม. บนมอเตอร์เวย์ = ปกติ, ในเมือง = อันตราย"</li>
+                    <li><strong>monitoring_prompt</strong> — กำหนด AI rules ต่อรถแต่ละคัน "รถบรรทุกสารเคมี ห้ามเกิน 80"</li>
+                    <li><strong>Correlate ข้อมูล</strong> — "รถเพิ่งออกซ่อม + ขับผิดปกติ = น่าสงสัย ตรวจเบรค?"</li>
+                    <li><strong>สรุปภาษาไทย</strong> — AI เขียนรายงานภาษาคน ไม่ใช่แค่ตัวเลข</li>
+                    <li><strong>เรียนรู้จาก pattern</strong> — วิเคราะห์จากประวัติ ไม่ใช่แค่ข้อมูลปัจจุบัน</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- ARCHITECTURE — TECHNICAL DEEP DIVE -->
+    <section style="background: var(--primary-dark); color: white; padding: 100px 20px;">
+        <div style="max-width: 1200px; margin: 0 auto;">
+            <div class="section-header" style="margin-bottom: 60px;">
+                <h2 style="color: white; background: linear-gradient(to right, #60A5FA, #34D399); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">สถาปัตยกรรมระดับ Enterprise</h2>
+                <p style="color: #94A3B8;">Event-Driven + AI-First Architecture — ข้อมูลไหลตั้งแต่ Driver App จนถึง AI Analysis</p>
+            </div>
+
+            <!-- Data Flow Diagram -->
+            <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 40px; margin-bottom: 48px;">
+                <h3 style="text-align: center; color: #E2E8F0; margin-bottom: 24px; font-size: 1.3em;">Data Flow Architecture</h3>
+                <div style="display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; font-size: 0.95em;">
+                    <span style="background: rgba(59,130,246,0.2); border: 1px solid rgba(59,130,246,0.4); padding: 12px 18px; border-radius: 12px; color: #93C5FD;">📱 Driver App<br><small>GPS ทุก 30 วิ</small></span>
+                    <span style="color: #60A5FA; font-size: 1.4em;">→</span>
+                    <span style="background: rgba(16,185,129,0.2); border: 1px solid rgba(16,185,129,0.4); padding: 12px 18px; border-radius: 12px; color: #6EE7B7;">⚙️ Go API<br><small>Gin Framework</small></span>
+                    <span style="color: #60A5FA; font-size: 1.4em;">→</span>
+                    <span style="background: rgba(245,158,11,0.2); border: 1px solid rgba(245,158,11,0.4); padding: 12px 18px; border-radius: 12px; color: #FCD34D;">🍃 MongoDB<br><small>Source of Truth</small></span>
+                    <span style="color: #60A5FA; font-size: 1.4em;">→</span>
+                    <span style="background: rgba(239,68,68,0.2); border: 1px solid rgba(239,68,68,0.4); padding: 12px 18px; border-radius: 12px; color: #FCA5A5;">📡 Kafka<br><small>Event Stream</small></span>
+                    <span style="color: #60A5FA; font-size: 1.4em;">→</span>
+                    <span style="background: rgba(59,130,246,0.2); border: 1px solid rgba(59,130,246,0.4); padding: 12px 18px; border-radius: 12px; color: #93C5FD;">🐘 PostgreSQL<br><small>Query Layer</small></span>
+                    <span style="color: #60A5FA; font-size: 1.4em;">→</span>
+                    <span style="background: rgba(139,92,246,0.2); border: 1px solid rgba(139,92,246,0.4); padding: 12px 18px; border-radius: 12px; color: #C4B5FD;">🧠 HiClaw AI<br><small>วิเคราะห์ทุก 1 นาที</small></span>
+                </div>
+            </div>
+
+            <!-- Technical Cards -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 24px;">
+                <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 28px;">
+                    <h4 style="color: #FCD34D; margin-bottom: 12px; font-size: 1.15em;">🍃 MongoDB → Kafka → PostgreSQL</h4>
+                    <p style="color: #94A3B8; font-size: 0.95em; line-height: 1.8;">
+                        <strong style="color: #E2E8F0;">Write Path:</strong> ทุก operation เขียน MongoDB ก่อน (Source of Truth) → Kafka produce event → Consumer upsert PostgreSQL<br>
+                        <strong style="color: #E2E8F0;">Read Path:</strong> ทุก query อ่านจาก PostgreSQL (เร็ว, JOIN ได้)<br>
+                        <strong style="color: #E2E8F0;">Rebuild:</strong> PostgreSQL สามารถ DROP แล้ว rebuild จาก MongoDB ได้ทุกเมื่อ — ข้อมูลไม่มีวันหาย
+                    </p>
+                </div>
+
+                <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 28px;">
+                    <h4 style="color: #C4B5FD; margin-bottom: 12px; font-size: 1.15em;">🧠 HiClaw AI Pipeline</h4>
+                    <p style="color: #94A3B8; font-size: 0.95em; line-height: 1.8;">
+                        <strong style="color: #E2E8F0;">Infinite Task:</strong> fleet-ops ทำงานทุก 1 นาที เรียก get_moving_vehicles ตรวจจับรถเปลี่ยนตำแหน่ง<br>
+                        <strong style="color: #E2E8F0;">AI Analysis:</strong> วิเคราะห์ 8 event types: speeding, geofence, night movement, erratic driving ฯลฯ<br>
+                        <strong style="color: #E2E8F0;">Auto Alert:</strong> severity warning/critical → Kafka → สร้าง alert ใน PostgreSQL อัตโนมัติ
+                    </p>
+                </div>
+
+                <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 28px;">
+                    <h4 style="color: #6EE7B7; margin-bottom: 12px; font-size: 1.15em;">🔒 Multi-tenant + Security</h4>
+                    <p style="color: #94A3B8; font-size: 0.95em; line-height: 1.8;">
+                        <strong style="color: #E2E8F0;">shop_id:</strong> ทุก document, ทุก table, ทุก query มี shop_id — แยกข้อมูลลูกค้าสมบูรณ์<br>
+                        <strong style="color: #E2E8F0;">JWT Auth:</strong> Token-based authentication + role-based access (admin, driver, manager)<br>
+                        <strong style="color: #E2E8F0;">Higress Gateway:</strong> AI requests ถูกกรองผ่าน Gateway — consumer auth, rate limit, token control
+                    </p>
+                </div>
+
+                <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 28px;">
+                    <h4 style="color: #93C5FD; margin-bottom: 12px; font-size: 1.15em;">🛣️ OSRM Routing Engine</h4>
+                    <p style="color: #94A3B8; font-size: 0.95em; line-height: 1.8;">
+                        <strong style="color: #E2E8F0;">Road-following polyline:</strong> เส้นทางตามถนนจริง ไม่ใช่เส้นตรง — วาดบน OpenStreetMap<br>
+                        <strong style="color: #E2E8F0;">Turn-by-turn:</strong> คำแนะนำเลี้ยวทุกจุด ภาษาไทย สำหรับ Driver App<br>
+                        <strong style="color: #E2E8F0;">Upgrade path:</strong> พร้อมอัปเกรดเป็น Valhalla self-hosted (map matching, isochrone, truck profile)
+                    </p>
+                </div>
+
+                <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 28px;">
+                    <h4 style="color: #FCA5A5; margin-bottom: 12px; font-size: 1.15em;">📡 11 Kafka Topics + Real-time</h4>
+                    <p style="color: #94A3B8; font-size: 0.95em; line-height: 1.8;">
+                        <strong style="color: #E2E8F0;">Event Sourcing:</strong> ทุก action มี event log — ย้อนดูว่าใคร ทำอะไร เมื่อไหร่ ได้ทั้งหมด<br>
+                        <strong style="color: #E2E8F0;">11 Topics:</strong> vehicles, drivers, trips, maintenance, partners, expenses, gps, alerts, parts, event-logs, movement.analysis<br>
+                        <strong style="color: #E2E8F0;">Consumer Groups:</strong> pgsql-sync, alert-processor, bc-account-sync
+                    </p>
+                </div>
+
+                <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 28px;">
+                    <h4 style="color: #F9A8D4; margin-bottom: 12px; font-size: 1.15em;">📊 ตัวเลขระบบ</h4>
+                    <p style="color: #94A3B8; font-size: 0.95em; line-height: 1.8;">
+                        <strong style="color: #E2E8F0;">47 MCP Tools</strong> — AI เรียกใช้ได้ทุก function ของระบบ<br>
+                        <strong style="color: #E2E8F0;">60+ REST APIs</strong> — ครอบคลุมทุก entity: vehicle, driver, trip, maintenance, partner, expense, GPS<br>
+                        <strong style="color: #E2E8F0;">11 MongoDB Collections</strong> + <strong style="color: #E2E8F0;">8 PostgreSQL Tables</strong> + <strong style="color: #E2E8F0;">2 Views</strong><br>
+                        <strong style="color: #E2E8F0;">8 Movement Event Types</strong> — speeding, geofence, night, erratic, idle, route deviation ฯลฯ
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 47 MCP TOOLS — DETAILED BREAKDOWN -->
+    <section class="container" style="background: white; padding: 100px 20px;">
+        <div class="section-header">
+            <h2>47 MCP Tools — เครื่องมือ AI ครบทุกงาน</h2>
+            <p>AI Workers เรียกใช้ Tools เหล่านี้ผ่าน Higress Gateway — ทุก Tool เชื่อม API จริง ไม่ใช่แค่ Chatbot ตอบคำถาม</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 24px; max-width: 1200px; margin: 0 auto;">
+
+            <!-- Vehicle Tools -->
+            <div style="background: #F8FAFC; border-radius: 16px; padding: 28px; border-left: 5px solid #3B82F6;">
+                <h4 style="color: #1E40AF; font-size: 1.2em; margin-bottom: 6px;">🚛 Vehicle Management — 8 Tools</h4>
+                <p style="color: var(--text-muted); font-size: 0.9em; margin-bottom: 16px;">จัดการทะเบียนรถครบวงจร ตั้งแต่ลงทะเบียนจนถึงวิเคราะห์ต้นทุน</p>
+                <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                    <span style="background: #DBEAFE; color: #1E40AF; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-family: monospace;">list_vehicles</span>
+                    <span style="background: #DBEAFE; color: #1E40AF; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-family: monospace;">get_vehicle</span>
+                    <span style="background: #DBEAFE; color: #1E40AF; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-family: monospace;">create_vehicle</span>
+                    <span style="background: #DBEAFE; color: #1E40AF; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-family: monospace;">update_vehicle</span>
+                    <span style="background: #DBEAFE; color: #1E40AF; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-family: monospace;">get_vehicle_health</span>
+                    <span style="background: #DBEAFE; color: #1E40AF; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-family: monospace;">get_vehicle_location</span>
+                    <span style="background: #DBEAFE; color: #1E40AF; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-family: monospace;">get_vehicle_cost</span>
+                    <span style="background: #DBEAFE; color: #1E40AF; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-family: monospace;">get_vehicle_history</span>
+                </div>
+                <p style="color: #64748B; font-size: 0.85em; margin-top: 12px; font-style: italic;">ตัวอย่าง: "รถทะเบียน กท-1234 สุขภาพเป็นอย่างไร" → AI เรียก get_vehicle_health → ตอบ เขียว/เหลือง/แดง พร้อมรายละเอียด</p>
+            </div>
+
+            <!-- Driver Tools -->
+            <div style="background: #F8FAFC; border-radius: 16px; padding: 28px; border-left: 5px solid #10B981;">
+                <h4 style="color: #065F46; font-size: 1.2em; margin-bottom: 6px;">👤 Driver Management — 6 Tools</h4>
+                <p style="color: var(--text-muted); font-size: 0.9em; margin-bottom: 16px;">ข้อมูลคนขับ KPI ตารางเวร เงินเดือน แนะนำคนขับที่เหมาะ</p>
+                <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                    <span style="background: #D1FAE5; color: #065F46; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-family: monospace;">list_drivers</span>
+                    <span style="background: #D1FAE5; color: #065F46; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-family: monospace;">get_driver</span>
+                    <span style="background: #D1FAE5; color: #065F46; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-family: monospace;">create_driver</span>
+                    <span style="background: #D1FAE5; color: #065F46; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-family: monospace;">get_driver_score</span>
+                    <span style="background: #D1FAE5; color: #065F46; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-family: monospace;">check_driver_schedule</span>
+                    <span style="background: #D1FAE5; color: #065F46; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-family: monospace;">calculate_driver_salary</span>
+                </div>
+                <p style="color: #64748B; font-size: 0.85em; margin-top: 12px; font-style: italic;">ตัวอย่าง: "คนขับสมชาย KPI เท่าไหร่" → AI เรียก get_driver_score → ตอบ 92/100 ตรงเวลา 95% น้ำมัน 5.2 km/L</p>
+            </div>
+
+            <!-- Trip Tools -->
+            <div style="background: #F8FAFC; border-radius: 16px; padding: 28px; border-left: 5px solid #F59E0B;">
+                <h4 style="color: #92400E; font-size: 1.2em; margin-bottom: 6px;">📋 Trip Management — 9 Tools</h4>
+                <p style="color: var(--text-muted); font-size: 0.9em; margin-bottom: 16px;">จัดเที่ยววิ่ง มอบหมาย ติดตาม คำนวณต้นทุน/กำไร + เส้นทาง OSRM</p>
+                <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                    <span style="background: #FEF3C7; color: #92400E; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-family: monospace;">list_trips</span>
+                    <span style="background: #FEF3C7; color: #92400E; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-family: monospace;">create_trip</span>
+                    <span style="background: #FEF3C7; color: #92400E; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-family: monospace;">update_trip_status</span>
+                    <span style="background: #FEF3C7; color: #92400E; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-family: monospace;">assign_trip</span>
+                    <span style="background: #FEF3C7; color: #92400E; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-family: monospace;">calculate_route_cost</span>
+                    <span style="background: #FEF3C7; color: #92400E; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-family: monospace;">track_shipment</span>
+                    <span style="background: #FEF3C7; color: #92400E; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-family: monospace;">get_trip_pod</span>
+                    <span style="background: #FEF3C7; color: #92400E; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-family: monospace;">get_trip_cost_breakdown</span>
+                    <span style="background: #FF7043; color: white; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-family: monospace; font-weight: 600;">calculate_route ✨</span>
+                </div>
+                <p style="color: #64748B; font-size: 0.85em; margin-top: 12px; font-style: italic;">ตัวอย่าง: "คำนวณเส้นทางเชียงใหม่ไปลำพูน" → AI เรียก calculate_route → ตอบ 35.4 km, 35 นาที พร้อม polyline ตามถนน</p>
+            </div>
+
+            <!-- Maintenance Tools -->
+            <div style="background: #F8FAFC; border-radius: 16px; padding: 28px; border-left: 5px solid #EF4444;">
+                <h4 style="color: #991B1B; font-size: 1.2em; margin-bottom: 6px;">🔧 Maintenance — 6 Tools</h4>
+                <p style="color: var(--text-muted); font-size: 0.9em; margin-bottom: 16px;">ใบสั่งซ่อม อนุมัติ ปิดงาน สต๊อกอะไหล่ ต้นทุนซ่อมต่อคัน</p>
+                <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                    <span style="background: #FEE2E2; color: #991B1B; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-family: monospace;">list_maintenance_due</span>
+                    <span style="background: #FEE2E2; color: #991B1B; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-family: monospace;">create_work_order</span>
+                    <span style="background: #FEE2E2; color: #991B1B; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-family: monospace;">list_work_orders</span>
+                    <span style="background: #FEE2E2; color: #991B1B; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-family: monospace;">approve_work_order</span>
+                    <span style="background: #FEE2E2; color: #991B1B; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-family: monospace;">complete_work_order</span>
+                    <span style="background: #FEE2E2; color: #991B1B; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-family: monospace;">list_parts_inventory</span>
+                </div>
+                <p style="color: #64748B; font-size: 0.85em; margin-top: 12px; font-style: italic;">ตัวอย่าง: "รถคันไหนใกล้ถึงกำหนดซ่อม" → AI เรียก list_maintenance_due → ตอบรายการพร้อมวันที่/กิโลเมตร</p>
+            </div>
+
+            <!-- GPS & Movement Intelligence -->
+            <div style="background: linear-gradient(135deg, #FDF2F8, #FAF5FF); border-radius: 16px; padding: 28px; border-left: 5px solid #8B5CF6;">
+                <h4 style="color: #5B21B6; font-size: 1.2em; margin-bottom: 6px;">📍 GPS & Movement Intelligence — 5 Tools</h4>
+                <p style="color: var(--text-muted); font-size: 0.9em; margin-bottom: 16px;">ตำแหน่ง GPS real-time + AI วิเคราะห์รถเคลื่อนที่อัตโนมัติทุก 1 นาที</p>
+                <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                    <span style="background: #EDE9FE; color: #5B21B6; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-family: monospace;">get_all_vehicle_locations</span>
+                    <span style="background: #EDE9FE; color: #5B21B6; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-family: monospace;">report_gps_location</span>
+                    <span style="background: #7C3AED; color: white; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-family: monospace; font-weight: 600;">get_moving_vehicles ✨</span>
+                    <span style="background: #7C3AED; color: white; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-family: monospace; font-weight: 600;">publish_movement_analysis ✨</span>
+                    <span style="background: #7C3AED; color: white; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-family: monospace; font-weight: 600;">get_movement_events ✨</span>
+                </div>
+                <p style="color: #64748B; font-size: 0.85em; margin-top: 12px; font-style: italic;">ตัวอย่าง: ทุก 1 นาที fleet-ops เรียก get_moving_vehicles → พบรถขับเร็ว 120 กม./ชม. → AI วิเคราะห์ severity: warning → publish_movement_analysis → Kafka → auto alert</p>
+            </div>
+
+            <!-- Partner + Expense + Dashboard -->
+            <div style="background: #F8FAFC; border-radius: 16px; padding: 28px; border-left: 5px solid #06B6D4;">
+                <h4 style="color: #155E75; font-size: 1.2em; margin-bottom: 6px;">📊 Partner + Expense + Dashboard — 13 Tools</h4>
+                <p style="color: var(--text-muted); font-size: 0.9em; margin-bottom: 16px;">รถร่วม ค่าใช้จ่าย KPI สรุปภาพรวม รายงาน อันดับคนขับ</p>
+                <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                    <span style="background: #CFFAFE; color: #155E75; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-family: monospace;">list_partner_vehicles</span>
+                    <span style="background: #CFFAFE; color: #155E75; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-family: monospace;">find_available_partners</span>
+                    <span style="background: #CFFAFE; color: #155E75; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-family: monospace;">create_expense</span>
+                    <span style="background: #CFFAFE; color: #155E75; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-family: monospace;">get_fuel_report</span>
+                    <span style="background: #CFFAFE; color: #155E75; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-family: monospace;">get_fleet_summary</span>
+                    <span style="background: #CFFAFE; color: #155E75; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-family: monospace;">get_fleet_kpi</span>
+                    <span style="background: #CFFAFE; color: #155E75; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-family: monospace;">get_active_alerts</span>
+                    <span style="background: #CFFAFE; color: #155E75; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-family: monospace;">get_driver_leaderboard</span>
+                    <span style="background: #CFFAFE; color: #155E75; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-family: monospace;">+ 5 more</span>
+                </div>
+                <p style="color: #64748B; font-size: 0.85em; margin-top: 12px; font-style: italic;">ตัวอย่าง: "สรุปภาพรวมกองรถวันนี้" → AI เรียก get_fleet_summary → ตอบ รถ active 80 คัน, เที่ยวสำเร็จ 45, รายได้ 185,000 บาท</p>
             </div>
         </div>
 
-        <div class="hiclaw-flow">
-            <div class="flow-step">Admin สั่งงาน<br><small>ผ่าน Matrix Chat</small></div>
-            <span class="flow-arrow">&rarr;</span>
-            <div class="flow-step">CEO วิเคราะห์<br><small>ดึง KPI + สถานะ</small></div>
-            <span class="flow-arrow">&rarr;</span>
-            <div class="flow-step">แจกงาน Workers<br><small>@fleet-ops @fleet-maint</small></div>
-            <span class="flow-arrow">&rarr;</span>
-            <div class="flow-step">Workers ทำงาน<br><small>เรียก 47 MCP Tools</small></div>
-            <span class="flow-arrow">&rarr;</span>
-            <div class="flow-step">SML Fleet API<br><small>MongoDB &rarr; Kafka &rarr; PG</small></div>
+        <!-- AI Conversation Example -->
+        <div style="max-width: 700px; margin: 48px auto 0; background: var(--primary-dark); border-radius: 20px; padding: 32px; color: white;">
+            <h3 style="text-align: center; margin-bottom: 20px; color: #C4B5FD; font-size: 1.1em;">ตัวอย่างบทสนทนากับ AI Agent</h3>
+            <div style="font-size: 0.95em; line-height: 2;">
+                <div style="margin-bottom: 8px;"><span style="color: #60A5FA; font-weight: 600;">Admin:</span> <span style="color: #E2E8F0;">"มีรถ 6 ล้อว่างพรุ่งนี้ไหม ส่งของไปลำพูน"</span></div>
+                <div style="margin-bottom: 8px; padding-left: 20px; border-left: 2px solid #6D28D9;">
+                    <span style="color: #C084FC; font-weight: 600;">Fleet CS:</span> <span style="color: #94A3B8;">กำลังตรวจสอบ...</span><br>
+                    <span style="color: #94A3B8; font-size: 0.8em; font-family: monospace;">→ list_vehicles(type="6ล้อ", status="active")<br>→ check_driver_schedule(date="tomorrow")<br>→ calculate_route(from=เชียงใหม่, to=ลำพูน)</span>
+                </div>
+                <div style="padding-left: 20px; border-left: 2px solid #6D28D9;">
+                    <span style="color: #C084FC; font-weight: 600;">Fleet CS:</span> <span style="color: #E2E8F0;">"รถ 6 ล้อ ทะเบียน กท-1234 ว่างครับ คนขับสมชาย (KPI 92) เส้นทาง 35.4 กม. ใช้เวลา 35 นาที ค่าขนส่ง 2,500 บาท จองเลยไหมครับ?"</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MCP EXPLANATION -->
+    <section class="mcp-section">
+        <div class="mcp-container">
+            <div class="mcp-image-wrap">
+                <img src="assets/mcp_realistic.png" alt="MCP Connects AI to Systems">
+            </div>
+            <div class="mcp-text">
+                <h2>พลังของ <span>MCP (Model Context Protocol)</span></h2>
+                <p>AI Chatbot ทั่วไปทำได้แค่คุยและให้คำปรึกษา แต่สำหรับ SML Fleet เราเชื่อมต่อ <strong>LLMs เข้ากับระบบ API ผ่านมาตรฐาน MCP</strong> ทำให้ AI กลายเป็น "ผู้ปฏิบัติงานจริง" (Agent) ที่เชื่อมตรงเข้าสู่ Database ของบริษัท</p>
+                
+                <ul class="mcp-features">
+                    <li>
+                        <div class="m-icon">⚡</div>
+                        <div class="m-desc">
+                            <h4>47 Ready-to-use Tools</h4>
+                            <p>ทุกครั้งที่แชทสั่งงาน AI จะวิเคราะห์เจตนาและทำการเรียกใช้ API หนึ่งในกว่า 47 Tools แบบอัตโนมัติ เช่น สั่งค้นหารถว่าง หรือเพิ่มตารางคนขับเข้าสู่ระบบ</p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="m-desc">
+                            <div style="display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; background:#E0E7FF; color:var(--primary-light); border-radius:50%; margin-right:16px; font-size:1.2em; float:left;">🔒</div>
+                            <h4>Secure Gateway via Higress</h4>
+                            <p>ทุกๆ คำสั่งจะถูกกลั่นกรองความปลอดภัยและแปลงสภาพผ่านระดับ Gateway ทำให้ระบบ Backend มั่นคง และสามารถทำงานกับ LLM หลากหลายค่ายได้ทันที (OpenRouter, Gemini, Claude)</p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="m-desc">
+                            <div style="display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; background:#E0E7FF; color:var(--primary-light); border-radius:50%; margin-right:16px; font-size:1.2em; float:left;">🤖</div>
+                            <h4>Movement Intelligence</h4>
+                            <p>นอกจากการคุยแบบถาม-ตอบ MCP ทำให้ผสานรวมเข้ากับระบบ Event-driven ตรวจจับข้อบกพร่องของ GPS Fleet ตลอด 24/7 เพื่อให้ AI สรุปเหตุการณ์ที่ผิดปกติแจ้งคุณได้ทันที</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- APPS & DEMOS -->
+    <div class="container" style="background:var(--bg); padding-top:40px;">
+        <div class="section-header">
+            <h2>แอปพลิเคชัน & แดชบอร์ด</h2>
+            <p>สัมผัสประสบการณ์ใช้งานระบบ SML Fleet ที่ถูกออกแบบมาสำหรับ User ทุกระดับในองค์กรของคุณ</p>
+        </div>
+
+        <div class="grid-cards">
+            <a href="/dashboard/" class="app-card">
+                <div class="icon">🖥️</div>
+                <h3>Web Dashboard (Admin)</h3>
+                <p>ศูนย์กลางสำหรับประสานงาน ระบบทะเบียน จัดการอะไหล่ ซ่อมบำรุง ตารางงาน และการเงิน</p>
+                <span class="pill">ผู้ใช้งาน: แอดมิน / ฝ่ายบัญชี</span>
+            </a>
+            <a href="/boss/" class="app-card">
+                <div class="icon">👔</div>
+                <h3>Boss App (Executive)</h3>
+                <p>แอปพลิเคชันดูข้อมูล KPI กำไร/ขาดทุน แผนที่เดินรถ real-time และอนุมัติเอกสารง่าย ๆ จากมือถือ</p>
+                <span class="pill">ผู้ใช้งาน: เจ้าของธุรกิจ / ผู้จัดการ</span>
+            </a>
+            <a href="/driver/" class="app-card">
+                <div class="icon">📱</div>
+                <h3>Driver App (Worker)</h3>
+                <p>รับแผนการวิ่ง เช็คลิสต์สภาพรถ อัปโหลดรูปใบชั่ง บันทึกรายจ่ายน้ำมันและเก็บลายเซ็น POD</p>
+                <span class="pill">ผู้ใช้งาน: พนักงานขับรถ</span>
+            </a>
+            <a href="/docs/index.html" class="app-card">
+                <div class="icon">📖</div>
+                <h3>Developer Documentation</h3>
+                <p>เข้าถึงข้อมูลเชิงเทคนิค สถาปัตยกรรมระบบ API Reference และ UCP Protocol Setup</p>
+                <span class="pill">Developer & Integrator</span>
+            </a>
         </div>
     </div>
-</div>
 
-<!-- DEMO APPS -->
-<div class="container">
-    <h2 class="section-title">ทดลองใช้งาน</h2>
-    <p class="section-sub">กดเข้าใช้ได้ทันที ไม่ต้อง login — ข้อมูลตัวอย่างภาษาไทยพร้อมแล้ว</p>
-
-    <div class="apps-grid">
-        <a href="/dashboard/" class="app-card">
-            <div class="app-icon">🖥️</div>
-            <h3>Web Dashboard</h3>
-            <p>จัดการรถ คนขับ เที่ยววิ่ง ซ่อมบำรุง รถร่วม รายงาน P&L</p>
-            <span class="badge">แอดมิน / ฝ่ายบัญชี</span>
-        </a>
-        <a href="/boss/" class="app-card">
-            <div class="app-icon">👔</div>
-            <h3>Boss App</h3>
-            <p>Dashboard KPI แผนที่รถ real-time อนุมัติซ่อม ติดตามต้นทุน</p>
-            <span class="badge">เจ้าของ / ผู้จัดการ</span>
-        </a>
-        <a href="/driver/" class="app-card">
-            <div class="app-icon">📱</div>
-            <h3>Driver App</h3>
-            <p>รับงาน เช็คลิสต์ นำทาง ถ่ายรูป POD ลายเซ็น บันทึกน้ำมัน</p>
-            <span class="badge">คนขับรถ</span>
-        </a>
-        <a href="/api/v1/fleet/vehicles" class="app-card">
-            <div class="app-icon">⚙️</div>
-            <h3>REST API</h3>
-            <p>60+ endpoints — Vehicles, Drivers, Trips, Maintenance, GPS, Reports</p>
-            <span class="badge">Developer</span>
-        </a>
-        <a href="/docs/index.html" class="app-card">
-            <div class="app-icon">📖</div>
-            <h3>Documentation</h3>
-            <p>สถาปัตยกรรม API Reference MCP Tools UCP Protocol Tech Stack</p>
-            <span class="badge">Showcase</span>
-        </a>
-        <a href="/health" class="app-card">
-            <div class="app-icon">💚</div>
-            <h3>System Status</h3>
-            <p><span class="status"></span>API <span class="status"></span>MongoDB <span class="status"></span>PostgreSQL <span class="status"></span>Kafka</p>
-            <span class="badge">Health Check</span>
-        </a>
-    </div>
-</div>
-
-<hr class="divider">
-
-<!-- FEATURES -->
-<div class="container">
-    <h2 class="section-title">คุณสมบัติทั้งหมด</h2>
-    <p class="section-sub">ระบบครบวงจร ออกแบบสำหรับธุรกิจขนส่ง SME ไทยโดยเฉพาะ</p>
-
-    <div class="features-grid">
-        <div class="feature-card" style="border-left-color: var(--hiclaw);">
-            <h4 style="color: var(--hiclaw-dark);">🤖 HiClaw AI Agent Team</h4>
-            <p>AI ทำงานเป็นทีม — Manager-Worker architecture บน Higress AI Gateway</p>
-            <ul>
-                <li>4 AI Workers: CEO, Ops, Maintenance, Customer Service</li>
-                <li>47 MCP Tools เชื่อม SML Fleet API ผ่าน Higress</li>
-                <li>สื่อสารผ่าน Matrix Chat (Element Web)</li>
-                <li>Auto-start Workers เมื่อมี task / Auto-stop เมื่อ idle</li>
-                <li>Multi-LLM: Gemini Flash, GPT, Claude ผ่าน OpenRouter</li>
-                <li>MinIO file sync ระหว่าง Manager-Workers</li>
-            </ul>
+    <!-- FULL FEATURES -->
+    <div class="container" style="padding-top: 20px;">
+        <div class="section-header">
+            <h2>ความสามารถของระบบในระดับองค์กร</h2>
         </div>
-
-        <div class="feature-card" style="border-left-color: var(--danger);">
-            <h4 style="color: var(--danger);">🔴 Movement Intelligence (AI อัตโนมัติ)</h4>
-            <p>HiClaw fleet-ops ตรวจจับรถเคลื่อนที่ทุก 1 นาที วิเคราะห์ด้วย AI</p>
-            <ul>
-                <li>Haversine GPS ตรวจจับรถเปลี่ยนตำแหน่ง > 50m</li>
-                <li>AI วิเคราะห์: speeding, geofence, night movement, erratic driving</li>
-                <li>monitoring_prompt กำหนด AI rules ต่อรถแต่ละคัน</li>
-                <li>ส่ง Kafka &rarr; MongoDB log + auto-alert ถ้า warning/critical</li>
-                <li>Infinite Task ทำงานอัตโนมัติ ไม่ต้องสั่ง</li>
-            </ul>
-        </div>
-
-        <div class="feature-card" style="border-left-color: var(--success);">
-            <h4 style="color: var(--success);">🗺️ OSRM Routing (เส้นทางตามถนน)</h4>
-            <p>คำนวณเส้นทางจริงบนถนน ไม่ใช่เส้นตรง — polyline + turn-by-turn</p>
-            <ul>
-                <li>OSRM Demo Server (ฟรี) — พร้อมอัปเกรดเป็น Valhalla self-hosted</li>
-                <li>ระยะทาง + เวลาจริงบนถนน</li>
-                <li>Turn-by-turn navigation ภาษาไทย</li>
-                <li>รองรับจุดแวะ (waypoints) หลายจุด</li>
-            </ul>
-        </div>
-
-        <div class="feature-card">
-            <h4>🚛 ทะเบียนรถ (Vehicle Management)</h4>
-            <p>ลงทะเบียนรถทุกประเภท ข้อมูลครบถ้วน</p>
-            <ul>
-                <li>รองรับ: 4ล้อ, 6ล้อ, 10ล้อ, หัวลาก, กระบะ</li>
-                <li>ประกัน / ภาษี / พ.ร.บ. แจ้งเตือนก่อนหมดอายุ</li>
-                <li>สุขภาพรถ: เขียว / เหลือง / แดง</li>
-                <li>รองรับรถเช่า + รถร่วม</li>
-            </ul>
-        </div>
-
-        <div class="feature-card">
-            <h4>👤 คนขับ (Driver Management)</h4>
-            <p>จัดการคนขับ ตารางเวร KPI คะแนน</p>
-            <ul>
-                <li>KPI Score 0-100 (ตรงเวลา, น้ำมัน, Rating)</li>
-                <li>ตารางเวร + วันลา + OT + เงินเดือนอัตโนมัติ</li>
-                <li>AI แนะนำคนขับที่เหมาะสม</li>
-            </ul>
-        </div>
-
-        <div class="feature-card">
-            <h4>📋 เที่ยววิ่ง (Trip Management)</h4>
-            <p>จัดเที่ยว มอบหมาย ติดตาม คำนวณต้นทุน/กำไร</p>
-            <ul>
-                <li>สร้างเที่ยว &rarr; มอบหมาย &rarr; ติดตาม &rarr; POD</li>
-                <li>ต้นทุน: น้ำมัน + ทางด่วน + คนขับ = กำไร/ขาดทุน</li>
-                <li>POD: รูปถ่าย + ลายเซ็นดิจิทัลผู้รับ</li>
-            </ul>
-        </div>
-
-        <div class="feature-card">
-            <h4>📍 GPS Tracking Real-time</h4>
-            <p>ติดตามรถทุกคันบนแผนที่ OpenStreetMap (ฟรี)</p>
-            <ul>
-                <li>GPS จาก Driver App ทุก 30 วินาที</li>
-                <li>Markers ทะเบียนรถ + สีตามสถานะ</li>
-                <li>เส้นทางย้อนหลัง + Geofence + ขับเร็วเกิน</li>
-            </ul>
-        </div>
-
-        <div class="feature-card">
-            <h4>🔧 ซ่อมบำรุง (Maintenance)</h4>
-            <p>ใบสั่งซ่อม อนุมัติ สต๊อกอะไหล่</p>
-            <ul>
-                <li>3 ประเภท: ซ่อมตามรอบ / ตามอาการ / ฉุกเฉิน</li>
-                <li>Approval flow + ค่าอะไหล่ + ค่าแรง</li>
-                <li>สต๊อกอะไหล่ + แจ้งเตือนต่ำกว่า min</li>
-            </ul>
-        </div>
-
-        <div class="feature-card">
-            <h4>🤝 รถร่วม (Partner Vehicles)</h4>
-            <p>ลงทะเบียน จอง จ่ายเงิน AI จับคู่</p>
-            <ul>
-                <li>ราคา: ต่อเที่ยว / ต่อ กม. / ต่อวัน</li>
-                <li>AI Matching Score + หัก ณ ที่จ่าย</li>
-                <li>Rating + ประวัติเที่ยว</li>
-            </ul>
-        </div>
-
-        <div class="feature-card">
-            <h4>💰 ต้นทุน + รายงาน</h4>
-            <p>P&L ต่อคัน/เดือน รายงานน้ำมัน วิเคราะห์กำไร</p>
-            <ul>
-                <li>Dashboard KPI + Vehicle Utilization</li>
-                <li>Driver Leaderboard (อันดับคนขับ)</li>
-                <li>Export Excel / PDF</li>
-            </ul>
-        </div>
-
-        <div class="feature-card">
-            <h4>⚠️ แจ้งเตือน 7 ประเภท</h4>
-            <p>Cron job ตรวจทุกชั่วโมง แจ้งเตือนอัตโนมัติ</p>
-            <ul>
-                <li>ประกัน / ภาษี / พ.ร.บ. / ใบขับขี่</li>
-                <li>ซ่อมบำรุงครบกำหนด (กม. / วัน)</li>
-                <li>ขับเร็วเกิน + ออกนอก Geofence</li>
-            </ul>
+        
+        <div class="grid-cards">
+            <div class="feature-box ai">
+                <h4>🤖 HiClaw AI & Autobots</h4>
+                <p>นอกจากโหมดตอบคำถามแบบ Chatbot มีฟังก์ชัน Auto-start / Auto-stop Workers เมื่อมีเหตุการณ์สำคัญเกิดขึ้นในระบบ</p>
+                <ul>
+                    <li>Manager-Worker architecture ทำงานข้าม Role</li>
+                    <li>คุยเป็นภาษามนุษย์ สั่งงานให้ดึง/แก้ไข Database ซับซ้อน</li>
+                </ul>
+            </div>
+            <div class="feature-box danger">
+                <h4>🔴 Movement Intelligence AI</h4>
+                <p>ตรวจสอบรถที่ติดตั้งระบบด้วยกฎ Monitoring Parameters ตบอดเวลาในระดับ Background</p>
+                <ul>
+                    <li>Haversine GPS ตำแหน่งเปลี่ยน > 50m</li>
+                    <li>ตั้งกฎ Geofence, Night Movement และ Speeding Limit</li>
+                </ul>
+            </div>
+            <div class="feature-box success">
+                <h4>🗺️ OSRM + Real Road Routing</h4>
+                <p>คำนวณระยะทางและเส้นทางพาดผ่านที่สมจริง ไม่ใช่เส้นตรง</p>
+                <ul>
+                    <li>ระยะทางและเวลาเดินทางจริงใช้ประเมินราคา</li>
+                    <li>รองรับการเก็บหมุดพิกัด Waypoints</li>
+                </ul>
+            </div>
+            <div class="feature-box">
+                <h4>🚛 บริหารงานยานพาหนะลึกซึ้ง</h4>
+                <p>จัดเก็บตัวถัง ประวัติซ่อมบำรุง ประกันภัย ภาษี มีไฟเขียวแจ้งเตือนล่วงหน้า</p>
+            </div>
+            <div class="feature-box">
+                <h4>📋 ระบบ Trip & PnL จัดการเที่ยว</h4>
+                <p>รู้รายได้และต้นทุน (น้ำมัน, ค่าแรง, ทางด่วน) ของแต่ละเที่ยวแบบเป๊ะๆ</p>
+            </div>
+            <div class="feature-box">
+                <h4>🤝 จัดการหารถร่วม (Partner Vehicles)</h4>
+                <p>หารถขนส่ง Outsource ที่เข้าร่วมอย่างเป็นระบบ ทำบิลหัก ณ ที่จ่ายครบถ้วน</p>
+            </div>
         </div>
     </div>
-</div>
 
-<hr class="divider">
+    <!-- TECH STACK & FOOTER -->
+    <section class="tech-container">
+        <h2 style="font-size: 2em; margin-bottom: 12px; color: var(--primary-dark);">เทคโนโลยีที่ขับเคลื่อน SML Fleet</h2>
+        <p style="color: var(--text-muted); font-size: 1.1em; max-width: 600px; margin: 0 auto;">Event-driven architecture + AI Agent</p>
+        
+        <div class="tech-tags">
+            <div class="tech-tag"><span>🧠</span> HiClaw AI Agent</div>
+            <div class="tech-tag"><span>🌐</span> Higress API Gateway</div>
+            <div class="tech-tag"><span>⚙️</span> Go 1.23 (Gin)</div>
+            <div class="tech-tag"><span>🍃</span> MongoDB 7</div>
+            <div class="tech-tag"><span>🐘</span> PostgreSQL 16</div>
+            <div class="tech-tag"><span>📡</span> Apache Kafka</div>
+            <div class="tech-tag"><span>📱</span> Flutter 3.24+</div>
+            <div class="tech-tag"><span>🤖</span> OpenRouter (Multi-LLM)</div>
+            <div class="tech-tag"><span>💬</span> Matrix Chat</div>
+        </div>
+    </section>
 
-<!-- TECH STACK -->
-<div class="container">
-    <h2 class="section-title">Tech Stack</h2>
-    <p class="section-sub">Event-driven: MongoDB &rarr; Kafka &rarr; PostgreSQL + HiClaw AI Gateway</p>
-
-    <div class="tech-grid">
-        <div class="tech-card" style="border: 2px solid var(--hiclaw);"><div class="icon">🧠</div><h4 style="color:var(--hiclaw)">HiClaw</h4><p>AI Agent Team</p></div>
-        <div class="tech-card" style="border: 2px solid var(--hiclaw);"><div class="icon">🌐</div><h4 style="color:var(--hiclaw)">Higress</h4><p>AI Gateway + MCP</p></div>
-        <div class="tech-card"><div class="icon">⚙️</div><h4>Go 1.23 (Gin)</h4><p>Backend API</p></div>
-        <div class="tech-card"><div class="icon">🍃</div><h4>MongoDB 7</h4><p>Source of Truth</p></div>
-        <div class="tech-card"><div class="icon">🐘</div><h4>PostgreSQL 16</h4><p>Query Layer</p></div>
-        <div class="tech-card"><div class="icon">📡</div><h4>Apache Kafka</h4><p>Event Stream</p></div>
-        <div class="tech-card"><div class="icon">📱</div><h4>Flutter 3.41</h4><p>Mobile + Web</p></div>
-        <div class="tech-card"><div class="icon">🗺️</div><h4>OpenStreetMap</h4><p>Free Map</p></div>
-        <div class="tech-card"><div class="icon">🛣️</div><h4>OSRM</h4><p>Road Routing</p></div>
-        <div class="tech-card"><div class="icon">🤖</div><h4>Claude / Gemini</h4><p>Multi-LLM</p></div>
-        <div class="tech-card"><div class="icon">💬</div><h4>Matrix Chat</h4><p>Agent Comms</p></div>
-        <div class="tech-card"><div class="icon">☁️</div><h4>Cloudflare R2</h4><p>File Storage</p></div>
-        <div class="tech-card"><div class="icon">🔒</div><h4>Caddy 2</h4><p>Auto SSL</p></div>
-    </div>
-
-    <div class="api-info" style="margin-top: 32px;">
-        <h3>API Base URL</h3>
-        <code>https://smlfleet.satistang.com/api/v1/fleet/</code>
-        <p style="margin-top: 12px; color: #666;">
-            <code style="display:inline; padding:2px 8px;">GET /vehicles</code>
-            <code style="display:inline; padding:2px 8px;">GET /drivers</code>
-            <code style="display:inline; padding:2px 8px;">GET /trips</code>
-            <code style="display:inline; padding:2px 8px;">GET /dashboard/summary</code>
+    <footer class="site-footer">
+        <h3>SML Fleet v1.2 — Powered by SML AI Solution</h3>
+        <p>ระบบควบคุมรถขนส่งครบวงจร + AI Agent Team + ตรวจจับรถเคลื่อนที่อัตโนมัติ สำหรับ SME ไทย</p>
+        <p style="margin-top: 16px;">
+            <a href="https://github.com/jaturapornchai/bcfleet">GitHub Repository</a> &middot;
+            &copy; 2026 SML AI Solution Co., Ltd.
         </p>
-    </div>
-</div>
-
-<!-- FOOTER -->
-<div class="footer">
-    <h3 style="color: white; margin-bottom: 8px;">SML Fleet v1.2 — Powered by HiClaw AI + Movement Intelligence</h3>
-    <p>ระบบควบคุมรถขนส่งครบวงจร + AI Agent Team + ตรวจจับรถเคลื่อนที่อัตโนมัติ สำหรับ SME ไทย</p>
-    <p style="margin-top: 12px;">
-        <a href="https://github.com/jaturapornchai/bcfleet">GitHub</a> &middot;
-        BC AI Solution Co., Ltd.
-    </p>
-    <p style="margin-top: 8px; font-size: 0.85em;">
-        4 AI Workers &middot; 47 MCP Tools &middot; 60+ APIs &middot; Movement Intelligence &middot; OSRM Routing &middot; Go + Flutter + HiClaw + Higress + MongoDB + Kafka + PostgreSQL
-    </p>
-</div>
+    </footer>
 
 </body>
 </html>

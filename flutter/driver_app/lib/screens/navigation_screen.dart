@@ -1,18 +1,78 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 
-class NavigationScreen extends StatelessWidget {
+class NavigationScreen extends StatefulWidget {
   final Map<String, dynamic> trip;
 
   const NavigationScreen({super.key, required this.trip});
 
   @override
+  State<NavigationScreen> createState() => _NavigationScreenState();
+}
+
+class _NavigationScreenState extends State<NavigationScreen> {
+  final MapController _mapController = MapController();
+
+  LatLng get _origin {
+    final lat = widget.trip['origin_lat'];
+    final lng = widget.trip['origin_lng'];
+    if (lat != null && lng != null) {
+      return LatLng((lat as num).toDouble(), (lng as num).toDouble());
+    }
+    return const LatLng(18.7883, 98.9853); // เชียงใหม่ default
+  }
+
+  LatLng get _destination {
+    final lat = widget.trip['destination_lat'];
+    final lng = widget.trip['destination_lng'];
+    if (lat != null && lng != null) {
+      return LatLng((lat as num).toDouble(), (lng as num).toDouble());
+    }
+    // Offset slightly from origin as fallback
+    return LatLng(_origin.latitude - 0.15, _origin.longitude + 0.05);
+  }
+
+  LatLng get _center {
+    return LatLng(
+      (_origin.latitude + _destination.latitude) / 2,
+      (_origin.longitude + _destination.longitude) / 2,
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final destination = trip['destination_name'] as String? ?? '-';
-    final distance = trip['distance_km'];
+    final destination = widget.trip['destination_name'] as String? ?? '-';
+    final distance = widget.trip['distance_km'];
+
+    final markers = [
+      // Origin marker
+      Marker(
+        point: _origin,
+        width: 40,
+        height: 40,
+        child: const Icon(Icons.warehouse, color: Colors.blue, size: 32),
+      ),
+      // Destination marker
+      Marker(
+        point: _destination,
+        width: 40,
+        height: 40,
+        child: const Icon(Icons.location_pin, color: Colors.red, size: 36),
+      ),
+    ];
+
+    final polyline = Polyline(
+      points: [_origin, _destination],
+      color: Colors.blue.withValues(alpha: 0.7),
+      strokeWidth: 4.0,
+    );
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('นำทาง'),
+        backgroundColor: const Color(0xFF1565C0),
+        foregroundColor: Colors.white,
         actions: [
           IconButton(
             icon: const Icon(Icons.close),
@@ -41,40 +101,40 @@ class NavigationScreen extends StatelessWidget {
                 ),
                 if (distance != null)
                   Text(
-                    '${distance.toStringAsFixed(0)} กม.',
-                    style: const TextStyle(color: Colors.white70, fontSize: 13),
+                    '${(distance as num).toStringAsFixed(0)} กม.',
+                    style:
+                        const TextStyle(color: Colors.white70, fontSize: 13),
                   ),
               ],
             ),
           ),
 
-          // Map placeholder
+          // Map
           Expanded(
             child: Stack(
               children: [
-                Container(
-                  color: Colors.grey.shade300,
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.map_outlined,
-                            size: 80, color: Colors.grey.shade500),
-                        const SizedBox(height: 12),
-                        Text(
-                          'Longdo Map API v3',
-                          style: TextStyle(
-                              color: Colors.grey.shade600, fontSize: 16),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'แผนที่จะแสดงเมื่อเชื่อมต่อ API',
-                          style: TextStyle(
-                              color: Colors.grey.shade500, fontSize: 13),
-                        ),
+                FlutterMap(
+                  mapController: _mapController,
+                  options: MapOptions(
+                    initialCenter: _center,
+                    initialZoom: 10.0,
+                  ),
+                  children: [
+                    TileLayer(
+                      urlTemplate:
+                          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      userAgentPackageName: 'com.bcfleet.driver',
+                    ),
+                    PolylineLayer(polylines: [polyline]),
+                    MarkerLayer(markers: markers),
+                    RichAttributionWidget(
+                      attributions: [
+                        TextSourceAttribution(
+                            'OpenStreetMap contributors',
+                            onTap: () {}),
                       ],
                     ),
-                  ),
+                  ],
                 ),
 
                 // Speed indicator
@@ -101,10 +161,22 @@ class NavigationScreen extends StatelessWidget {
                             style: TextStyle(
                                 fontSize: 24, fontWeight: FontWeight.bold)),
                         Text('กม/ชม',
-                            style:
-                                TextStyle(fontSize: 10, color: Colors.grey)),
+                            style: TextStyle(
+                                fontSize: 10, color: Colors.grey)),
                       ],
                     ),
+                  ),
+                ),
+
+                // Re-center button
+                Positioned(
+                  bottom: 16,
+                  right: 16,
+                  child: FloatingActionButton.small(
+                    heroTag: 'recenter',
+                    onPressed: () =>
+                        _mapController.move(_center, 10.0),
+                    child: const Icon(Icons.my_location),
                   ),
                 ),
               ],
@@ -132,7 +204,7 @@ class NavigationScreen extends StatelessWidget {
                       child: _InfoChip(
                         icon: Icons.route,
                         label: distance != null
-                            ? '${distance.toStringAsFixed(0)} กม.'
+                            ? '${(distance as num).toStringAsFixed(0)} กม.'
                             : '- กม.',
                       ),
                     ),
@@ -141,24 +213,26 @@ class NavigationScreen extends StatelessWidget {
                       child: _InfoChip(
                         icon: Icons.access_time,
                         label: distance != null
-                            ? '~${(distance / 60 * 60).toStringAsFixed(0)} นาที'
+                            ? '~${((distance as num) / 60 * 60).toStringAsFixed(0)} นาที'
                             : '- นาที',
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 12),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('เชื่อมต่อ Longdo Map เพื่อนำทาง'),
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.navigation),
-                  label: const Text('เริ่มนำทาง'),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () =>
+                        _mapController.move(_origin, 14.0),
+                    icon: const Icon(Icons.navigation),
+                    label: const Text('เริ่มนำทาง'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF1565C0),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -190,7 +264,8 @@ class _InfoChip extends StatelessWidget {
           const SizedBox(width: 6),
           Text(label,
               style: const TextStyle(
-                  fontWeight: FontWeight.w600, color: Color(0xFF1565C0))),
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF1565C0))),
         ],
       ),
     );

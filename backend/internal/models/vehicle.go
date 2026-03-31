@@ -31,6 +31,8 @@ type Vehicle struct {
 	Tax       *TaxInfo       `bson:"tax,omitempty" json:"tax"`
 	Act       *ActInfo       `bson:"act,omitempty" json:"act"` // พ.ร.บ.
 
+	MonitoringPrompt string `bson:"monitoring_prompt,omitempty" json:"monitoring_prompt"` // AI prompt สำหรับวิเคราะห์รถคันนี้เฉพาะ
+
 	MaintenanceSchedule []MaintenanceItem `bson:"maintenance_schedule,omitempty" json:"maintenance_schedule"`
 	Documents           []VehicleDocument `bson:"documents,omitempty" json:"documents"`
 

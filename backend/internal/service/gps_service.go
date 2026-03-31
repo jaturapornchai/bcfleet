@@ -94,6 +94,11 @@ func (s *GPSService) GetVehicleLocations(ctx context.Context, shopID string) ([]
 	return s.pgQuery.GetAllLocations(ctx, shopID)
 }
 
+// GetMovingVehicles ดึงรถที่กำลังเคลื่อนที่ (เปลี่ยนตำแหน่ง > minDistanceM เมตร ใน maxAgeMinutes นาทีที่ผ่านมา)
+func (s *GPSService) GetMovingVehicles(ctx context.Context, shopID string, minDistanceM float64, maxAgeMinutes int) ([]pgquery.MovingVehicleRow, error) {
+	return s.pgQuery.GetMovingVehicles(ctx, shopID, minDistanceM, maxAgeMinutes)
+}
+
 // GetTrail ดึงเส้นทางย้อนหลังจาก MongoDB
 func (s *GPSService) GetTrail(ctx context.Context, shopID, vehicleID string, from, to time.Time) ([]*models.GPSLog, error) {
 	return s.mongoRepo.FindTrail(ctx, shopID, vehicleID, from, to)

@@ -108,6 +108,14 @@ func (s *FleetSyncConsumer) HandleEvent(event database.KafkaEvent) error {
 	case "gps.location_updated":
 		return s.updateVehicleLocation(event.Payload)
 
+	case "movement.movement.started", "movement.movement.stopped",
+		"movement.speeding", "movement.geofence.exit",
+		"movement.route.deviation", "movement.idle.with_trip",
+		"movement.erratic.driving", "movement.night.movement":
+		// movement events ถูก log ไป MongoDB แล้วจาก handler
+		// consumer ทำ: สร้าง alert ใน PostgreSQL ถ้า severity >= warning
+		return s.handleMovementAlert(event)
+
 	default:
 		// event ที่ไม่ต้อง sync (เช่น event-logs) — ข้ามไป
 		return nil
@@ -842,18 +850,22 @@ func (s *FleetSyncConsumer) updateVehicleLocation(payload interface{}) error {
 	sql := `
 		INSERT INTO fleet_vehicle_locations (
 			vehicle_id, shop_id, driver_id, trip_id,
-			lat, lng, speed_kmh, heading, battery_pct, updated_at
-		) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+			lat, lng, speed_kmh, heading, battery_pct, updated_at,
+			prev_lat, prev_lng, prev_updated_at
+		) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10, NULL, NULL, NULL)
 		ON CONFLICT (vehicle_id) DO UPDATE SET
-			shop_id = EXCLUDED.shop_id,
-			driver_id = EXCLUDED.driver_id,
-			trip_id = EXCLUDED.trip_id,
-			lat = EXCLUDED.lat,
-			lng = EXCLUDED.lng,
-			speed_kmh = EXCLUDED.speed_kmh,
-			heading = EXCLUDED.heading,
-			battery_pct = EXCLUDED.battery_pct,
-			updated_at = EXCLUDED.updated_at
+			shop_id        = EXCLUDED.shop_id,
+			driver_id      = EXCLUDED.driver_id,
+			trip_id        = EXCLUDED.trip_id,
+			prev_lat       = fleet_vehicle_locations.lat,
+			prev_lng       = fleet_vehicle_locations.lng,
+			prev_updated_at = fleet_vehicle_locations.updated_at,
+			lat            = EXCLUDED.lat,
+			lng            = EXCLUDED.lng,
+			speed_kmh      = EXCLUDED.speed_kmh,
+			heading        = EXCLUDED.heading,
+			battery_pct    = EXCLUDED.battery_pct,
+			updated_at     = EXCLUDED.updated_at
 	`
 
 	_, err = s.pgDB.Pool().Exec(context.Background(), sql,
@@ -866,6 +878,42 @@ func (s *FleetSyncConsumer) updateVehicleLocation(payload interface{}) error {
 		getInt(m, "heading"),
 		getInt(m, "battery_pct"),
 		updatedAt,
+	)
+	return err
+}
+
+// handleMovementAlert สร้าง alert ใน PostgreSQL จาก movement analysis event (severity >= warning)
+func (s *FleetSyncConsumer) handleMovementAlert(event database.KafkaEvent) error {
+	m, err := toMap(event.Payload)
+	if err != nil {
+		return fmt.Errorf("handleMovementAlert toMap: %w", err)
+	}
+
+	severity := getString(m, "severity")
+	if severity != "warning" && severity != "critical" {
+		return nil // info → ไม่ต้องสร้าง alert
+	}
+
+	shopID := getString(m, "shop_id")
+	vehicleID := getString(m, "vehicle_id")
+	plate := getString(m, "plate")
+	eventType := getString(m, "event_type")
+	analysis := getString(m, "analysis")
+
+	alertID := fmt.Sprintf("mv-%s-%d", vehicleID, time.Now().UnixMilli())
+
+	sql := `
+		INSERT INTO fleet_alerts (
+			id, shop_id, type, entity, entity_id,
+			title, message, severity, status, created_at
+		) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,'active',NOW())
+		ON CONFLICT (id) DO NOTHING
+	`
+
+	title := fmt.Sprintf("[%s] %s", eventType, plate)
+	_, err = s.pgDB.Pool().Exec(context.Background(), sql,
+		alertID, shopID, eventType, "vehicle", vehicleID,
+		title, analysis, severity,
 	)
 	return err
 }

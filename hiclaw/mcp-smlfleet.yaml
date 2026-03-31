@@ -542,7 +542,7 @@ tools:
     url: "http://smlfleet-api:8080/api/v1/fleet/expenses/fuel-report"
     method: GET
 
-# ===== GPS Tools (2) =====
+# ===== GPS & Movement Tools (5) =====
 - name: get_all_vehicle_locations
   description: "ตำแหน่งรถทุกคัน real-time — ละติจูด ลองจิจูด ความเร็ว"
   args: []
@@ -569,6 +569,50 @@ tools:
     url: "http://smlfleet-api:8080/api/v1/fleet/gps/location"
     method: POST
     argsToJsonBody: true
+
+- name: get_moving_vehicles
+  description: "ดึงเฉพาะรถที่กำลังเคลื่อนที่ (ตำแหน่งเปลี่ยน > 50m) พร้อม monitoring_prompt ของรถแต่ละคัน สำหรับ AI วิเคราะห์อัตโนมัติ"
+  args:
+  - name: min_distance_m
+    description: "ระยะทางขั้นต่ำที่ถือว่าเคลื่อนที่ (เมตร) ค่าเริ่มต้น 50"
+    type: number
+    required: false
+  - name: max_age_minutes
+    description: "ดูข้อมูลย้อนหลังกี่นาที ค่าเริ่มต้น 2"
+    type: integer
+    required: false
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/gps/moving"
+    method: GET
+    argsToUrlParam: true
+
+- name: publish_movement_analysis
+  description: "บันทึกผลวิเคราะห์ movement ที่ AI ตรวจพบ → Kafka → MongoDB log + auto-create alert ถ้า severity >= warning"
+  args:
+  - name: events
+    description: "รายการ events ที่วิเคราะห์ได้ — แต่ละ event ต้องมี: vehicle_id, plate, event_type (movement.started/stopped/speeding/geofence.exit/route.deviation/idle.with_trip/erratic.driving/night.movement), severity (info/warning/critical), analysis (สรุปภาษาไทย), lat, lng, prev_lat, prev_lng, speed_kmh, distance_m, trip_id, driver_id, analyzed_by"
+    type: array
+    required: true
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/gps/movement-analysis"
+    method: POST
+    argsToJsonBody: true
+
+- name: get_movement_events
+  description: "ดูประวัติ movement events ที่ AI วิเคราะห์ไว้ — filter ตาม vehicle_id ได้"
+  args:
+  - name: vehicle_id
+    description: "Vehicle ID (ถ้าไม่ระบุจะดูทั้งหมด)"
+    type: string
+    required: false
+  - name: limit
+    description: "จำนวนผลลัพธ์ ค่าเริ่มต้น 50"
+    type: integer
+    required: false
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/gps/movement-events"
+    method: GET
+    argsToUrlParam: true
 
 # ===== Dashboard & Reports (6) =====
 - name: get_fleet_summary

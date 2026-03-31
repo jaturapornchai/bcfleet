@@ -32,6 +32,7 @@ var FleetTopics = []string{
 	"fleet.gps",
 	"fleet.alerts",
 	"fleet.parts",
+	"fleet.movement.analysis",
 }
 
 // NewFleetConsumer สร้าง FleetConsumer

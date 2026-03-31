@@ -79,6 +79,7 @@ func RegisterMCPServer(
 	partnerPgQuery := pgquery.NewPartnerQuery(pg)
 	expensePgQuery := pgquery.NewExpenseQuery(pg)
 	dashboardPgQuery := pgquery.NewDashboardQuery(pg)
+	gpsPgQuery := pgquery.NewGPSQuery(pg)
 
 	// สร้าง services
 	vehicleSvc := service.NewVehicleService(vehicleMongoRepo, vehiclePgQuery, evLogger, kafka).WithMongoDB(mongo)
@@ -88,6 +89,8 @@ func RegisterMCPServer(
 	partnerSvc := service.NewPartnerService(partnerMongoRepo, partnerPgQuery, evLogger, kafka)
 	expenseSvc := service.NewExpenseService(expenseMongoRepo, expensePgQuery, evLogger, kafka)
 	dashboardSvc := service.NewDashboardService(dashboardPgQuery)
+	gpsMongoRepo := mongorepo.NewGPSRepo(mongo)
+	gpsSvc := service.NewGPSService(gpsMongoRepo, gpsPgQuery, kafka)
 
 	// สร้าง tool registry และลงทะเบียน tools ทั้งหมด
 	registry := fleet_tools.NewToolRegistry()
@@ -98,6 +101,7 @@ func RegisterMCPServer(
 	fleet_tools.RegisterPartnerTools(registry, partnerSvc)
 	fleet_tools.RegisterExpenseTools(registry, expenseSvc)
 	fleet_tools.RegisterDashboardTools(registry, dashboardSvc)
+	fleet_tools.RegisterGPSTools(registry, gpsSvc)
 
 	server := &MCPServer{registry: registry}
 

@@ -425,17 +425,242 @@
         </div>
 
         <!-- AI Conversation Example -->
-        <div style="max-width: 700px; margin: 48px auto 0; background: var(--primary-dark); border-radius: 20px; padding: 32px; color: white;">
-            <h3 style="text-align: center; margin-bottom: 20px; color: #C4B5FD; font-size: 1.1em;">ตัวอย่างบทสนทนากับ AI Agent</h3>
-            <div style="font-size: 0.95em; line-height: 2;">
-                <div style="margin-bottom: 8px;"><span style="color: #60A5FA; font-weight: 600;">Admin:</span> <span style="color: #E2E8F0;">"มีรถ 6 ล้อว่างพรุ่งนี้ไหม ส่งของไปลำพูน"</span></div>
-                <div style="margin-bottom: 8px; padding-left: 20px; border-left: 2px solid #6D28D9;">
-                    <span style="color: #C084FC; font-weight: 600;">Fleet CS:</span> <span style="color: #94A3B8;">กำลังตรวจสอบ...</span><br>
-                    <span style="color: #94A3B8; font-size: 0.8em; font-family: monospace;">→ list_vehicles(type="6ล้อ", status="active")<br>→ check_driver_schedule(date="tomorrow")<br>→ calculate_route(from=เชียงใหม่, to=ลำพูน)</span>
+        <div style="max-width: 800px; margin: 48px auto 0; background: var(--primary-dark); border-radius: 20px; padding: 36px; color: white;">
+            <h3 style="text-align: center; margin-bottom: 24px; color: #C4B5FD; font-size: 1.15em;">ตัวอย่างบทสนทนากับ AI Agent — ถามจนครบ 100% แล้วค่อยจอง</h3>
+            <div style="font-size: 0.95em; line-height: 1.9;">
+
+                <!-- Turn 1: Customer asks -->
+                <div style="margin-bottom: 16px;">
+                    <span style="color: #60A5FA; font-weight: 600;">ลูกค้า:</span>
+                    <span style="color: #E2E8F0;">"มีรถ 6 ล้อว่างพรุ่งนี้ไหม ส่งของไปลำพูน"</span>
                 </div>
-                <div style="padding-left: 20px; border-left: 2px solid #6D28D9;">
-                    <span style="color: #C084FC; font-weight: 600;">Fleet CS:</span> <span style="color: #E2E8F0;">"รถ 6 ล้อ ทะเบียน กท-1234 ว่างครับ คนขับสมชาย (KPI 92) เส้นทาง 35.4 กม. ใช้เวลา 35 นาที ค่าขนส่ง 2,500 บาท จองเลยไหมครับ?"</span>
+
+                <!-- Turn 2: AI searches + asks for details -->
+                <div style="margin-bottom: 6px; padding-left: 20px; border-left: 2px solid #6D28D9;">
+                    <span style="color: #C084FC; font-weight: 600;">Fleet CS:</span>
+                    <span style="color: #94A3B8; font-size: 0.8em;"> ค้นหารถว่าง...</span>
                 </div>
+                <div style="margin-bottom: 16px; padding: 10px 16px; margin-left: 20px; background: rgba(109,40,217,0.15); border-radius: 10px; font-family: monospace; font-size: 0.8em; color: #A78BFA;">
+                    → list_vehicles(type="6ล้อ", status="active")<br>
+                    → check_driver_schedule(date="2026-04-02")
+                </div>
+                <div style="margin-bottom: 16px; padding-left: 20px; border-left: 2px solid #6D28D9;">
+                    <span style="color: #C084FC; font-weight: 600;">Fleet CS:</span>
+                    <span style="color: #E2E8F0;">"พบรถ 6 ล้อว่าง 3 คันครับ ก่อนจองขอทราบข้อมูลเพิ่มเติมนะครับ:"</span><br>
+                    <span style="color: #FCD34D;">1.</span> <span style="color: #E2E8F0;">สินค้าที่ส่งคืออะไร? น้ำหนักประมาณกี่กิโล?</span><br>
+                    <span style="color: #FCD34D;">2.</span> <span style="color: #E2E8F0;">จุดรับสินค้าอยู่ที่ไหน? (ที่อยู่ / ชื่อสถานที่)</span><br>
+                    <span style="color: #FCD34D;">3.</span> <span style="color: #E2E8F0;">ต้องการรับกี่โมง? ส่งถึงปลายทางภายในกี่โมง?</span><br>
+                    <span style="color: #FCD34D;">4.</span> <span style="color: #E2E8F0;">มีคำแนะนำพิเศษไหม? (สินค้าแตกง่าย, ห้ามเปียกน้ำ ฯลฯ)</span>
+                </div>
+
+                <!-- Turn 3: Customer answers -->
+                <div style="margin-bottom: 16px;">
+                    <span style="color: #60A5FA; font-weight: 600;">ลูกค้า:</span>
+                    <span style="color: #E2E8F0;">"ปูนซีเมนต์ 200 ถุง ประมาณ 10 ตัน รับที่คลังสินค้า ABC ถ.เชียงใหม่-ลำปาง รับ 6 โมงเช้า ส่งถึงก่อนเที่ยง ห้ามเปียกน้ำ"</span>
+                </div>
+
+                <!-- Turn 4: AI calculates route + cost + confirms -->
+                <div style="margin-bottom: 6px; padding-left: 20px; border-left: 2px solid #6D28D9;">
+                    <span style="color: #C084FC; font-weight: 600;">Fleet CS:</span>
+                    <span style="color: #94A3B8; font-size: 0.8em;"> คำนวณเส้นทาง + ต้นทุน...</span>
+                </div>
+                <div style="margin-bottom: 16px; padding: 10px 16px; margin-left: 20px; background: rgba(109,40,217,0.15); border-radius: 10px; font-family: monospace; font-size: 0.8em; color: #A78BFA;">
+                    → calculate_route(from=18.7883,98.9853, to=18.5741,98.9847)<br>
+                    → calculate_route_cost(distance=35.4, weight=10000)<br>
+                    → get_driver_score(id="driver_001")
+                </div>
+                <div style="margin-bottom: 16px; padding-left: 20px; border-left: 2px solid #6D28D9;">
+                    <span style="color: #C084FC; font-weight: 600;">Fleet CS:</span>
+                    <span style="color: #E2E8F0;">"สรุปข้อมูลการจองครับ:"</span><br>
+                    <div style="background: rgba(255,255,255,0.05); border-radius: 10px; padding: 14px; margin: 8px 0; font-size: 0.92em;">
+                        <span style="color: #6EE7B7;">🚛</span> <span style="color: #E2E8F0;">รถ: <strong>ISUZU FRR 210</strong> ทะเบียน กท-1234 (รับน้ำหนักได้ 6 ตัน)</span><br>
+                        <span style="color: #FCA5A5; font-size: 0.85em; padding-left: 24px;">⚠️ น้ำหนัก 10 ตัน เกินพิกัดรถ 6 ล้อ (max 6 ตัน) — <strong>แนะนำรถ 10 ล้อแทน</strong></span><br>
+                        <span style="color: #6EE7B7;">👤</span> <span style="color: #E2E8F0;">คนขับ: <strong>สมชาย ใจดี</strong> KPI 92/100 ตรงเวลา 95%</span><br>
+                        <span style="color: #6EE7B7;">🗺️</span> <span style="color: #E2E8F0;">เส้นทาง: คลังสินค้า ABC → ลำพูน <strong>35.4 กม. / 35 นาที</strong></span><br>
+                        <span style="color: #6EE7B7;">⏰</span> <span style="color: #E2E8F0;">รับสินค้า: 06:00 → ถึงปลายทาง: ~06:45 (ก่อนเที่ยง ✓)</span><br>
+                        <span style="color: #6EE7B7;">💰</span> <span style="color: #E2E8F0;">ค่าขนส่ง: <strong>3,500 บาท</strong> (รถ 10 ล้อ + น้ำมัน + คนขับ)</span><br>
+                        <span style="color: #6EE7B7;">📝</span> <span style="color: #E2E8F0;">หมายเหตุ: <strong>ห้ามเปียกน้ำ</strong> — จะแจ้งคนขับให้คลุมผ้าใบ</span>
+                    </div>
+                </div>
+
+                <!-- Turn 5: AI asks for confirmation -->
+                <div style="margin-bottom: 16px; padding-left: 20px; border-left: 2px solid #10B981;">
+                    <span style="color: #34D399; font-weight: 600;">Fleet CS:</span>
+                    <span style="color: #E2E8F0;">"เปลี่ยนเป็นรถ 10 ล้อ HINO 500 ทะเบียน 2กร-5678 (รับได้ 15 ตัน) แทนนะครับ ราคา 3,500 บาท <strong>ยืนยันจองเลยไหมครับ?</strong>"</span>
+                </div>
+
+                <!-- Turn 6: Customer confirms -->
+                <div style="margin-bottom: 16px;">
+                    <span style="color: #60A5FA; font-weight: 600;">ลูกค้า:</span>
+                    <span style="color: #E2E8F0;">"จองเลย"</span>
+                </div>
+
+                <!-- Turn 7: AI creates trip -->
+                <div style="margin-bottom: 6px; padding-left: 20px; border-left: 2px solid #10B981;">
+                    <span style="color: #34D399; font-weight: 600;">Fleet CS:</span>
+                    <span style="color: #94A3B8; font-size: 0.8em;"> สร้างเที่ยววิ่ง...</span>
+                </div>
+                <div style="margin-bottom: 16px; padding: 10px 16px; margin-left: 20px; background: rgba(16,185,129,0.15); border-radius: 10px; font-family: monospace; font-size: 0.8em; color: #6EE7B7;">
+                    → create_trip(origin="คลังสินค้า ABC", dest="ลำพูน", cargo="ปูนซีเมนต์ 200 ถุง")<br>
+                    → assign_trip(vehicle="2กร-5678", driver="สมชาย")
+                </div>
+                <div style="padding-left: 20px; border-left: 2px solid #10B981;">
+                    <span style="color: #34D399; font-weight: 600;">Fleet CS:</span>
+                    <span style="color: #E2E8F0;">"จองสำเร็จครับ! เลขที่เที่ยว <strong>TRIP-2026-001234</strong> คนขับสมชายจะรับสินค้าเวลา 06:00 น. ที่คลังสินค้า ABC ครับ จะส่ง SMS ยืนยันให้คนขับอีกทีนะครับ 🙏"</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 10 USE CASES — AI Agent ทำอะไรได้บ้าง -->
+    <section style="background: linear-gradient(180deg, #0F172A 0%, #1E293B 100%); color: white; padding: 100px 20px;">
+        <div style="max-width: 1200px; margin: 0 auto;">
+            <div class="section-header" style="margin-bottom: 48px;">
+                <h2 style="color: white; background: linear-gradient(to right, #F472B6, #C084FC); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">10 สถานการณ์จริง — AI Agent ทำงานแทนคุณ</h2>
+                <p style="color: #94A3B8;">ทุก case แสดง MCP Tools ที่ AI เรียกใช้จริง — ถามจนครบ ยืนยันก่อนทำ</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(540px, 1fr)); gap: 20px;">
+
+                <!-- Case 1: จองรถ -->
+                <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 24px;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                        <span style="background: #7C3AED; color: white; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-weight: 600;">Case 1</span>
+                        <h4 style="color: #E2E8F0; font-size: 1.1em;">ลูกค้าจองรถขนส่ง</h4>
+                    </div>
+                    <div style="font-size: 0.88em; line-height: 1.9;">
+                        <div style="color: #60A5FA;"><strong>ลูกค้า:</strong> "มีรถส่งของไปลำพูนพรุ่งนี้ไหม"</div>
+                        <div style="color: #C084FC; margin: 4px 0;"><strong>AI ถาม:</strong> สินค้าอะไร? น้ำหนัก? จุดรับ? เวลารับ-ส่ง? คำแนะนำพิเศษ?</div>
+                        <div style="color: #60A5FA;"><strong>ลูกค้า:</strong> "ปูนซีเมนต์ 200 ถุง 10 ตัน รับคลัง ABC 6 โมง ห้ามเปียกน้ำ"</div>
+                        <div style="color: #A78BFA; font-family: monospace; font-size: 0.85em; padding: 6px 0;">→ list_vehicles → check_driver_schedule → calculate_route → create_trip → assign_trip</div>
+                        <div style="color: #6EE7B7;"><strong>AI:</strong> น้ำหนักเกิน 6 ล้อ → แนะนำ 10 ล้อ HINO 2กร-5678 / คนขับสมชาย / 35.4 km 35 นาที / ค่าส่ง 3,500 บาท / <strong>ยืนยันจอง?</strong></div>
+                    </div>
+                </div>
+
+                <!-- Case 2: ตรวจสุขภาพกองรถ -->
+                <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 24px;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                        <span style="background: #EF4444; color: white; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-weight: 600;">Case 2</span>
+                        <h4 style="color: #E2E8F0; font-size: 1.1em;">เจ้าของถาม "กองรถเป็นอย่างไร"</h4>
+                    </div>
+                    <div style="font-size: 0.88em; line-height: 1.9;">
+                        <div style="color: #60A5FA;"><strong>Boss:</strong> "สรุปสถานะกองรถให้หน่อย"</div>
+                        <div style="color: #A78BFA; font-family: monospace; font-size: 0.85em; padding: 6px 0;">→ get_fleet_summary → get_active_alerts → get_fleet_kpi</div>
+                        <div style="color: #6EE7B7;"><strong>AI:</strong> รถ active 80 คัน / ซ่อม 5 คัน / วันนี้วิ่ง 45 เที่ยว สำเร็จ 38 / รายได้ 185,000 บาท / <span style="color: #FCA5A5;">⚠️ 3 คันประกันหมดใน 15 วัน / 2 คันน้ำมันเครื่องครบรอบ</span></div>
+                    </div>
+                </div>
+
+                <!-- Case 3: คนขับแจ้งซ่อม -->
+                <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 24px;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                        <span style="background: #F59E0B; color: white; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-weight: 600;">Case 3</span>
+                        <h4 style="color: #E2E8F0; font-size: 1.1em;">คนขับแจ้งซ่อมรถ</h4>
+                    </div>
+                    <div style="font-size: 0.88em; line-height: 1.9;">
+                        <div style="color: #60A5FA;"><strong>คนขับ:</strong> "เบรคมีเสียง"</div>
+                        <div style="color: #C084FC;"><strong>AI ถาม:</strong> รถทะเบียนอะไร? เสียงแบบไหน (ดังเอี๊ยด / กรอบแกรบ)? เบรคยังหยุดได้ปกติไหม? เริ่มมีเสียงตั้งแต่เมื่อไหร่?</div>
+                        <div style="color: #60A5FA;"><strong>คนขับ:</strong> "กท-1234 เอี๊ยดตอนเหยียบ หยุดได้ แต่ต้องเหยียบแรงขึ้น 3 วันแล้ว"</div>
+                        <div style="color: #A78BFA; font-family: monospace; font-size: 0.85em; padding: 6px 0;">→ get_vehicle(กท-1234) → create_work_order(type=corrective, priority=high)</div>
+                        <div style="color: #6EE7B7;"><strong>AI:</strong> สร้าง WO-2026-000456 แล้ว / priority: high (ผ้าเบรคน่าจะหมด) / <span style="color: #FCA5A5;">ไมล์ 90,000 กม. ผ้าเบรคเปลี่ยนล่าสุด 60,000 กม. = ครบ 30,000 กม.</span> / ส่งให้ Boss อนุมัติแล้ว</div>
+                    </div>
+                </div>
+
+                <!-- Case 4: Movement Intelligence ตรวจจับ speeding -->
+                <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 24px;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                        <span style="background: #DC2626; color: white; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-weight: 600;">Case 4</span>
+                        <h4 style="color: #E2E8F0; font-size: 1.1em;">AI ตรวจจับขับเร็วเกิน (อัตโนมัติ)</h4>
+                    </div>
+                    <div style="font-size: 0.88em; line-height: 1.9;">
+                        <div style="color: #94A3B8;"><em>Infinite Task ทุก 1 นาที — ไม่มีคนสั่ง</em></div>
+                        <div style="color: #A78BFA; font-family: monospace; font-size: 0.85em; padding: 6px 0;">→ get_moving_vehicles(min_distance=50m)</div>
+                        <div style="color: #C084FC;"><strong>AI อ่าน monitoring_prompt:</strong> "รถบรรทุกสารเคมี ห้ามเกิน 80 กม./ชม."</div>
+                        <div style="color: #FCA5A5;"><strong>AI พบ:</strong> รถ 2กร-5678 วิ่ง 105 กม./ชม. (เกิน 80 จาก prompt) บนถนนในเมือง</div>
+                        <div style="color: #A78BFA; font-family: monospace; font-size: 0.85em; padding: 6px 0;">→ publish_movement_analysis(event=speeding, severity=critical)</div>
+                        <div style="color: #EF4444;"><strong>→ Kafka → Auto Alert:</strong> "🚨 รถสารเคมี 2กร-5678 ขับ 105 กม./ชม. เกินกำหนด 80 — แจ้ง Boss ทันที"</div>
+                    </div>
+                </div>
+
+                <!-- Case 5: เปรียบเทียบคนขับ -->
+                <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 24px;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                        <span style="background: #10B981; color: white; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-weight: 600;">Case 5</span>
+                        <h4 style="color: #E2E8F0; font-size: 1.1em;">เปรียบเทียบผลงานคนขับ</h4>
+                    </div>
+                    <div style="font-size: 0.88em; line-height: 1.9;">
+                        <div style="color: #60A5FA;"><strong>Boss:</strong> "ใครเป็นคนขับที่ดีที่สุด"</div>
+                        <div style="color: #A78BFA; font-family: monospace; font-size: 0.85em; padding: 6px 0;">→ get_driver_leaderboard → get_driver_score (top 3)</div>
+                        <div style="color: #6EE7B7;"><strong>AI:</strong> 1. สมชาย 92 คะแนน (ตรงเวลา 95%, 5.2 km/L, rating 4.8) / 2. วิชัย 88 / 3. สมศรี 85 / <span style="color: #FCD34D;">💡 แนะนำ: สมชาย เหมาะสำหรับงาน VIP หรือเส้นทางไกล</span></div>
+                    </div>
+                </div>
+
+                <!-- Case 6: หารถร่วม -->
+                <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 24px;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                        <span style="background: #06B6D4; color: white; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-weight: 600;">Case 6</span>
+                        <h4 style="color: #E2E8F0; font-size: 1.1em;">รถไม่พอ — หารถร่วมอัตโนมัติ</h4>
+                    </div>
+                    <div style="font-size: 0.88em; line-height: 1.9;">
+                        <div style="color: #60A5FA;"><strong>Admin:</strong> "งานด่วน ส่งของไปเชียงราย 10 ล้อ แต่รถเราไม่ว่าง"</div>
+                        <div style="color: #A78BFA; font-family: monospace; font-size: 0.85em; padding: 6px 0;">→ list_vehicles(type=10ล้อ, status=active) → [ไม่ว่าง] → find_available_partners(zone=เชียงราย, type=10ล้อ)</div>
+                        <div style="color: #6EE7B7;"><strong>AI:</strong> รถเราไม่ว่าง — พบรถร่วม 2 คัน: 1) บจก.ขนส่งสมหมาย rating 4.5 ราคา 5,500 บาท / 2) บจก.นครขนส่ง rating 4.2 ราคา 5,000 บาท / <strong>เลือกคันไหนดี?</strong></div>
+                    </div>
+                </div>
+
+                <!-- Case 7: ติดตามของที่ส่ง -->
+                <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 24px;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                        <span style="background: #8B5CF6; color: white; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-weight: 600;">Case 7</span>
+                        <h4 style="color: #E2E8F0; font-size: 1.1em;">ลูกค้าถามสถานะส่งของ</h4>
+                    </div>
+                    <div style="font-size: 0.88em; line-height: 1.9;">
+                        <div style="color: #60A5FA;"><strong>ลูกค้า:</strong> "ของถึงไหนแล้ว เที่ยว TRIP-2026-001234"</div>
+                        <div style="color: #A78BFA; font-family: monospace; font-size: 0.85em; padding: 6px 0;">→ track_shipment(TRIP-2026-001234) → get_vehicle_location</div>
+                        <div style="color: #6EE7B7;"><strong>AI:</strong> 🚛 รถอยู่ที่ อ.สารภี ลำพูน (ห่างจุดหมาย 12 กม.) / ความเร็ว 65 กม./ชม. / <strong>ประมาณถึง 10:45 น.</strong> (อีก 15 นาที) / สถานะ: กำลังส่ง</div>
+                    </div>
+                </div>
+
+                <!-- Case 8: AI ตรวจจับรถวิ่งกลางคืน -->
+                <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 24px;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                        <span style="background: #1E293B; border: 1px solid #475569; color: #E2E8F0; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-weight: 600;">Case 8</span>
+                        <h4 style="color: #E2E8F0; font-size: 1.1em;">AI ตรวจจับรถวิ่งกลางคืน (อัตโนมัติ)</h4>
+                    </div>
+                    <div style="font-size: 0.88em; line-height: 1.9;">
+                        <div style="color: #94A3B8;"><em>Infinite Task ตรวจจับ 02:30 น.</em></div>
+                        <div style="color: #A78BFA; font-family: monospace; font-size: 0.85em; padding: 6px 0;">→ get_moving_vehicles → [พบรถเคลื่อนที่ + ไม่มี trip_id + เวลา 02:30]</div>
+                        <div style="color: #FCD34D;"><strong>AI วิเคราะห์:</strong> รถ กท-1234 วิ่ง 02:30 น. ไม่มีเที่ยววิ่ง (trip_id = null) → event_type: night.movement / severity: warning</div>
+                        <div style="color: #A78BFA; font-family: monospace; font-size: 0.85em; padding: 6px 0;">→ publish_movement_analysis → Kafka → auto alert</div>
+                        <div style="color: #FCA5A5;"><strong>Alert:</strong> "⚠️ รถ กท-1234 วิ่งเวลา 02:30 โดยไม่มีเที่ยววิ่ง — อาจใช้งานส่วนตัว"</div>
+                    </div>
+                </div>
+
+                <!-- Case 9: คำนวณเงินเดือน -->
+                <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 24px;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                        <span style="background: #059669; color: white; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-weight: 600;">Case 9</span>
+                        <h4 style="color: #E2E8F0; font-size: 1.1em;">คำนวณเงินเดือนคนขับ</h4>
+                    </div>
+                    <div style="font-size: 0.88em; line-height: 1.9;">
+                        <div style="color: #60A5FA;"><strong>Admin:</strong> "เงินเดือนสมชายเดือนนี้เท่าไหร่"</div>
+                        <div style="color: #A78BFA; font-family: monospace; font-size: 0.85em; padding: 6px 0;">→ calculate_driver_salary(สมชาย) → list_trips(driver=สมชาย, month=3)</div>
+                        <div style="color: #6EE7B7;"><strong>AI:</strong> เงินเดือนฐาน 15,000 + เบี้ยเลี้ยง 26 วัน x 300 = 7,800 + โบนัส 38 เที่ยว x 200 = 7,600 + OT 12 ชม. x 100 = 1,200 / <strong>รวม 31,600 บาท</strong></div>
+                    </div>
+                </div>
+
+                <!-- Case 10: วิเคราะห์ต้นทุนรถ -->
+                <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 24px;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                        <span style="background: #B45309; color: white; padding: 4px 10px; border-radius: 8px; font-size: 0.8em; font-weight: 600;">Case 10</span>
+                        <h4 style="color: #E2E8F0; font-size: 1.1em;">รถคันไหนขาดทุน?</h4>
+                    </div>
+                    <div style="font-size: 0.88em; line-height: 1.9;">
+                        <div style="color: #60A5FA;"><strong>Boss:</strong> "รถคันไหนขาดทุนเดือนนี้"</div>
+                        <div style="color: #A78BFA; font-family: monospace; font-size: 0.85em; padding: 6px 0;">→ get_fleet_summary → get_vehicle_cost (ทุกคัน) → get_fuel_report</div>
+                        <div style="color: #6EE7B7;"><strong>AI:</strong> 🔴 รถ กท-5678 ขาดทุน -8,200 บาท (ค่าซ่อม 15,000 แต่รายได้ 6,800) / 🔴 รถ 2กร-9012 ขาดทุน -3,100 (น้ำมัน 4.1 km/L ต่ำกว่าเฉลี่ย 5.2) / <span style="color: #FCD34D;">💡 แนะนำ: กท-5678 ควรตรวจสภาพใหม่ / 2กร-9012 ตรวจหัวฉีด อาจรั่ว</span></div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </section>

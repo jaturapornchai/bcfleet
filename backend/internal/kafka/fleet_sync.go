@@ -105,6 +105,9 @@ func (s *FleetSyncConsumer) HandleEvent(event database.KafkaEvent) error {
 	case "expense.recorded", "expense.updated":
 		return s.upsertExpense(event.Payload)
 
+	case "customer.created", "customer.updated":
+		return s.upsertCustomer(event.Payload)
+
 	case "gps.location_updated":
 		return s.updateVehicleLocation(event.Payload)
 
@@ -914,6 +917,76 @@ func (s *FleetSyncConsumer) handleMovementAlert(event database.KafkaEvent) error
 	_, err = s.pgDB.Pool().Exec(context.Background(), sql,
 		alertID, shopID, eventType, "vehicle", vehicleID,
 		title, analysis, severity,
+	)
+	return err
+}
+
+// upsertCustomer UPSERT ลูกค้าลง fleet_customers (PostgreSQL read cache)
+func (s *FleetSyncConsumer) upsertCustomer(payload interface{}) error {
+	m, err := toMap(payload)
+	if err != nil {
+		return fmt.Errorf("upsertCustomer toMap: %w", err)
+	}
+
+	id := getString(m, "id")
+	if id == "" {
+		id = getString(m, "_id")
+	}
+	if id == "" {
+		return fmt.Errorf("customer id ว่าง")
+	}
+
+	creditDays := 0
+	creditLimit := 0.0
+	if ct, ok := m["credit_terms"].(map[string]interface{}); ok {
+		if d, ok := ct["days_credit"].(float64); ok {
+			creditDays = int(d)
+		}
+		if l, ok := ct["credit_limit"].(float64); ok {
+			creditLimit = l
+		}
+	}
+
+	sql := `
+		INSERT INTO fleet_customers (
+			id, shop_id, customer_no, name, customer_type,
+			phone, line_user_id, email, company, tax_id, address,
+			credit_days, credit_limit, notes, status, created_by,
+			created_at, updated_at
+		) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,NOW(),NOW())
+		ON CONFLICT (id) DO UPDATE SET
+			name = EXCLUDED.name,
+			customer_type = EXCLUDED.customer_type,
+			phone = EXCLUDED.phone,
+			line_user_id = EXCLUDED.line_user_id,
+			email = EXCLUDED.email,
+			company = EXCLUDED.company,
+			tax_id = EXCLUDED.tax_id,
+			address = EXCLUDED.address,
+			credit_days = EXCLUDED.credit_days,
+			credit_limit = EXCLUDED.credit_limit,
+			notes = EXCLUDED.notes,
+			status = EXCLUDED.status,
+			updated_at = NOW()
+	`
+
+	_, err = s.pgDB.Pool().Exec(context.Background(), sql,
+		id,
+		getString(m, "shop_id"),
+		getString(m, "customer_no"),
+		getString(m, "name"),
+		getString(m, "customer_type"),
+		getString(m, "phone"),
+		getString(m, "line_user_id"),
+		getString(m, "email"),
+		getString(m, "company"),
+		getString(m, "tax_id"),
+		getString(m, "address"),
+		creditDays,
+		creditLimit,
+		getString(m, "notes"),
+		getString(m, "status"),
+		getString(m, "created_by"),
 	)
 	return err
 }

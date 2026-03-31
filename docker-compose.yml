@@ -35,6 +35,20 @@ services:
     command: ["./kafka-consumer"]
     restart: unless-stopped
 
+  # Call Center (Next.js)
+  callcenter:
+    build:
+      context: ./callcenter
+      dockerfile: Dockerfile
+    container_name: smlfleet-callcenter
+    ports:
+      - "3001:3000"
+    networks:
+      - smlfleet
+    environment:
+      - NEXT_PUBLIC_API_URL=http://smlfleet-api:8080
+    restart: unless-stopped
+
 networks:
   smlfleet:
     driver: bridge

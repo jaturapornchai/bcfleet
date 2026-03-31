@@ -43,6 +43,7 @@ type TripRow struct {
 	Revenue          *float64   `json:"revenue"`
 	Profit           *float64   `json:"profit"`
 	HasPOD           bool       `json:"has_pod"`
+	CustomerID       *string    `json:"customer_id"`
 	CreatedBy        *string    `json:"created_by"`
 	CreatedAt        time.Time  `json:"created_at"`
 	UpdatedAt        time.Time  `json:"updated_at"`

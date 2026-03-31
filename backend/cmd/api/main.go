@@ -57,6 +57,7 @@ func main() {
 		handler.RegisterPartnerRoutes(api, mongoDB, pgDB, kafkaProducer)
 		handler.RegisterExpenseRoutes(api, mongoDB, pgDB, kafkaProducer)
 		handler.RegisterGPSRoutes(api, mongoDB, pgDB, kafkaProducer)
+		handler.RegisterCustomerRoutes(api, mongoDB, pgDB, kafkaProducer)
 		handler.RegisterDashboardRoutes(api, pgDB)
 	}
 

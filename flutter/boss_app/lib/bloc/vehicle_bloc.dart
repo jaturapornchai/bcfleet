@@ -1,12 +1,16 @@
+import 'dart:convert';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fleet_core/models/vehicle.dart';
+import 'package:http/http.dart' as http;
+
+const _apiBase = 'https://bcfleet.satistang.com/api/v1/fleet';
 
 // ─── Events ───────────────────────────────────────────────────────────────────
 
 abstract class VehicleEvent {}
 
 class LoadVehicles extends VehicleEvent {
-  final String? statusFilter; // null = ทั้งหมด
+  final String? statusFilter;
   LoadVehicles({this.statusFilter});
 }
 
@@ -70,51 +74,22 @@ class VehicleBloc extends Bloc<VehicleEvent, VehicleState> {
 
   Future<void> _fetchAndEmit(Emitter<VehicleState> emit, String? filter) async {
     try {
-      await Future.delayed(const Duration(milliseconds: 500));
-      emit(VehicleLoaded(vehicles: _mockVehicles(), activeFilter: filter));
+      final uri = Uri.parse('$_apiBase/vehicles');
+      final response = await http.get(uri);
+
+      if (response.statusCode == 200) {
+        final body = json.decode(response.body) as Map<String, dynamic>;
+        final list = body['data'] as List? ?? [];
+        final vehicles = list
+            .whereType<Map<String, dynamic>>()
+            .map(Vehicle.fromJson)
+            .toList();
+        emit(VehicleLoaded(vehicles: vehicles, activeFilter: filter));
+      } else {
+        emit(VehicleError('API error: ${response.statusCode}'));
+      }
     } catch (e) {
       emit(VehicleError('โหลดข้อมูลรถไม่สำเร็จ: $e'));
     }
-  }
-
-  List<Vehicle> _mockVehicles() {
-    final now = DateTime.now();
-    return [
-      Vehicle(
-        id: 'v1', shopId: 's1', plate: 'กท-1234', brand: 'ISUZU',
-        model: 'FRR 210', type: '6ล้อ', year: 2023, color: 'ขาว',
-        fuelType: 'ดีเซล', maxWeightKg: 6000, ownership: 'own',
-        status: 'active', currentDriverId: 'd1', mileageKm: 85000,
-        healthStatus: 'green',
-        insuranceExpiry: now.add(const Duration(days: 30)),
-        createdAt: now, updatedAt: now,
-      ),
-      Vehicle(
-        id: 'v2', shopId: 's1', plate: 'ชม-5678', brand: 'HINO',
-        model: '500', type: '10ล้อ', year: 2021, color: 'แดง',
-        fuelType: 'ดีเซล', maxWeightKg: 15000, ownership: 'own',
-        status: 'active', currentDriverId: 'd2', mileageKm: 120000,
-        healthStatus: 'yellow',
-        taxDueDate: now.add(const Duration(days: 15)),
-        createdAt: now, updatedAt: now,
-      ),
-      Vehicle(
-        id: 'v3', shopId: 's1', plate: 'นค-9012', brand: 'TOYOTA',
-        model: 'Revo', type: 'กระบะ', year: 2022, color: 'เทา',
-        fuelType: 'ดีเซล', maxWeightKg: 1000, ownership: 'own',
-        status: 'maintenance', mileageKm: 45000,
-        healthStatus: 'red',
-        actDueDate: now.add(const Duration(days: 1)),
-        createdAt: now, updatedAt: now,
-      ),
-      Vehicle(
-        id: 'v4', shopId: 's1', plate: 'พย-3456', brand: 'ISUZU',
-        model: 'NKR', type: '4ล้อ', year: 2020, color: 'น้ำเงิน',
-        fuelType: 'ดีเซล', maxWeightKg: 3000, ownership: 'own',
-        status: 'active', currentDriverId: 'd3', mileageKm: 98000,
-        healthStatus: 'green',
-        createdAt: now, updatedAt: now,
-      ),
-    ];
   }
 }

@@ -114,7 +114,7 @@ class TripCard extends StatelessWidget {
                     Icon(Icons.route, size: 14, color: Colors.grey.shade600),
                     const SizedBox(width: 4),
                     Text(
-                      '${distance.toStringAsFixed(0)} กม.',
+                      '${(distance is num) ? distance.toStringAsFixed(0) : distance} กม.',
                       style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
                     ),
                     const SizedBox(width: 16),
@@ -123,7 +123,7 @@ class TripCard extends StatelessWidget {
                     Icon(Icons.payments_outlined, size: 14, color: Colors.green.shade600),
                     const SizedBox(width: 4),
                     Text(
-                      '฿${(revenue as double).toStringAsFixed(0)}',
+                      '฿${(revenue is num) ? revenue.toStringAsFixed(0) : revenue}',
                       style: TextStyle(
                         fontSize: 13,
                         color: Colors.green.shade700,

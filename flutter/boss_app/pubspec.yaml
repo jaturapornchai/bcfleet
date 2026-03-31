@@ -13,6 +13,7 @@ dependencies:
     path: ../packages/fleet_core
   flutter_bloc: ^8.1.6
   dio: ^5.7.0
+  http: ^1.2.0
   fl_chart: ^0.69.2
   flutter_local_notifications: ^18.0.1
 

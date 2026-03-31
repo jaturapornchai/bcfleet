@@ -1,4 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+const _apiBase = 'https://bcfleet.satistang.com/api/v1/fleet';
 
 class DriverListScreen extends StatefulWidget {
   const DriverListScreen({super.key});
@@ -15,23 +19,45 @@ class _DriverListScreenState extends State<DriverListScreen> {
   bool _sortAscending = true;
   int _rowsPerPage = 10;
   int _currentPage = 0;
+  bool _loading = true;
 
-  final _drivers = [
-    {'id': '1', 'employee_id': 'EMP-001', 'name': 'สมชาย ใจดี', 'phone': '081-234-5678', 'license_type': 'ท.2', 'license_expiry': '01/01/2026', 'type': 'permanent', 'vehicle': 'กท-1234', 'status': 'active', 'score': '92', 'trips': '450', 'on_time': '95%'},
-    {'id': '2', 'employee_id': 'EMP-002', 'name': 'วิชัย ขับดี', 'phone': '089-567-8901', 'license_type': 'ท.2', 'license_expiry': '15/06/2025', 'type': 'permanent', 'vehicle': '2กร-5678', 'status': 'active', 'score': '88', 'trips': '320', 'on_time': '92%'},
-    {'id': '3', 'employee_id': 'EMP-003', 'name': 'สมศักดิ์ รักงาน', 'phone': '082-345-6789', 'license_type': 'ท.3', 'license_expiry': '20/03/2025', 'type': 'permanent', 'vehicle': 'ชม-3456', 'status': 'on_leave', 'score': '79', 'trips': '280', 'on_time': '89%'},
-    {'id': '4', 'employee_id': 'EMP-004', 'name': 'ประสิทธิ์ มีน้ำใจ', 'phone': '083-456-7890', 'license_type': 'ท.1', 'license_expiry': '10/08/2026', 'type': 'permanent', 'vehicle': 'กน-7890', 'status': 'active', 'score': '95', 'trips': '510', 'on_time': '98%'},
-    {'id': '5', 'employee_id': 'EMP-005', 'name': 'อนุชา ตั้งใจ', 'phone': '084-567-8901', 'license_type': 'ท.2', 'license_expiry': '05/11/2025', 'type': 'contract', 'vehicle': 'ลป-1122', 'status': 'active', 'score': '83', 'trips': '195', 'on_time': '91%'},
-    {'id': '6', 'employee_id': 'EMP-006', 'name': 'วีระ ขยัน', 'phone': '085-678-9012', 'license_type': 'ท.2', 'license_expiry': '30/09/2024', 'type': 'daily', 'vehicle': 'พย-3344', 'status': 'suspended', 'score': '55', 'trips': '120', 'on_time': '78%'},
-  ];
+  List<Map<String, dynamic>> _drivers = [];
 
-  List<Map<String, String>> get _filtered => _drivers.where((d) {
-    final matchSearch = _search.isEmpty ||
-        d['name']!.contains(_search) ||
-        d['employee_id']!.contains(_search) ||
-        d['phone']!.contains(_search);
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    setState(() => _loading = true);
+    try {
+      final res = await http.get(Uri.parse('$_apiBase/drivers'));
+      if (res.statusCode == 200) {
+        final body = json.decode(res.body);
+        if (mounted) {
+          setState(() {
+            _drivers = (body['data'] as List?)?.cast<Map<String, dynamic>>() ?? [];
+            _loading = false;
+          });
+        }
+      } else {
+        if (mounted) setState(() => _loading = false);
+      }
+    } catch (_) {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  List<Map<String, dynamic>> get _filtered => _drivers.where((d) {
+    final name = (d['name'] as String? ?? '').toLowerCase();
+    final empId = (d['employee_id'] as String? ?? '').toLowerCase();
+    final phone = (d['phone'] as String? ?? '').toLowerCase();
+    final search = _search.toLowerCase();
+    final matchSearch = _search.isEmpty || name.contains(search) || empId.contains(search) || phone.contains(search);
     final matchStatus = _filterStatus == 'all' || d['status'] == _filterStatus;
-    final matchType = _filterType == 'all' || d['type'] == _filterType;
+    final empType = (d['employment'] as Map?)?['type'] as String? ?? d['employment_type'] as String? ?? '';
+    final matchType = _filterType == 'all' || empType == _filterType;
     return matchSearch && matchStatus && matchType;
   }).toList();
 
@@ -53,6 +79,13 @@ class _DriverListScreenState extends State<DriverListScreen> {
             children: [
               Text('รายการคนขับรถ', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
               const Spacer(),
+              if (_loading)
+                const Padding(
+                  padding: EdgeInsets.only(right: 12),
+                  child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+                ),
+              IconButton(icon: const Icon(Icons.refresh), onPressed: _loadData, tooltip: 'รีเฟรช'),
+              const SizedBox(width: 8),
               FilledButton.icon(
                 onPressed: () {},
                 icon: const Icon(Icons.add, size: 18),
@@ -111,91 +144,99 @@ class _DriverListScreenState extends State<DriverListScreen> {
                 borderRadius: BorderRadius.circular(12),
                 side: BorderSide(color: cs.outlineVariant),
               ),
-              child: Column(
-                children: [
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: DataTable(
-                        sortColumnIndex: _sortColumnIndex,
-                        sortAscending: _sortAscending,
-                        headingRowColor: WidgetStateProperty.all(cs.surfaceContainerLow),
-                        columns: [
-                          DataColumn(label: const Text('รหัส'), onSort: (i, a) => setState(() { _sortColumnIndex = i; _sortAscending = a; })),
-                          DataColumn(label: const Text('ชื่อ-นามสกุล'), onSort: (i, a) => setState(() { _sortColumnIndex = i; _sortAscending = a; })),
-                          DataColumn(label: const Text('เบอร์โทร')),
-                          DataColumn(label: const Text('ใบขับขี่')),
-                          DataColumn(label: const Text('ประเภท')),
-                          DataColumn(label: const Text('รถที่รับผิดชอบ')),
-                          DataColumn(label: const Text('คะแนน'), numeric: true, onSort: (i, a) => setState(() { _sortColumnIndex = i; _sortAscending = a; })),
-                          DataColumn(label: const Text('เที่ยวรวม'), numeric: true),
-                          DataColumn(label: const Text('ตรงเวลา')),
-                          DataColumn(label: const Text('สถานะ')),
-                          DataColumn(label: const Text('จัดการ')),
-                        ],
-                        rows: pageRows.map((d) => DataRow(cells: [
-                          DataCell(Text(d['employee_id']!, style: const TextStyle(fontSize: 12, fontFamily: 'monospace'))),
-                          DataCell(Text(d['name']!, style: const TextStyle(fontWeight: FontWeight.w600))),
-                          DataCell(Text(d['phone']!, style: const TextStyle(fontSize: 12))),
-                          DataCell(Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(d['license_type']!, style: const TextStyle(fontSize: 13)),
-                              Text('หมดอายุ ${d['license_expiry']!}', style: TextStyle(fontSize: 10, color: _isLicenseExpiring(d['license_expiry']!) ? Colors.red : Colors.grey[500])),
-                            ],
-                          )),
-                          DataCell(_DriverTypeChip(type: d['type']!)),
-                          DataCell(Text(d['vehicle']!, style: const TextStyle(fontSize: 12))),
-                          DataCell(_ScoreBadge(score: int.parse(d['score']!))),
-                          DataCell(Text(d['trips']!)),
-                          DataCell(Text(d['on_time']!, style: const TextStyle(fontSize: 12))),
-                          DataCell(_DriverStatusChip(status: d['status']!)),
-                          DataCell(Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(icon: const Icon(Icons.visibility_outlined, size: 18), onPressed: () {}, tooltip: 'ดูรายละเอียด'),
-                              IconButton(icon: const Icon(Icons.edit_outlined, size: 18), onPressed: () {}, tooltip: 'แก้ไข'),
-                            ],
-                          )),
-                        ])).toList(),
-                      ),
-                    ),
-                  ),
-                  const Divider(height: 1),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: Row(
-                      children: [
-                        Text('แถวต่อหน้า: ', style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant)),
-                        DropdownButton<int>(
-                          value: _rowsPerPage,
-                          underline: const SizedBox(),
-                          items: [10, 25, 50].map((n) => DropdownMenuItem(value: n, child: Text('$n'))).toList(),
-                          onChanged: (v) => setState(() { _rowsPerPage = v!; _currentPage = 0; }),
+              child: _loading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _drivers.isEmpty
+                      ? const Center(child: Text('ไม่มีข้อมูลคนขับ', style: TextStyle(color: Colors.grey)))
+                      : Column(
+                          children: [
+                            Expanded(
+                              child: SingleChildScrollView(
+                                child: DataTable(
+                                  sortColumnIndex: _sortColumnIndex,
+                                  sortAscending: _sortAscending,
+                                  headingRowColor: WidgetStateProperty.all(cs.surfaceContainerLow),
+                                  columns: [
+                                    DataColumn(label: const Text('รหัส'), onSort: (i, a) => setState(() { _sortColumnIndex = i; _sortAscending = a; })),
+                                    DataColumn(label: const Text('ชื่อ-นามสกุล'), onSort: (i, a) => setState(() { _sortColumnIndex = i; _sortAscending = a; })),
+                                    const DataColumn(label: Text('เบอร์โทร')),
+                                    const DataColumn(label: Text('ใบขับขี่')),
+                                    const DataColumn(label: Text('ประเภท')),
+                                    const DataColumn(label: Text('รถที่รับผิดชอบ')),
+                                    DataColumn(label: const Text('คะแนน'), numeric: true, onSort: (i, a) => setState(() { _sortColumnIndex = i; _sortAscending = a; })),
+                                    const DataColumn(label: Text('เที่ยวรวม'), numeric: true),
+                                    const DataColumn(label: Text('ตรงเวลา')),
+                                    const DataColumn(label: Text('สถานะ')),
+                                    const DataColumn(label: Text('จัดการ')),
+                                  ],
+                                  rows: pageRows.map((d) {
+                                    final employment = d['employment'] as Map?;
+                                    final license = d['license'] as Map?;
+                                    final performance = d['performance'] as Map?;
+                                    final empType = employment?['type'] as String? ?? d['employment_type'] as String? ?? '';
+                                    final licType = license?['type'] as String? ?? d['license_type'] as String? ?? '';
+                                    final licExpiry = license?['expiry_date'] as String? ?? d['license_expiry'] as String? ?? '';
+                                    final score = (performance?['score'] ?? d['score'] ?? 0) as num;
+                                    final totalTrips = (performance?['total_trips'] ?? d['total_trips'] ?? 0) as num;
+                                    final onTimeRate = (performance?['on_time_rate'] ?? d['on_time_rate'] ?? 0.0) as num;
+                                    final onTimePct = '${(onTimeRate * 100).round()}%';
+                                    return DataRow(cells: [
+                                      DataCell(Text(d['employee_id'] as String? ?? '', style: const TextStyle(fontSize: 12, fontFamily: 'monospace'))),
+                                      DataCell(Text(d['name'] as String? ?? '', style: const TextStyle(fontWeight: FontWeight.w600))),
+                                      DataCell(Text(d['phone'] as String? ?? '', style: const TextStyle(fontSize: 12))),
+                                      DataCell(Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          Text(licType, style: const TextStyle(fontSize: 13)),
+                                          Text('หมดอายุ $licExpiry', style: TextStyle(fontSize: 10, color: Colors.grey[500])),
+                                        ],
+                                      )),
+                                      DataCell(_DriverTypeChip(type: empType)),
+                                      DataCell(Text(d['assigned_vehicle_id'] as String? ?? '-', style: const TextStyle(fontSize: 12))),
+                                      DataCell(_ScoreBadge(score: score.toInt())),
+                                      DataCell(Text('$totalTrips')),
+                                      DataCell(Text(onTimePct, style: const TextStyle(fontSize: 12))),
+                                      DataCell(_DriverStatusChip(status: d['status'] as String? ?? '')),
+                                      DataCell(Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          IconButton(icon: const Icon(Icons.visibility_outlined, size: 18), onPressed: () {}, tooltip: 'ดูรายละเอียด'),
+                                          IconButton(icon: const Icon(Icons.edit_outlined, size: 18), onPressed: () {}, tooltip: 'แก้ไข'),
+                                        ],
+                                      )),
+                                    ]);
+                                  }).toList(),
+                                ),
+                              ),
+                            ),
+                            const Divider(height: 1),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              child: Row(
+                                children: [
+                                  Text('แถวต่อหน้า: ', style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant)),
+                                  DropdownButton<int>(
+                                    value: _rowsPerPage,
+                                    underline: const SizedBox(),
+                                    items: [10, 25, 50].map((n) => DropdownMenuItem(value: n, child: Text('$n'))).toList(),
+                                    onChanged: (v) => setState(() { _rowsPerPage = v!; _currentPage = 0; }),
+                                  ),
+                                  const Spacer(),
+                                  Text('หน้า ${_currentPage + 1} จาก $totalPages', style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant)),
+                                  const SizedBox(width: 8),
+                                  IconButton(icon: const Icon(Icons.chevron_left), onPressed: _currentPage > 0 ? () => setState(() => _currentPage--) : null),
+                                  IconButton(icon: const Icon(Icons.chevron_right), onPressed: _currentPage < totalPages - 1 ? () => setState(() => _currentPage++) : null),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                        const Spacer(),
-                        Text('หน้า ${_currentPage + 1} จาก $totalPages', style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant)),
-                        const SizedBox(width: 8),
-                        IconButton(icon: const Icon(Icons.chevron_left), onPressed: _currentPage > 0 ? () => setState(() => _currentPage--) : null),
-                        IconButton(icon: const Icon(Icons.chevron_right), onPressed: _currentPage < totalPages - 1 ? () => setState(() => _currentPage++) : null),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
             ),
           ),
         ],
       ),
     );
-  }
-
-  bool _isLicenseExpiring(String dateStr) {
-    try {
-      final parts = dateStr.split('/');
-      final date = DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
-      return date.isBefore(DateTime.now().add(const Duration(days: 60)));
-    } catch (_) { return false; }
   }
 }
 

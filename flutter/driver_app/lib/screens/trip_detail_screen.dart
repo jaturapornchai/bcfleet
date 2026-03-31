@@ -112,13 +112,13 @@ class TripDetailScreen extends StatelessWidget {
                     if (weight != null)
                       _InfoRow(label: 'น้ำหนัก', value: '$weight กก.'),
                     if (distance != null)
-                      _InfoRow(label: 'ระยะทาง', value: '${distance.toStringAsFixed(1)} กม.'),
+                      _InfoRow(label: 'ระยะทาง', value: '${(distance is num) ? distance.toStringAsFixed(1) : distance} กม.'),
                     if (plannedStart != null)
                       _InfoRow(label: 'เวลานัดหมาย', value: _formatDate(plannedStart)),
                     if (revenue != null)
                       _InfoRow(
                         label: 'ค่าขนส่ง',
-                        value: '฿${(revenue as double).toStringAsFixed(0)}',
+                        value: '฿${(revenue is num) ? revenue.toStringAsFixed(0) : revenue}',
                         valueColor: Colors.green.shade700,
                       ),
                   ],
@@ -138,7 +138,7 @@ class TripDetailScreen extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => ChecklistScreen(tripId: trip['id'] as String),
+                      builder: (_) => ChecklistScreen(tripId: trip['id']?.toString() ?? ''),
                     ),
                   );
                 },
@@ -160,7 +160,7 @@ class TripDetailScreen extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => PodScreen(tripId: trip['id'] as String),
+                        builder: (_) => PodScreen(tripId: trip['id']?.toString() ?? ''),
                       ),
                     );
                   },

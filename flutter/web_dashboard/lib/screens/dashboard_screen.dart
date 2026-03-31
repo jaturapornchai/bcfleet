@@ -1,4 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+const _apiBase = 'https://bcfleet.satistang.com/api/v1/fleet';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -8,28 +12,86 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  // Mock data
-  final _kpiData = [
-    _KpiCard(label: 'รถทั้งหมด', value: '24', sub: '18 คันวิ่งอยู่', icon: Icons.local_shipping, color: Color(0xFF1565C0)),
-    _KpiCard(label: 'เที่ยววิ่งวันนี้', value: '37', sub: '12 เสร็จแล้ว', icon: Icons.route, color: Color(0xFF2E7D32)),
-    _KpiCard(label: 'รายได้วันนี้', value: '฿125,400', sub: 'เป้า ฿150,000', icon: Icons.attach_money, color: Color(0xFFE65100)),
-    _KpiCard(label: 'แจ้งเตือน', value: '5', sub: '2 วิกฤต', icon: Icons.notifications_active, color: Color(0xFFC62828)),
-  ];
+  bool _loading = true;
+  Map<String, dynamic> _summary = {};
+  List<Map<String, dynamic>> _recentTrips = [];
+  List<Map<String, dynamic>> _alerts = [];
 
-  final _recentTrips = [
-    {'no': 'TRIP-2026-001234', 'origin': 'คลังสินค้า ABC', 'dest': 'ร้าน XYZ ลำพูน', 'driver': 'สมชาย ใจดี', 'plate': 'กท-1234', 'status': 'in_progress', 'revenue': '2,500'},
-    {'no': 'TRIP-2026-001233', 'origin': 'โรงงาน DEF', 'dest': 'ห้าง GHI เชียงราย', 'driver': 'วิชัย ขับดี', 'plate': '2กร-5678', 'status': 'completed', 'revenue': '5,800'},
-    {'no': 'TRIP-2026-001232', 'origin': 'ท่าเรือ JKL', 'dest': 'ศูนย์กระจายสินค้า', 'driver': 'สมศักดิ์ รักงาน', 'plate': 'ชม-3456', 'status': 'pending', 'revenue': '3,200'},
-    {'no': 'TRIP-2026-001231', 'origin': 'คลัง MNO', 'dest': 'ลูกค้า PQR ลำปาง', 'driver': 'ประสิทธิ์ มีน้ำใจ', 'plate': 'กน-7890', 'status': 'completed', 'revenue': '4,100'},
-    {'no': 'TRIP-2026-001230', 'origin': 'สำนักงานใหญ่', 'dest': 'ลูกค้า STU เชียงใหม่', 'driver': 'อนุชา ตั้งใจ', 'plate': 'ลป-1122', 'status': 'started', 'revenue': '1,800'},
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
 
-  final _alerts = [
-    _AlertItem(title: 'ประกันภัยใกล้หมดอายุ', msg: 'รถ กท-1234 — เหลือ 15 วัน', severity: 'critical', icon: Icons.warning_amber),
-    _AlertItem(title: 'พ.ร.บ. ครบกำหนด', msg: 'รถ ชม-3456 — เหลือ 7 วัน', severity: 'critical', icon: Icons.gavel),
-    _AlertItem(title: 'ซ่อมบำรุงครบรอบ', msg: 'รถ 2กร-5678 — น้ำมันเครื่อง 10,000 กม.', severity: 'warning', icon: Icons.build),
-    _AlertItem(title: 'ใบขับขี่ใกล้หมดอายุ', msg: 'สมชาย ใจดี — เหลือ 30 วัน', severity: 'warning', icon: Icons.badge),
-    _AlertItem(title: 'สต๊อกอะไหล่ต่ำ', msg: 'น้ำมันเครื่อง SHELL เหลือ 8 ลิตร', severity: 'info', icon: Icons.inventory),
+  Future<void> _loadData() async {
+    setState(() => _loading = true);
+    await Future.wait([
+      _loadSummary(),
+      _loadTrips(),
+      _loadAlerts(),
+    ]);
+    if (mounted) setState(() => _loading = false);
+  }
+
+  Future<void> _loadSummary() async {
+    try {
+      final res = await http.get(Uri.parse('$_apiBase/dashboard/summary'));
+      if (res.statusCode == 200) {
+        final body = json.decode(res.body);
+        _summary = (body['data'] as Map<String, dynamic>?) ?? body;
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _loadTrips() async {
+    try {
+      final res = await http.get(Uri.parse('$_apiBase/trips?limit=5&status=in_progress'));
+      if (res.statusCode == 200) {
+        final body = json.decode(res.body);
+        _recentTrips = (body['data'] as List?)?.cast<Map<String, dynamic>>() ?? [];
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _loadAlerts() async {
+    try {
+      final res = await http.get(Uri.parse('$_apiBase/dashboard/alerts'));
+      if (res.statusCode == 200) {
+        final body = json.decode(res.body);
+        _alerts = (body['data'] as List?)?.cast<Map<String, dynamic>>() ?? [];
+      }
+    } catch (_) {}
+  }
+
+  List<_KpiCard> get _kpiData => [
+    _KpiCard(
+      label: 'รถทั้งหมด',
+      value: '${_summary['total_vehicles'] ?? _summary['active_vehicles'] ?? '-'}',
+      sub: '${_summary['active_vehicles'] ?? '-'} คันวิ่งอยู่',
+      icon: Icons.local_shipping,
+      color: const Color(0xFF1565C0),
+    ),
+    _KpiCard(
+      label: 'เที่ยววิ่งวันนี้',
+      value: '${_summary['today_trips'] ?? _summary['total_trips'] ?? '-'}',
+      sub: '${_summary['completed_trips'] ?? '-'} เสร็จแล้ว',
+      icon: Icons.route,
+      color: const Color(0xFF2E7D32),
+    ),
+    _KpiCard(
+      label: 'รายได้วันนี้',
+      value: _summary['today_revenue'] != null ? '฿${_summary['today_revenue']}' : '-',
+      sub: 'รวมทุกเที่ยว',
+      icon: Icons.attach_money,
+      color: const Color(0xFFE65100),
+    ),
+    _KpiCard(
+      label: 'แจ้งเตือน',
+      value: '${_alerts.length}',
+      sub: '${_alerts.where((a) => a['severity'] == 'critical').length} วิกฤต',
+      icon: Icons.notifications_active,
+      color: const Color(0xFFC62828),
+    ),
   ];
 
   @override
@@ -48,12 +110,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('แดชบอร์ดภาพรวม', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
-                  Text('วันอังคารที่ 31 มีนาคม 2569 — อัปเดตล่าสุด 09:45 น.', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
+                  Text('BC Fleet — ข้อมูลจาก API จริง', style: TextStyle(color: cs.onSurfaceVariant, fontSize: 13)),
                 ],
               ),
               const Spacer(),
+              if (_loading)
+                const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2)),
+              const SizedBox(width: 12),
               FilledButton.icon(
-                onPressed: () {},
+                onPressed: _loadData,
                 icon: const Icon(Icons.refresh, size: 18),
                 label: const Text('รีเฟรช'),
               ),
@@ -76,7 +141,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Chart 1 — เที่ยววิ่งรายสัปดาห์
+              // Chart 1 — placeholder
               Expanded(
                 flex: 3,
                 child: _buildChartPlaceholder(
@@ -89,13 +154,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               ),
               const SizedBox(width: 16),
-              // Chart 2 — สัดส่วนต้นทุน
+              // Chart 2 — placeholder
               Expanded(
                 flex: 2,
                 child: _buildChartPlaceholder(
                   context,
                   title: 'สัดส่วนต้นทุน',
-                  subtitle: 'เดือนมีนาคม 2569',
+                  subtitle: 'เดือนปัจจุบัน',
                   height: 220,
                   icon: Icons.pie_chart,
                   color: cs.tertiary,
@@ -232,18 +297,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ],
             ),
             const Divider(height: 20),
-            ..._alerts.map((a) => _buildAlertTile(context, a)),
+            if (_alerts.isEmpty && !_loading)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 16),
+                child: Center(child: Text('ไม่มีแจ้งเตือน', style: TextStyle(color: Colors.grey))),
+              )
+            else
+              ..._alerts.take(5).map((a) => _buildAlertTile(context, a)),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildAlertTile(BuildContext context, _AlertItem a) {
-    Color color = switch (a.severity) {
+  Widget _buildAlertTile(BuildContext context, Map<String, dynamic> a) {
+    final severity = a['severity'] as String? ?? 'info';
+    final title = a['title'] as String? ?? '';
+    final message = a['message'] as String? ?? '';
+    Color color = switch (severity) {
       'critical' => Colors.red,
       'warning' => Colors.orange,
       _ => Colors.blue,
+    };
+    IconData icon = switch (severity) {
+      'critical' => Icons.warning_amber,
+      'warning' => Icons.info_outline,
+      _ => Icons.notifications_outlined,
     };
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
@@ -256,14 +335,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(a.icon, color: color, size: 18),
+          Icon(icon, color: color, size: 18),
           const SizedBox(width: 8),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(a.title, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12, color: color)),
-                Text(a.msg, style: const TextStyle(fontSize: 11, color: Colors.black54)),
+                Text(title, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12, color: color)),
+                Text(message, style: const TextStyle(fontSize: 11, color: Colors.black54)),
               ],
             ),
           ),
@@ -295,50 +374,73 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ],
             ),
             const SizedBox(height: 12),
-            Table(
-              columnWidths: const {
-                0: FlexColumnWidth(2),
-                1: FlexColumnWidth(2),
-                2: FlexColumnWidth(2),
-                3: FlexColumnWidth(2),
-                4: FlexColumnWidth(1.5),
-                5: FlexColumnWidth(1.5),
-              },
-              children: [
-                TableRow(
-                  decoration: BoxDecoration(color: cs.surfaceContainerLow, borderRadius: BorderRadius.circular(6)),
-                  children: ['เลขที่เที่ยว', 'ต้นทาง', 'ปลายทาง', 'คนขับ / รถ', 'สถานะ', 'รายได้']
-                      .map((h) => Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                            child: Text(h, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12)),
-                          ))
-                      .toList(),
-                ),
-                ..._recentTrips.map((t) => TableRow(
+            if (_loading)
+              const Center(child: Padding(
+                padding: EdgeInsets.all(32),
+                child: CircularProgressIndicator(),
+              ))
+            else if (_recentTrips.isEmpty)
+              const Center(child: Padding(
+                padding: EdgeInsets.all(32),
+                child: Text('ไม่มีข้อมูลเที่ยววิ่ง', style: TextStyle(color: Colors.grey)),
+              ))
+            else
+              Table(
+                columnWidths: const {
+                  0: FlexColumnWidth(2),
+                  1: FlexColumnWidth(2),
+                  2: FlexColumnWidth(2),
+                  3: FlexColumnWidth(2),
+                  4: FlexColumnWidth(1.5),
+                  5: FlexColumnWidth(1.5),
+                },
+                children: [
+                  TableRow(
+                    decoration: BoxDecoration(color: cs.surfaceContainerLow, borderRadius: BorderRadius.circular(6)),
+                    children: ['เลขที่เที่ยว', 'ต้นทาง', 'ปลายทาง', 'คนขับ / รถ', 'สถานะ', 'รายได้']
+                        .map((h) => Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                              child: Text(h, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12)),
+                            ))
+                        .toList(),
+                  ),
+                  ..._recentTrips.map((t) {
+                    final origin = (t['origin'] as Map?)
+                      ?? {'name': t['origin_name'] ?? ''};
+                    final destinations = t['destinations'] as List?;
+                    final dest = destinations?.isNotEmpty == true
+                        ? (destinations!.first as Map?)
+                        : null;
+                    final driverName = t['driver_name'] ?? t['driver_id'] ?? '';
+                    final plate = t['vehicle_plate'] ?? t['vehicle_id'] ?? '';
+                    final status = t['status'] as String? ?? '';
+                    final revenue = t['costs']?['revenue'] ?? t['revenue'] ?? '';
+                    return TableRow(
                       decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: Color(0xFFEEEEEE)))),
                       children: [
-                        _cell(t['no']!),
-                        _cell(t['origin']!),
-                        _cell(t['dest']!),
+                        _cell(t['trip_no'] as String? ?? ''),
+                        _cell(origin['name'] as String? ?? ''),
+                        _cell(dest?['name'] as String? ?? ''),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(t['driver']!, style: const TextStyle(fontSize: 12)),
-                              Text(t['plate']!, style: TextStyle(fontSize: 11, color: Colors.grey[500])),
+                              Text(driverName.toString(), style: const TextStyle(fontSize: 12)),
+                              Text(plate.toString(), style: TextStyle(fontSize: 11, color: Colors.grey[500])),
                             ],
                           ),
                         ),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                          child: _StatusBadge(status: t['status']!),
+                          child: _StatusBadge(status: status),
                         ),
-                        _cell('฿${t['revenue']!}'),
+                        _cell(revenue != '' ? '฿$revenue' : '-'),
                       ],
-                    )),
-              ],
-            ),
+                    );
+                  }),
+                ],
+              ),
           ],
         ),
       ),
@@ -358,12 +460,6 @@ class _KpiCard {
   const _KpiCard({required this.label, required this.value, required this.sub, required this.icon, required this.color});
 }
 
-class _AlertItem {
-  final String title, msg, severity;
-  final IconData icon;
-  const _AlertItem({required this.title, required this.msg, required this.severity, required this.icon});
-}
-
 class _StatusBadge extends StatelessWidget {
   final String status;
   const _StatusBadge({required this.status});
@@ -372,8 +468,8 @@ class _StatusBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final (label, color) = switch (status) {
       'completed' => ('เสร็จสิ้น', Colors.green),
-      'in_progress' || 'started' => ('กำลังวิ่ง', Colors.blue),
-      'pending' => ('รอดำเนินการ', Colors.orange),
+      'in_progress' || 'started' || 'delivering' => ('กำลังวิ่ง', Colors.blue),
+      'pending' || 'accepted' => ('รอดำเนินการ', Colors.orange),
       'cancelled' => ('ยกเลิก', Colors.red),
       _ => (status, Colors.grey),
     };

@@ -1,5 +1,9 @@
+import 'dart:convert';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fleet_core/models/partner_vehicle.dart';
+import 'package:http/http.dart' as http;
+
+const _apiBase = 'https://bcfleet.satistang.com/api/v1/fleet';
 
 // ─── Events ───────────────────────────────────────────────────────────────────
 
@@ -13,7 +17,8 @@ class FindAvailablePartners extends PartnerEvent {
   final String zone;
   final String vehicleType;
   final DateTime date;
-  FindAvailablePartners({required this.zone, required this.vehicleType, required this.date});
+  FindAvailablePartners(
+      {required this.zone, required this.vehicleType, required this.date});
 }
 
 class RegisterPartner extends PartnerEvent {
@@ -68,16 +73,30 @@ class PartnerBloc extends Bloc<PartnerEvent, PartnerState> {
     await _fetchAndEmit(emit);
   }
 
-  Future<void> _onFindAvailable(FindAvailablePartners event, Emitter<PartnerState> emit) async {
+  Future<void> _onFindAvailable(
+      FindAvailablePartners event, Emitter<PartnerState> emit) async {
     emit(PartnerLoading());
     try {
-      await Future.delayed(const Duration(milliseconds: 600));
-      final all = _mockPartners();
-      final available = all.where((p) =>
-        p.status == 'active' &&
-        (p.vehicleType == event.vehicleType || event.vehicleType == 'all'),
-      ).toList();
-      emit(PartnerAvailableLoaded(available: available));
+      final response = await http.post(
+        Uri.parse('$_apiBase/partners/find-available'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'zone': event.zone,
+          'vehicle_type': event.vehicleType,
+          'date': event.date.toIso8601String(),
+        }),
+      );
+      if (response.statusCode == 200) {
+        final body = json.decode(response.body) as Map<String, dynamic>;
+        final list = body['data'] as List? ?? [];
+        final available = list
+            .whereType<Map<String, dynamic>>()
+            .map(PartnerVehicle.fromJson)
+            .toList();
+        emit(PartnerAvailableLoaded(available: available));
+      } else {
+        emit(PartnerError('ค้นหารถร่วมไม่สำเร็จ: ${response.statusCode}'));
+      }
     } catch (e) {
       emit(PartnerError('ค้นหารถร่วมไม่สำเร็จ: $e'));
     }
@@ -85,9 +104,17 @@ class PartnerBloc extends Bloc<PartnerEvent, PartnerState> {
 
   Future<void> _onRegister(RegisterPartner event, Emitter<PartnerState> emit) async {
     try {
-      await Future.delayed(const Duration(milliseconds: 500));
-      emit(PartnerActionSuccess('ลงทะเบียนรถร่วมสำเร็จ'));
-      add(LoadPartners());
+      final response = await http.post(
+        Uri.parse('$_apiBase/partners'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(event.data),
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        emit(PartnerActionSuccess('ลงทะเบียนรถร่วมสำเร็จ'));
+        add(LoadPartners());
+      } else {
+        emit(PartnerError('ลงทะเบียนไม่สำเร็จ: ${response.statusCode}'));
+      }
     } catch (e) {
       emit(PartnerError('ลงทะเบียนไม่สำเร็จ: $e'));
     }
@@ -95,61 +122,21 @@ class PartnerBloc extends Bloc<PartnerEvent, PartnerState> {
 
   Future<void> _fetchAndEmit(Emitter<PartnerState> emit) async {
     try {
-      await Future.delayed(const Duration(milliseconds: 500));
-      emit(PartnerLoaded(partners: _mockPartners()));
+      final response = await http.get(Uri.parse('$_apiBase/partners'));
+
+      if (response.statusCode == 200) {
+        final body = json.decode(response.body) as Map<String, dynamic>;
+        final list = body['data'] as List? ?? [];
+        final partners = list
+            .whereType<Map<String, dynamic>>()
+            .map(PartnerVehicle.fromJson)
+            .toList();
+        emit(PartnerLoaded(partners: partners));
+      } else {
+        emit(PartnerError('API error: ${response.statusCode}'));
+      }
     } catch (e) {
       emit(PartnerError('โหลดข้อมูลรถร่วมไม่สำเร็จ: $e'));
     }
-  }
-
-  List<PartnerVehicle> _mockPartners() {
-    final now = DateTime.now();
-    return [
-      PartnerVehicle(
-        id: 'p1', shopId: 's1',
-        ownerName: 'นายสมหมาย รถเยอะ',
-        ownerCompany: 'บจก.ขนส่งสมหมาย',
-        ownerPhone: '081-456-7890',
-        plate: '2กร-5678',
-        vehicleType: '10ล้อ',
-        maxWeightKg: 15000,
-        pricingModel: 'per_trip',
-        baseRate: 3000,
-        rating: 4.5,
-        totalTrips: 35,
-        status: 'active',
-        createdAt: now, updatedAt: now,
-      ),
-      PartnerVehicle(
-        id: 'p2', shopId: 's1',
-        ownerName: 'นายวิชัย ขนส่งดี',
-        ownerPhone: '089-567-8901',
-        plate: '3กข-1234',
-        vehicleType: '6ล้อ',
-        maxWeightKg: 6000,
-        pricingModel: 'per_km',
-        baseRate: 1500,
-        perKmRate: 15,
-        rating: 4.8,
-        totalTrips: 62,
-        status: 'active',
-        createdAt: now, updatedAt: now,
-      ),
-      PartnerVehicle(
-        id: 'p3', shopId: 's1',
-        ownerName: 'นางสาวมาลี โลจิสติกส์',
-        ownerCompany: 'หจก.มาลีขนส่ง',
-        ownerPhone: '082-345-6789',
-        plate: '4นก-9876',
-        vehicleType: 'หัวลาก',
-        maxWeightKg: 25000,
-        pricingModel: 'per_trip',
-        baseRate: 8000,
-        rating: 4.2,
-        totalTrips: 18,
-        status: 'active',
-        createdAt: now, updatedAt: now,
-      ),
-    ];
   }
 }

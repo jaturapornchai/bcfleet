@@ -1,4 +1,8 @@
+import 'dart:convert';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:http/http.dart' as http;
+
+const _apiBase = 'https://bcfleet.satistang.com/api/v1/fleet';
 
 // ─── Events ───────────────────────────────────────────────────────────────────
 
@@ -58,15 +62,27 @@ class DashboardSummary {
     required this.activeAlerts,
   });
 
-  factory DashboardSummary.mock() => DashboardSummary(
-        totalVehicles: 12,
-        activeVehicles: 9,
-        vehiclesInMaintenance: 2,
-        criticalVehicles: 1,
-        warningVehicles: 3,
-        totalDrivers: 15,
-        activeDrivers: 11,
-        activeAlerts: 4,
+  factory DashboardSummary.fromJson(Map<String, dynamic> json) => DashboardSummary(
+        totalVehicles: (json['total_vehicles'] ?? json['totalVehicles'] ?? 0) as int,
+        activeVehicles: (json['active_vehicles'] ?? json['activeVehicles'] ?? 0) as int,
+        vehiclesInMaintenance:
+            (json['vehicles_in_maintenance'] ?? json['vehiclesInMaintenance'] ?? 0) as int,
+        criticalVehicles: (json['critical_vehicles'] ?? json['criticalVehicles'] ?? 0) as int,
+        warningVehicles: (json['warning_vehicles'] ?? json['warningVehicles'] ?? 0) as int,
+        totalDrivers: (json['total_drivers'] ?? json['totalDrivers'] ?? 0) as int,
+        activeDrivers: (json['active_drivers'] ?? json['activeDrivers'] ?? 0) as int,
+        activeAlerts: (json['active_alerts'] ?? json['activeAlerts'] ?? 0) as int,
+      );
+
+  factory DashboardSummary.empty() => DashboardSummary(
+        totalVehicles: 0,
+        activeVehicles: 0,
+        vehiclesInMaintenance: 0,
+        criticalVehicles: 0,
+        warningVehicles: 0,
+        totalDrivers: 0,
+        activeDrivers: 0,
+        activeAlerts: 0,
       );
 }
 
@@ -89,14 +105,25 @@ class TodayTrips {
     required this.totalProfit,
   });
 
-  factory TodayTrips.mock() => TodayTrips(
-        total: 8,
-        completed: 5,
-        inProgress: 2,
-        pending: 1,
-        totalRevenue: 28500,
-        totalCost: 14200,
-        totalProfit: 14300,
+  factory TodayTrips.fromJson(Map<String, dynamic> json) => TodayTrips(
+        total: (json['total'] ?? 0) as int,
+        completed: (json['completed'] ?? 0) as int,
+        inProgress: (json['in_progress'] ?? json['inProgress'] ?? 0) as int,
+        pending: (json['pending'] ?? 0) as int,
+        totalRevenue:
+            ((json['total_revenue'] ?? json['totalRevenue'] ?? 0) as num).toDouble(),
+        totalCost: ((json['total_cost'] ?? json['totalCost'] ?? 0) as num).toDouble(),
+        totalProfit: ((json['total_profit'] ?? json['totalProfit'] ?? 0) as num).toDouble(),
+      );
+
+  factory TodayTrips.empty() => TodayTrips(
+        total: 0,
+        completed: 0,
+        inProgress: 0,
+        pending: 0,
+        totalRevenue: 0,
+        totalCost: 0,
+        totalProfit: 0,
       );
 }
 
@@ -115,20 +142,33 @@ class FleetKpi {
     required this.weeklyRevenue,
   });
 
-  factory FleetKpi.mock() => FleetKpi(
-        utilizationRate: 0.78,
-        onTimeRate: 0.92,
-        avgFuelEfficiency: 5.4,
-        avgDriverScore: 87,
-        weeklyRevenue: [
-          WeeklyRevenue('จ', 22000, 11000),
-          WeeklyRevenue('อ', 18000, 9500),
-          WeeklyRevenue('พ', 25000, 13000),
-          WeeklyRevenue('พฤ', 31000, 15500),
-          WeeklyRevenue('ศ', 28500, 14200),
-          WeeklyRevenue('ส', 15000, 8000),
-          WeeklyRevenue('อา', 0, 0),
-        ],
+  factory FleetKpi.fromJson(Map<String, dynamic> json) {
+    final weeklyRaw = json['weekly_revenue'] ?? json['weeklyRevenue'];
+    final weekly = weeklyRaw is List ? weeklyRaw : [];
+    return FleetKpi(
+      utilizationRate:
+          ((json['utilization_rate'] ?? json['utilizationRate'] ?? 0) as num).toDouble(),
+      onTimeRate: ((json['on_time_rate'] ?? json['onTimeRate'] ?? 0) as num).toDouble(),
+      avgFuelEfficiency:
+          ((json['avg_fuel_efficiency'] ?? json['avgFuelEfficiency'] ?? 0) as num).toDouble(),
+      avgDriverScore:
+          ((json['avg_driver_score'] ?? json['avgDriverScore'] ?? 0) as num).toDouble(),
+      weeklyRevenue: weekly
+          .map((e) => WeeklyRevenue(
+                (e as Map<String, dynamic>)['day']?.toString() ?? '',
+                ((e['revenue'] ?? 0) as num).toDouble(),
+                ((e['cost'] ?? 0) as num).toDouble(),
+              ))
+          .toList(),
+    );
+  }
+
+  factory FleetKpi.empty() => FleetKpi(
+        utilizationRate: 0,
+        onTimeRate: 0,
+        avgFuelEfficiency: 0,
+        avgDriverScore: 0,
+        weeklyRevenue: [],
       );
 }
 
@@ -155,6 +195,17 @@ class AlertItem {
     required this.severity,
     required this.createdAt,
   });
+
+  factory AlertItem.fromJson(Map<String, dynamic> json) => AlertItem(
+        id: json['id']?.toString() ?? json['_id']?.toString() ?? '',
+        type: json['type']?.toString() ?? '',
+        title: json['title']?.toString() ?? '',
+        message: json['message']?.toString() ?? '',
+        severity: json['severity']?.toString() ?? 'info',
+        createdAt: json['created_at'] != null
+            ? DateTime.tryParse(json['created_at'].toString()) ?? DateTime.now()
+            : DateTime.now(),
+      );
 }
 
 // ─── BLoC ─────────────────────────────────────────────────────────────────────
@@ -176,51 +227,64 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
 
   Future<void> _fetchAndEmit(Emitter<DashboardState> emit) async {
     try {
-      // TODO: replace with real API call
-      await Future.delayed(const Duration(milliseconds: 600));
+      final results = await Future.wait([
+        http.get(Uri.parse('$_apiBase/dashboard/summary')),
+        http.get(Uri.parse('$_apiBase/dashboard/kpi')),
+        http.get(Uri.parse('$_apiBase/dashboard/alerts')),
+      ]);
+
+      final summaryRes = results[0];
+      final kpiRes = results[1];
+      final alertsRes = results[2];
+
+      DashboardSummary summary = DashboardSummary.empty();
+      TodayTrips todayTrips = TodayTrips.empty();
+      FleetKpi kpi = FleetKpi.empty();
+      List<AlertItem> recentAlerts = [];
+
+      if (summaryRes.statusCode == 200) {
+        final body = json.decode(summaryRes.body) as Map<String, dynamic>;
+        final data = body['data'];
+        if (data is Map<String, dynamic>) {
+          final summaryMap = data['summary'];
+          summary = DashboardSummary.fromJson(
+            summaryMap is Map<String, dynamic> ? summaryMap : data,
+          );
+          final todayMap = data['today_trips'] ?? data['todayTrips'];
+          if (todayMap is Map<String, dynamic>) {
+            todayTrips = TodayTrips.fromJson(todayMap);
+          }
+        }
+      }
+
+      if (kpiRes.statusCode == 200) {
+        final body = json.decode(kpiRes.body) as Map<String, dynamic>;
+        final data = body['data'];
+        if (data is Map<String, dynamic>) {
+          kpi = FleetKpi.fromJson(data);
+        }
+      }
+
+      if (alertsRes.statusCode == 200) {
+        final body = json.decode(alertsRes.body) as Map<String, dynamic>;
+        final list = body['data'];
+        if (list is List) {
+          recentAlerts = list
+              .take(5)
+              .whereType<Map<String, dynamic>>()
+              .map(AlertItem.fromJson)
+              .toList();
+        }
+      }
+
       emit(DashboardLoaded(
-        summary: DashboardSummary.mock(),
-        todayTrips: TodayTrips.mock(),
-        kpi: FleetKpi.mock(),
-        recentAlerts: _mockAlerts(),
+        summary: summary,
+        todayTrips: todayTrips,
+        kpi: kpi,
+        recentAlerts: recentAlerts,
       ));
     } catch (e) {
       emit(DashboardError('โหลดข้อมูลไม่สำเร็จ: $e'));
     }
   }
-
-  List<AlertItem> _mockAlerts() => [
-        AlertItem(
-          id: '1',
-          type: 'insurance_expiry',
-          title: 'ประกันภัยใกล้หมดอายุ',
-          message: 'รถ กท-1234 ประกันหมดอายุ 15/03/2568 (เหลือ 30 วัน)',
-          severity: 'warning',
-          createdAt: DateTime.now().subtract(const Duration(hours: 2)),
-        ),
-        AlertItem(
-          id: '2',
-          type: 'maintenance_due',
-          title: 'ถึงกำหนดเปลี่ยนน้ำมันเครื่อง',
-          message: 'รถ ชม-5678 ครบ 10,000 กม. แล้ว',
-          severity: 'warning',
-          createdAt: DateTime.now().subtract(const Duration(hours: 5)),
-        ),
-        AlertItem(
-          id: '3',
-          type: 'act_due',
-          title: 'พ.ร.บ. ใกล้หมดอายุ',
-          message: 'รถ นค-9012 พ.ร.บ. หมดอายุ 01/04/2568 (เหลือ 1 วัน)',
-          severity: 'critical',
-          createdAt: DateTime.now().subtract(const Duration(hours: 8)),
-        ),
-        AlertItem(
-          id: '4',
-          type: 'license_expiry',
-          title: 'ใบขับขี่ใกล้หมดอายุ',
-          message: 'คนขับ สมชาย ใจดี ใบขับขี่หมด 20/04/2568',
-          severity: 'info',
-          createdAt: DateTime.now().subtract(const Duration(days: 1)),
-        ),
-      ];
 }

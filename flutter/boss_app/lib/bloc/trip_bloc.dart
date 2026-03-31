@@ -1,5 +1,9 @@
+import 'dart:convert';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fleet_core/models/trip.dart';
+import 'package:http/http.dart' as http;
+
+const _apiBase = 'https://bcfleet.satistang.com/api/v1/fleet';
 
 // ─── Events ───────────────────────────────────────────────────────────────────
 
@@ -105,9 +109,17 @@ class TripBloc extends Bloc<TripEvent, TripState> {
 
   Future<void> _onCreate(CreateTrip event, Emitter<TripState> emit) async {
     try {
-      await Future.delayed(const Duration(milliseconds: 400));
-      emit(TripActionSuccess('สร้างเที่ยววิ่งสำเร็จ'));
-      add(LoadTrips());
+      final response = await http.post(
+        Uri.parse('$_apiBase/trips'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(event.data),
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        emit(TripActionSuccess('สร้างเที่ยววิ่งสำเร็จ'));
+        add(LoadTrips());
+      } else {
+        emit(TripError('สร้างเที่ยววิ่งไม่สำเร็จ: ${response.statusCode}'));
+      }
     } catch (e) {
       emit(TripError('สร้างเที่ยววิ่งไม่สำเร็จ: $e'));
     }
@@ -115,9 +127,20 @@ class TripBloc extends Bloc<TripEvent, TripState> {
 
   Future<void> _onAssign(AssignTrip event, Emitter<TripState> emit) async {
     try {
-      await Future.delayed(const Duration(milliseconds: 400));
-      emit(TripActionSuccess('มอบหมายงานสำเร็จ'));
-      add(LoadTrips());
+      final response = await http.post(
+        Uri.parse('$_apiBase/trips/${event.tripId}/assign'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'vehicle_id': event.vehicleId,
+          'driver_id': event.driverId,
+        }),
+      );
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        emit(TripActionSuccess('มอบหมายงานสำเร็จ'));
+        add(LoadTrips());
+      } else {
+        emit(TripError('มอบหมายงานไม่สำเร็จ: ${response.statusCode}'));
+      }
     } catch (e) {
       emit(TripError('มอบหมายงานไม่สำเร็จ: $e'));
     }
@@ -125,73 +148,21 @@ class TripBloc extends Bloc<TripEvent, TripState> {
 
   Future<void> _fetchAndEmit(Emitter<TripState> emit, String? filter) async {
     try {
-      await Future.delayed(const Duration(milliseconds: 500));
-      emit(TripLoaded(trips: _mockTrips(), activeFilter: filter));
+      final response = await http.get(Uri.parse('$_apiBase/trips'));
+
+      if (response.statusCode == 200) {
+        final body = json.decode(response.body) as Map<String, dynamic>;
+        final list = body['data'] as List? ?? [];
+        final trips = list
+            .whereType<Map<String, dynamic>>()
+            .map(Trip.fromJson)
+            .toList();
+        emit(TripLoaded(trips: trips, activeFilter: filter));
+      } else {
+        emit(TripError('API error: ${response.statusCode}'));
+      }
     } catch (e) {
       emit(TripError('โหลดเที่ยววิ่งไม่สำเร็จ: $e'));
     }
-  }
-
-  List<Trip> _mockTrips() {
-    final now = DateTime.now();
-    return [
-      Trip(
-        id: 't1', shopId: 's1', tripNo: 'TRIP-2568-0001',
-        status: 'in_progress', vehicleId: 'v1', driverId: 'd1',
-        originName: 'คลังสินค้า ABC เชียงใหม่',
-        destinationCount: 1,
-        cargoDescription: 'ปูนซีเมนต์ 200 ถุง',
-        cargoWeightKg: 10000,
-        plannedStart: now.subtract(const Duration(hours: 2)),
-        plannedEnd: now.add(const Duration(hours: 2)),
-        actualStart: now.subtract(const Duration(hours: 2)),
-        distanceKm: 45.5,
-        revenue: 2500, totalCost: 1160, profit: 1340,
-        createdAt: now, updatedAt: now,
-      ),
-      Trip(
-        id: 't2', shopId: 's1', tripNo: 'TRIP-2568-0002',
-        status: 'completed', vehicleId: 'v2', driverId: 'd2',
-        originName: 'โรงงาน XYZ ลำปาง',
-        destinationCount: 2,
-        cargoDescription: 'เหล็กเส้น 5 ตัน',
-        cargoWeightKg: 5000,
-        plannedStart: now.subtract(const Duration(hours: 6)),
-        plannedEnd: now.subtract(const Duration(hours: 1)),
-        actualStart: now.subtract(const Duration(hours: 6)),
-        actualEnd: now.subtract(const Duration(hours: 1)),
-        distanceKm: 98.0,
-        revenue: 4500, totalCost: 2800, profit: 1700,
-        hasPod: true,
-        createdAt: now, updatedAt: now,
-      ),
-      Trip(
-        id: 't3', shopId: 's1', tripNo: 'TRIP-2568-0003',
-        status: 'pending', vehicleId: null, driverId: null,
-        originName: 'ท่าเรือเชียงแสน',
-        destinationCount: 1,
-        cargoDescription: 'สินค้าอิเล็กทรอนิกส์',
-        cargoWeightKg: 800,
-        plannedStart: now.add(const Duration(hours: 4)),
-        plannedEnd: now.add(const Duration(hours: 10)),
-        revenue: 3200,
-        createdAt: now, updatedAt: now,
-      ),
-      Trip(
-        id: 't4', shopId: 's1', tripNo: 'TRIP-2568-0004',
-        status: 'completed', vehicleId: 'v4', driverId: 'd3',
-        originName: 'คลังสินค้า DEF เชียงราย',
-        destinationCount: 3,
-        cargoDescription: 'ผลไม้สด 2 ตัน',
-        cargoWeightKg: 2000,
-        plannedStart: now.subtract(const Duration(hours: 10)),
-        plannedEnd: now.subtract(const Duration(hours: 4)),
-        actualEnd: now.subtract(const Duration(hours: 4)),
-        distanceKm: 180.0,
-        revenue: 6800, totalCost: 4100, profit: 2700,
-        hasPod: true,
-        createdAt: now, updatedAt: now,
-      ),
-    ];
   }
 }

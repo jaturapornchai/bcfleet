@@ -1,4 +1,8 @@
+import 'dart:convert';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:http/http.dart' as http;
+
+const _apiBase = 'https://bcfleet.satistang.com/api/v1/fleet';
 
 // ── Events ──────────────────────────────────────────────
 abstract class TripEvent {}
@@ -42,12 +46,19 @@ class TripBloc extends Bloc<TripEvent, TripState> {
   Future<void> _onLoadTrips(LoadTrips event, Emitter<TripState> emit) async {
     emit(TripLoading());
     try {
-      // TODO: เรียก API จริง — ตอนนี้ใช้ข้อมูลจำลอง
-      await Future.delayed(const Duration(milliseconds: 800));
-      final mockTrips = _mockTrips();
-      emit(TripLoaded(mockTrips));
+      final response = await http.get(
+        Uri.parse('$_apiBase/trips?limit=50'),
+      );
+      if (response.statusCode == 200) {
+        final body = json.decode(response.body);
+        final data =
+            (body['data'] as List?)?.cast<Map<String, dynamic>>() ?? [];
+        emit(TripLoaded(data));
+      } else {
+        emit(TripError('API error: ${response.statusCode}'));
+      }
     } catch (e) {
-      emit(TripError('โหลดข้อมูลไม่สำเร็จ: ${e.toString()}'));
+      emit(TripError('เชื่อมต่อ API ไม่สำเร็จ: $e'));
     }
   }
 
@@ -56,16 +67,24 @@ class TripBloc extends Bloc<TripEvent, TripState> {
     final current = state;
     if (current is! TripLoaded) return;
     try {
-      // TODO: เรียก API PUT /fleet/trips/:id/status
-      final updated = current.trips.map((t) {
-        if (t['id'] == event.tripId) {
-          return {...t, 'status': event.newStatus};
-        }
-        return t;
-      }).toList();
-      emit(TripLoaded(updated));
+      final response = await http.put(
+        Uri.parse('$_apiBase/trips/${event.tripId}/status'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({'status': event.newStatus}),
+      );
+      if (response.statusCode == 200) {
+        final updated = current.trips.map((t) {
+          if (t['id'] == event.tripId) {
+            return {...t, 'status': event.newStatus};
+          }
+          return t;
+        }).toList();
+        emit(TripLoaded(updated));
+      } else {
+        emit(TripError('อัปเดตสถานะไม่สำเร็จ: ${response.statusCode}'));
+      }
     } catch (e) {
-      emit(TripError('อัปเดตสถานะไม่สำเร็จ'));
+      emit(TripError('อัปเดตสถานะไม่สำเร็จ: $e'));
     }
   }
 
@@ -73,46 +92,4 @@ class TripBloc extends Bloc<TripEvent, TripState> {
       AcceptTrip event, Emitter<TripState> emit) async {
     add(UpdateTripStatus(tripId: event.tripId, newStatus: 'accepted'));
   }
-
-  List<Map<String, dynamic>> _mockTrips() => [
-        {
-          'id': 'trip_001',
-          'trip_no': 'TRIP-2026-000001',
-          'status': 'pending',
-          'origin_name': 'คลังสินค้า ABC เชียงใหม่',
-          'destination_name': 'ร้าน XYZ วัสดุ ลำพูน',
-          'cargo_description': 'ปูนซีเมนต์ 200 ถุง',
-          'cargo_weight_kg': 10000,
-          'distance_km': 45.0,
-          'planned_start': '2026-03-31T06:00:00',
-          'planned_end': '2026-03-31T12:00:00',
-          'revenue': 2500.0,
-        },
-        {
-          'id': 'trip_002',
-          'trip_no': 'TRIP-2026-000002',
-          'status': 'started',
-          'origin_name': 'โรงงาน DEF ลำปาง',
-          'destination_name': 'ห้างสรรพสินค้า GHI เชียงราย',
-          'cargo_description': 'เฟอร์นิเจอร์ 50 ชิ้น',
-          'cargo_weight_kg': 3500,
-          'distance_km': 120.0,
-          'planned_start': '2026-03-31T08:00:00',
-          'planned_end': '2026-03-31T14:00:00',
-          'revenue': 4500.0,
-        },
-        {
-          'id': 'trip_003',
-          'trip_no': 'TRIP-2026-000003',
-          'status': 'completed',
-          'origin_name': 'ท่าเรือ A เชียงใหม่',
-          'destination_name': 'คลังสินค้า B ลำพูน',
-          'cargo_description': 'อาหารแห้ง 500 กล่อง',
-          'cargo_weight_kg': 8000,
-          'distance_km': 30.0,
-          'planned_start': '2026-03-31T04:00:00',
-          'planned_end': '2026-03-31T08:00:00',
-          'revenue': 1800.0,
-        },
-      ];
 }

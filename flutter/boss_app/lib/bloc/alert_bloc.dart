@@ -1,4 +1,8 @@
+import 'dart:convert';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:http/http.dart' as http;
+
+const _apiBase = 'https://bcfleet.satistang.com/api/v1/fleet';
 
 // ─── Events ───────────────────────────────────────────────────────────────────
 
@@ -46,6 +50,28 @@ class FleetAlert {
     this.acknowledgedAt,
     required this.createdAt,
   });
+
+  factory FleetAlert.fromJson(Map<String, dynamic> json) => FleetAlert(
+        id: json['id']?.toString() ?? json['_id']?.toString() ?? '',
+        type: json['type']?.toString() ?? '',
+        entity: json['entity']?.toString() ?? '',
+        entityId: json['entity_id']?.toString() ?? json['entityId']?.toString() ?? '',
+        title: json['title']?.toString() ?? '',
+        message: json['message']?.toString() ?? '',
+        severity: json['severity']?.toString() ?? 'info',
+        dueDate: json['due_date'] != null
+            ? DateTime.tryParse(json['due_date'].toString())
+            : null,
+        daysRemaining: json['days_remaining'] as int?,
+        status: json['status']?.toString() ?? 'active',
+        acknowledgedBy: json['acknowledged_by']?.toString(),
+        acknowledgedAt: json['acknowledged_at'] != null
+            ? DateTime.tryParse(json['acknowledged_at'].toString())
+            : null,
+        createdAt: json['created_at'] != null
+            ? DateTime.tryParse(json['created_at'].toString()) ?? DateTime.now()
+            : DateTime.now(),
+      );
 }
 
 // ─── States ───────────────────────────────────────────────────────────────────
@@ -61,8 +87,10 @@ class AlertLoaded extends AlertState {
 
   AlertLoaded({required this.alerts});
 
-  List<FleetAlert> get active => alerts.where((a) => a.status == 'active').toList();
-  List<FleetAlert> get critical => alerts.where((a) => a.severity == 'critical' && a.status == 'active').toList();
+  List<FleetAlert> get active =>
+      alerts.where((a) => a.status == 'active').toList();
+  List<FleetAlert> get critical =>
+      alerts.where((a) => a.severity == 'critical' && a.status == 'active').toList();
   int get activeCount => active.length;
 }
 
@@ -94,11 +122,20 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
     await _fetchAndEmit(emit);
   }
 
-  Future<void> _onAcknowledge(AcknowledgeAlert event, Emitter<AlertState> emit) async {
+  Future<void> _onAcknowledge(
+      AcknowledgeAlert event, Emitter<AlertState> emit) async {
     try {
-      await Future.delayed(const Duration(milliseconds: 300));
-      emit(AlertActionSuccess('รับทราบแจ้งเตือนแล้ว'));
-      add(LoadAlerts());
+      final response = await http.put(
+        Uri.parse('$_apiBase/dashboard/alerts/${event.alertId}/acknowledge'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({'acknowledged_by': event.acknowledgedBy}),
+      );
+      if (response.statusCode == 200) {
+        emit(AlertActionSuccess('รับทราบแจ้งเตือนแล้ว'));
+        add(LoadAlerts());
+      } else {
+        emit(AlertError('ดำเนินการไม่สำเร็จ: ${response.statusCode}'));
+      }
     } catch (e) {
       emit(AlertError('ดำเนินการไม่สำเร็จ: $e'));
     }
@@ -106,67 +143,21 @@ class AlertBloc extends Bloc<AlertEvent, AlertState> {
 
   Future<void> _fetchAndEmit(Emitter<AlertState> emit) async {
     try {
-      await Future.delayed(const Duration(milliseconds: 400));
-      emit(AlertLoaded(alerts: _mockAlerts()));
+      final response = await http.get(Uri.parse('$_apiBase/dashboard/alerts'));
+
+      if (response.statusCode == 200) {
+        final body = json.decode(response.body) as Map<String, dynamic>;
+        final list = body['data'] as List? ?? [];
+        final alerts = list
+            .whereType<Map<String, dynamic>>()
+            .map(FleetAlert.fromJson)
+            .toList();
+        emit(AlertLoaded(alerts: alerts));
+      } else {
+        emit(AlertError('API error: ${response.statusCode}'));
+      }
     } catch (e) {
       emit(AlertError('โหลดแจ้งเตือนไม่สำเร็จ: $e'));
     }
-  }
-
-  List<FleetAlert> _mockAlerts() {
-    final now = DateTime.now();
-    return [
-      FleetAlert(
-        id: 'a1', type: 'act_due', entity: 'vehicle', entityId: 'v3',
-        title: 'พ.ร.บ. ใกล้หมดอายุ',
-        message: 'รถ นค-9012 พ.ร.บ. หมดอายุ 01/04/2568 (เหลือ 1 วัน)',
-        severity: 'critical',
-        dueDate: now.add(const Duration(days: 1)),
-        daysRemaining: 1,
-        status: 'active',
-        createdAt: now.subtract(const Duration(hours: 8)),
-      ),
-      FleetAlert(
-        id: 'a2', type: 'insurance_expiry', entity: 'vehicle', entityId: 'v1',
-        title: 'ประกันภัยใกล้หมดอายุ',
-        message: 'รถ กท-1234 ประกันหมดอายุ 15/03/2568 (เหลือ 30 วัน)',
-        severity: 'warning',
-        dueDate: now.add(const Duration(days: 30)),
-        daysRemaining: 30,
-        status: 'active',
-        createdAt: now.subtract(const Duration(hours: 2)),
-      ),
-      FleetAlert(
-        id: 'a3', type: 'maintenance_due', entity: 'vehicle', entityId: 'v2',
-        title: 'ถึงกำหนดเปลี่ยนน้ำมันเครื่อง',
-        message: 'รถ ชม-5678 ครบ 10,000 กม. แล้ว (ปัจจุบัน 120,000 กม.)',
-        severity: 'warning',
-        daysRemaining: 0,
-        status: 'active',
-        createdAt: now.subtract(const Duration(hours: 5)),
-      ),
-      FleetAlert(
-        id: 'a4', type: 'license_expiry', entity: 'driver', entityId: 'd1',
-        title: 'ใบขับขี่ใกล้หมดอายุ',
-        message: 'คนขับ สมชาย ใจดี ใบขับขี่หมด 20/04/2568 (เหลือ 20 วัน)',
-        severity: 'info',
-        dueDate: now.add(const Duration(days: 20)),
-        daysRemaining: 20,
-        status: 'active',
-        createdAt: now.subtract(const Duration(days: 1)),
-      ),
-      FleetAlert(
-        id: 'a5', type: 'tax_due', entity: 'vehicle', entityId: 'v4',
-        title: 'ภาษีรถยนต์ใกล้ถึงกำหนด',
-        message: 'รถ พย-3456 ภาษีครบกำหนด 15/04/2568 (เหลือ 15 วัน)',
-        severity: 'warning',
-        dueDate: now.add(const Duration(days: 15)),
-        daysRemaining: 15,
-        status: 'acknowledged',
-        acknowledgedBy: 'admin_001',
-        acknowledgedAt: now.subtract(const Duration(hours: 1)),
-        createdAt: now.subtract(const Duration(days: 2)),
-      ),
-    ];
   }
 }

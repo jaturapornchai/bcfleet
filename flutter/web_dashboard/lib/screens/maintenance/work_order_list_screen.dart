@@ -1,4 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+const _apiBase = 'https://bcfleet.satistang.com/api/v1/fleet';
 
 class WorkOrderListScreen extends StatefulWidget {
   const WorkOrderListScreen({super.key});
@@ -13,21 +17,42 @@ class _WorkOrderListScreenState extends State<WorkOrderListScreen> {
   String _filterType = 'all';
   int _currentPage = 0;
   final int _rowsPerPage = 10;
+  bool _loading = true;
 
-  final _workOrders = [
-    {'id': '1', 'wo_no': 'WO-2026-000123', 'vehicle': 'กท-1234', 'type': 'preventive', 'priority': 'medium', 'status': 'completed', 'desc': 'เปลี่ยนน้ำมันเครื่อง + กรอง', 'cost': '4,040', 'date': '10/03/2569', 'provider': 'ช่างสมศักดิ์'},
-    {'id': '2', 'wo_no': 'WO-2026-000124', 'vehicle': '2กร-5678', 'type': 'corrective', 'priority': 'high', 'status': 'in_progress', 'desc': 'ซ่อมระบบเบรค', 'cost': '8,500', 'date': '28/03/2569', 'provider': 'อู่ซ่อมรถนิยม'},
-    {'id': '3', 'wo_no': 'WO-2026-000125', 'vehicle': 'ชม-3456', 'type': 'preventive', 'priority': 'low', 'status': 'pending_approval', 'desc': 'เปลี่ยนยาง 4 เส้น', 'cost': '12,000', 'date': '30/03/2569', 'provider': 'ร้านยางดี'},
-    {'id': '4', 'wo_no': 'WO-2026-000126', 'vehicle': 'กน-7890', 'type': 'emergency', 'priority': 'critical', 'status': 'approved', 'desc': 'เครื่องยนต์ดับกลางทาง', 'cost': '25,000', 'date': '31/03/2569', 'provider': 'อู่ใหญ่เชียงใหม่'},
-    {'id': '5', 'wo_no': 'WO-2026-000122', 'vehicle': 'ลป-1122', 'type': 'preventive', 'priority': 'medium', 'status': 'completed', 'desc': 'ตรวจเช็คระยะ 50,000 กม.', 'cost': '6,200', 'date': '05/03/2569', 'provider': 'ศูนย์บริการ ISUZU'},
-    {'id': '6', 'wo_no': 'WO-2026-000121', 'vehicle': 'พย-3344', 'type': 'corrective', 'priority': 'medium', 'status': 'cancelled', 'desc': 'ซ่อมระบบไฟฟ้า', 'cost': '3,500', 'date': '01/03/2569', 'provider': 'ช่างไฟนคร'},
-  ];
+  List<Map<String, dynamic>> _workOrders = [];
 
-  List<Map<String, String>> get _filtered => _workOrders.where((w) {
-    final matchSearch = _search.isEmpty ||
-        w['wo_no']!.contains(_search) ||
-        w['vehicle']!.contains(_search) ||
-        w['desc']!.contains(_search);
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    setState(() => _loading = true);
+    try {
+      final res = await http.get(Uri.parse('$_apiBase/maintenance/work-orders'));
+      if (res.statusCode == 200) {
+        final body = json.decode(res.body);
+        if (mounted) {
+          setState(() {
+            _workOrders = (body['data'] as List?)?.cast<Map<String, dynamic>>() ?? [];
+            _loading = false;
+          });
+        }
+      } else {
+        if (mounted) setState(() => _loading = false);
+      }
+    } catch (_) {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  List<Map<String, dynamic>> get _filtered => _workOrders.where((w) {
+    final woNo = (w['wo_no'] as String? ?? '').toLowerCase();
+    final vehicleId = (w['vehicle_id'] as String? ?? '').toLowerCase();
+    final desc = (w['description'] as String? ?? '').toLowerCase();
+    final search = _search.toLowerCase();
+    final matchSearch = _search.isEmpty || woNo.contains(search) || vehicleId.contains(search) || desc.contains(search);
     final matchStatus = _filterStatus == 'all' || w['status'] == _filterStatus;
     final matchType = _filterType == 'all' || w['type'] == _filterType;
     return matchSearch && matchStatus && matchType;
@@ -51,6 +76,13 @@ class _WorkOrderListScreenState extends State<WorkOrderListScreen> {
             children: [
               Text('ใบสั่งซ่อม', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
               const Spacer(),
+              if (_loading)
+                const Padding(
+                  padding: EdgeInsets.only(right: 12),
+                  child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+                ),
+              IconButton(icon: const Icon(Icons.refresh), onPressed: _loadData, tooltip: 'รีเฟรช'),
+              const SizedBox(width: 8),
               FilledButton.icon(
                 onPressed: () {},
                 icon: const Icon(Icons.add, size: 18),
@@ -107,61 +139,73 @@ class _WorkOrderListScreenState extends State<WorkOrderListScreen> {
             child: Card(
               elevation: 0,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12), side: BorderSide(color: cs.outlineVariant)),
-              child: Column(
-                children: [
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: DataTable(
-                        headingRowColor: WidgetStateProperty.all(cs.surfaceContainerLow),
-                        columns: const [
-                          DataColumn(label: Text('เลขที่ใบสั่งซ่อม')),
-                          DataColumn(label: Text('วันที่')),
-                          DataColumn(label: Text('รถ')),
-                          DataColumn(label: Text('ประเภท')),
-                          DataColumn(label: Text('ความเร่งด่วน')),
-                          DataColumn(label: Text('รายละเอียด')),
-                          DataColumn(label: Text('อู่/ช่าง')),
-                          DataColumn(label: Text('ค่าใช้จ่าย'), numeric: true),
-                          DataColumn(label: Text('สถานะ')),
-                          DataColumn(label: Text('จัดการ')),
-                        ],
-                        rows: pageRows.map((w) => DataRow(cells: [
-                          DataCell(Text(w['wo_no']!, style: const TextStyle(fontSize: 11, fontFamily: 'monospace'))),
-                          DataCell(Text(w['date']!, style: const TextStyle(fontSize: 12))),
-                          DataCell(Text(w['vehicle']!, style: const TextStyle(fontWeight: FontWeight.w600))),
-                          DataCell(_WOTypeChip(type: w['type']!)),
-                          DataCell(_PriorityChip(priority: w['priority']!)),
-                          DataCell(SizedBox(width: 180, child: Text(w['desc']!, style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis))),
-                          DataCell(Text(w['provider']!, style: const TextStyle(fontSize: 12))),
-                          DataCell(Text('฿${w['cost']!}')),
-                          DataCell(_WOStatusChip(status: w['status']!)),
-                          DataCell(Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(icon: const Icon(Icons.visibility_outlined, size: 18), onPressed: () {}, tooltip: 'ดูรายละเอียด'),
-                              if (w['status'] == 'pending_approval')
-                                IconButton(icon: const Icon(Icons.check_circle_outline, size: 18, color: Colors.green), onPressed: () {}, tooltip: 'อนุมัติ'),
-                              IconButton(icon: const Icon(Icons.edit_outlined, size: 18), onPressed: () {}, tooltip: 'แก้ไข'),
-                            ],
-                          )),
-                        ])).toList(),
-                      ),
-                    ),
-                  ),
-                  const Divider(height: 1),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: Row(
-                      children: [
-                        Text('หน้า ${_currentPage + 1} จาก $totalPages', style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant)),
-                        const Spacer(),
-                        IconButton(icon: const Icon(Icons.chevron_left), onPressed: _currentPage > 0 ? () => setState(() => _currentPage--) : null),
-                        IconButton(icon: const Icon(Icons.chevron_right), onPressed: _currentPage < totalPages - 1 ? () => setState(() => _currentPage++) : null),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+              child: _loading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _workOrders.isEmpty
+                      ? const Center(child: Text('ไม่มีข้อมูลใบสั่งซ่อม', style: TextStyle(color: Colors.grey)))
+                      : Column(
+                          children: [
+                            Expanded(
+                              child: SingleChildScrollView(
+                                child: DataTable(
+                                  headingRowColor: WidgetStateProperty.all(cs.surfaceContainerLow),
+                                  columns: const [
+                                    DataColumn(label: Text('เลขที่ใบสั่งซ่อม')),
+                                    DataColumn(label: Text('วันที่')),
+                                    DataColumn(label: Text('รถ')),
+                                    DataColumn(label: Text('ประเภท')),
+                                    DataColumn(label: Text('ความเร่งด่วน')),
+                                    DataColumn(label: Text('รายละเอียด')),
+                                    DataColumn(label: Text('อู่/ช่าง')),
+                                    DataColumn(label: Text('ค่าใช้จ่าย'), numeric: true),
+                                    DataColumn(label: Text('สถานะ')),
+                                    DataColumn(label: Text('จัดการ')),
+                                  ],
+                                  rows: pageRows.map((w) {
+                                    final serviceProvider = w['service_provider'] as Map?;
+                                    final providerName = serviceProvider?['name'] as String? ?? w['service_provider_name'] as String? ?? '-';
+                                    final createdAt = w['created_at'] as String? ?? '';
+                                    final dateStr = createdAt.length >= 10 ? createdAt.substring(0, 10) : createdAt;
+                                    final totalCost = w['total_cost'] ?? 0;
+                                    final status = w['status'] as String? ?? '';
+                                    return DataRow(cells: [
+                                      DataCell(Text(w['wo_no'] as String? ?? '', style: const TextStyle(fontSize: 11, fontFamily: 'monospace'))),
+                                      DataCell(Text(dateStr, style: const TextStyle(fontSize: 12))),
+                                      DataCell(Text(w['vehicle_id'] as String? ?? '', style: const TextStyle(fontWeight: FontWeight.w600))),
+                                      DataCell(_WOTypeChip(type: w['type'] as String? ?? '')),
+                                      DataCell(_PriorityChip(priority: w['priority'] as String? ?? '')),
+                                      DataCell(SizedBox(width: 180, child: Text(w['description'] as String? ?? '', style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis))),
+                                      DataCell(Text(providerName, style: const TextStyle(fontSize: 12))),
+                                      DataCell(Text('฿$totalCost')),
+                                      DataCell(_WOStatusChip(status: status)),
+                                      DataCell(Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          IconButton(icon: const Icon(Icons.visibility_outlined, size: 18), onPressed: () {}, tooltip: 'ดูรายละเอียด'),
+                                          if (status == 'pending_approval')
+                                            IconButton(icon: const Icon(Icons.check_circle_outline, size: 18, color: Colors.green), onPressed: () {}, tooltip: 'อนุมัติ'),
+                                          IconButton(icon: const Icon(Icons.edit_outlined, size: 18), onPressed: () {}, tooltip: 'แก้ไข'),
+                                        ],
+                                      )),
+                                    ]);
+                                  }).toList(),
+                                ),
+                              ),
+                            ),
+                            const Divider(height: 1),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              child: Row(
+                                children: [
+                                  Text('หน้า ${_currentPage + 1} จาก $totalPages', style: TextStyle(fontSize: 13, color: cs.onSurfaceVariant)),
+                                  const Spacer(),
+                                  IconButton(icon: const Icon(Icons.chevron_left), onPressed: _currentPage > 0 ? () => setState(() => _currentPage--) : null),
+                                  IconButton(icon: const Icon(Icons.chevron_right), onPressed: _currentPage < totalPages - 1 ? () => setState(() => _currentPage++) : null),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
             ),
           ),
         ],

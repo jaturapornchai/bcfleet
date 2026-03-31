@@ -1,0 +1,614 @@
+server:
+  name: smlfleet-mcp-server
+  config:
+    accessToken: ""
+
+tools:
+# ===== Vehicle Tools (8) =====
+- name: list_vehicles
+  description: "ค้นหารถทั้งหมด กรองตาม type/status/ownership — ดูรายการรถ รถว่าง สถานะ"
+  args:
+  - name: type
+    description: "ประเภทรถ: 4ล้อ, 6ล้อ, 10ล้อ, หัวลาก, กระบะ"
+    type: string
+    required: false
+  - name: status
+    description: "สถานะ: active, maintenance, inactive"
+    type: string
+    required: false
+  - name: limit
+    description: "จำนวนผลลัพธ์สูงสุด"
+    type: integer
+    required: false
+    default: 20
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/vehicles"
+    method: GET
+    argsToUrlParam: true
+
+- name: get_vehicle
+  description: "ดูรายละเอียดรถคันเดียว — ทะเบียน ยี่ห้อ ประเภท สถานะ ไมล์ ประกัน ภาษี พ.ร.บ."
+  args:
+  - name: id
+    description: "Vehicle ID"
+    type: string
+    required: true
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/vehicles/{{.args.id}}"
+    method: GET
+
+- name: create_vehicle
+  description: "ลงทะเบียนรถใหม่ — ทะเบียน ยี่ห้อ รุ่น ประเภท สี ปี น้ำหนักบรรทุก"
+  args:
+  - name: plate
+    description: "ทะเบียนรถ เช่น กท-1234"
+    type: string
+    required: true
+  - name: brand
+    description: "ยี่ห้อ เช่น ISUZU, HINO, TOYOTA"
+    type: string
+    required: true
+  - name: model
+    description: "รุ่น"
+    type: string
+    required: true
+  - name: type
+    description: "ประเภท: 4ล้อ, 6ล้อ, 10ล้อ, หัวลาก, กระบะ"
+    type: string
+    required: true
+  - name: year
+    description: "ปีรถ"
+    type: integer
+    required: false
+  - name: max_weight_kg
+    description: "น้ำหนักบรรทุกสูงสุด (กก.)"
+    type: integer
+    required: false
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/vehicles"
+    method: POST
+    argsToJsonBody: true
+
+- name: update_vehicle
+  description: "อัปเดตข้อมูลรถ — แก้ไขสถานะ ไมล์ หรือฟิลด์อื่น"
+  args:
+  - name: id
+    description: "Vehicle ID"
+    type: string
+    required: true
+  - name: status
+    description: "สถานะใหม่: active, maintenance, inactive"
+    type: string
+    required: false
+  - name: mileage_km
+    description: "เลขไมล์ปัจจุบัน"
+    type: integer
+    required: false
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/vehicles/{{.args.id}}"
+    method: PUT
+    argsToJsonBody: true
+
+- name: get_vehicle_health
+  description: "สุขภาพรถ: เขียว(ปกติ) เหลือง(ใกล้ซ่อม) แดง(ต้องซ่อมด่วน)"
+  args:
+  - name: id
+    description: "Vehicle ID"
+    type: string
+    required: true
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/vehicles/{{.args.id}}/health"
+    method: GET
+
+- name: get_vehicle_location
+  description: "ดูตำแหน่ง GPS ปัจจุบัน + เส้นทางย้อนหลังของรถ"
+  args:
+  - name: id
+    description: "Vehicle ID"
+    type: string
+    required: true
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/gps/vehicle/{{.args.id}}/trail"
+    method: GET
+
+- name: get_vehicle_cost
+  description: "P&L ต่อคัน — รายได้ vs ต้นทุน (น้ำมัน ซ่อม ทางด่วน คนขับ)"
+  args:
+  - name: vehicle_id
+    description: "Vehicle ID"
+    type: string
+    required: true
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/expenses/pl/{{.args.vehicle_id}}"
+    method: GET
+
+- name: get_vehicle_history
+  description: "ประวัติทั้งหมดของรถ (event logs จาก MongoDB)"
+  args:
+  - name: id
+    description: "Vehicle ID"
+    type: string
+    required: true
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/vehicles/{{.args.id}}/history"
+    method: GET
+
+# ===== Driver Tools (6) =====
+- name: list_drivers
+  description: "ค้นหาคนขับทั้งหมด — กรองตาม status"
+  args:
+  - name: status
+    description: "สถานะ: active, on_leave, suspended, resigned"
+    type: string
+    required: false
+  - name: limit
+    description: "จำนวนผลลัพธ์สูงสุด"
+    type: integer
+    required: false
+    default: 20
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/drivers"
+    method: GET
+    argsToUrlParam: true
+
+- name: get_driver
+  description: "รายละเอียดคนขับ — ชื่อ เบอร์ ใบขับขี่ เงินเดือน KPI score"
+  args:
+  - name: id
+    description: "Driver ID"
+    type: string
+    required: true
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/drivers/{{.args.id}}"
+    method: GET
+
+- name: create_driver
+  description: "ลงทะเบียนคนขับใหม่"
+  args:
+  - name: name
+    description: "ชื่อ-นามสกุล"
+    type: string
+    required: true
+  - name: phone
+    description: "เบอร์โทร"
+    type: string
+    required: true
+  - name: license_type
+    description: "ประเภทใบขับขี่: ท.1, ท.2, ท.3, ท.4"
+    type: string
+    required: false
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/drivers"
+    method: POST
+    argsToJsonBody: true
+
+- name: get_driver_score
+  description: "คะแนน KPI คนขับ — ตรงเวลา ประหยัดน้ำมัน Rating อุบัติเหตุ"
+  args:
+  - name: id
+    description: "Driver ID"
+    type: string
+    required: true
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/drivers/{{.args.id}}/score"
+    method: GET
+
+- name: check_driver_schedule
+  description: "ตารางเวรคนขับ — วันลา กะ เที่ยวที่มอบหมาย"
+  args:
+  - name: id
+    description: "Driver ID"
+    type: string
+    required: true
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/drivers/{{.args.id}}/schedule"
+    method: GET
+
+- name: calculate_driver_salary
+  description: "คำนวณเงินเดือนคนขับ — ฐาน + เบี้ยเลี้ยง + โบนัส + OT"
+  args:
+  - name: id
+    description: "Driver ID"
+    type: string
+    required: true
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/drivers/{{.args.id}}/salary"
+    method: GET
+
+# ===== Trip Tools (8) =====
+- name: list_trips
+  description: "ค้นหาเที่ยววิ่ง — กรองตาม status, vehicle, driver"
+  args:
+  - name: status
+    description: "สถานะ: draft, pending, accepted, started, arrived, delivering, completed, cancelled"
+    type: string
+    required: false
+  - name: vehicle_id
+    description: "กรองตามรถ"
+    type: string
+    required: false
+  - name: driver_id
+    description: "กรองตามคนขับ"
+    type: string
+    required: false
+  - name: limit
+    description: "จำนวนผลลัพธ์"
+    type: integer
+    required: false
+    default: 20
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/trips"
+    method: GET
+    argsToUrlParam: true
+
+- name: create_trip
+  description: "สร้างเที่ยววิ่งใหม่ — จุดรับ จุดส่ง สินค้า กำหนดเวลา"
+  args:
+  - name: origin_name
+    description: "ชื่อจุดรับสินค้า"
+    type: string
+    required: true
+  - name: origin_lat
+    description: "ละติจูดจุดรับ"
+    type: number
+    required: true
+  - name: origin_lng
+    description: "ลองจิจูดจุดรับ"
+    type: number
+    required: true
+  - name: destination_name
+    description: "ชื่อจุดส่ง"
+    type: string
+    required: true
+  - name: dest_lat
+    description: "ละติจูดจุดส่ง"
+    type: number
+    required: true
+  - name: dest_lng
+    description: "ลองจิจูดจุดส่ง"
+    type: number
+    required: true
+  - name: cargo_description
+    description: "รายละเอียดสินค้า"
+    type: string
+    required: false
+  - name: cargo_weight_kg
+    description: "น้ำหนัก (กก.)"
+    type: integer
+    required: false
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/trips"
+    method: POST
+    argsToJsonBody: true
+
+- name: update_trip_status
+  description: "เปลี่ยนสถานะเที่ยววิ่ง — pending>started>arrived>delivering>completed"
+  args:
+  - name: id
+    description: "Trip ID"
+    type: string
+    required: true
+  - name: status
+    description: "สถานะใหม่"
+    type: string
+    required: true
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/trips/{{.args.id}}/status"
+    method: PUT
+    argsToJsonBody: true
+
+- name: assign_trip
+  description: "มอบหมายรถและคนขับให้เที่ยววิ่ง"
+  args:
+  - name: id
+    description: "Trip ID"
+    type: string
+    required: true
+  - name: vehicle_id
+    description: "Vehicle ID"
+    type: string
+    required: true
+  - name: driver_id
+    description: "Driver ID"
+    type: string
+    required: true
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/trips/{{.args.id}}/assign"
+    method: POST
+    argsToJsonBody: true
+
+- name: calculate_route_cost
+  description: "คำนวณค่าขนส่ง — ระยะทาง เวลา น้ำมัน ทางด่วน คนขับ"
+  args:
+  - name: from_lat
+    description: "ละติจูดต้นทาง"
+    type: number
+    required: true
+  - name: from_lng
+    description: "ลองจิจูดต้นทาง"
+    type: number
+    required: true
+  - name: to_lat
+    description: "ละติจูดปลายทาง"
+    type: number
+    required: true
+  - name: to_lng
+    description: "ลองจิจูดปลายทาง"
+    type: number
+    required: true
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/trips/calculate-cost"
+    method: POST
+    argsToJsonBody: true
+
+- name: track_shipment
+  description: "ติดตาม GPS เที่ยววิ่ง real-time — ตำแหน่ง ความเร็ว ทิศทาง"
+  args:
+  - name: id
+    description: "Trip ID"
+    type: string
+    required: true
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/trips/{{.args.id}}/tracking"
+    method: GET
+
+- name: get_trip_pod
+  description: "หลักฐานส่งมอบ (POD) — รูปถ่าย ลายเซ็น ชื่อผู้รับ"
+  args:
+  - name: id
+    description: "Trip ID"
+    type: string
+    required: true
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/trips/{{.args.id}}/pod"
+    method: GET
+
+- name: get_trip_cost_breakdown
+  description: "รายละเอียดต้นทุนเที่ยววิ่ง — น้ำมัน ทางด่วน คนขับ กำไร/ขาดทุน"
+  args:
+  - name: id
+    description: "Trip ID"
+    type: string
+    required: true
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/trips/{{.args.id}}"
+    method: GET
+
+# ===== Maintenance Tools (6) =====
+- name: list_maintenance_due
+  description: "รายการซ่อมบำรุงใกล้ถึงกำหนด — น้ำมันเครื่อง ผ้าเบรค ยาง"
+  args: []
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/maintenance/due"
+    method: GET
+
+- name: create_work_order
+  description: "สร้างใบสั่งซ่อม — ระบุรถ ประเภท อาการ ลำดับความสำคัญ"
+  args:
+  - name: vehicle_id
+    description: "Vehicle ID"
+    type: string
+    required: true
+  - name: type
+    description: "ประเภท: preventive, corrective, emergency"
+    type: string
+    required: true
+  - name: priority
+    description: "ลำดับความสำคัญ: low, medium, high, critical"
+    type: string
+    required: false
+  - name: description
+    description: "รายละเอียดอาการ/งานซ่อม"
+    type: string
+    required: true
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/maintenance/work-orders"
+    method: POST
+    argsToJsonBody: true
+
+- name: list_work_orders
+  description: "ดูใบสั่งซ่อมทั้งหมด — กรองตาม status, vehicle"
+  args:
+  - name: status
+    description: "สถานะ: draft, pending_approval, approved, in_progress, completed"
+    type: string
+    required: false
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/maintenance/work-orders"
+    method: GET
+    argsToUrlParam: true
+
+- name: approve_work_order
+  description: "อนุมัติใบสั่งซ่อม"
+  args:
+  - name: id
+    description: "Work Order ID"
+    type: string
+    required: true
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/maintenance/work-orders/{{.args.id}}/approve"
+    method: PUT
+
+- name: complete_work_order
+  description: "ปิดงานซ่อม — บันทึกว่าเสร็จแล้ว"
+  args:
+  - name: id
+    description: "Work Order ID"
+    type: string
+    required: true
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/maintenance/work-orders/{{.args.id}}/complete"
+    method: PUT
+
+- name: list_parts_inventory
+  description: "สต๊อกอะไหล่คงเหลือ — ชื่อ จำนวน ราคา แจ้งเตือนต่ำกว่า min"
+  args: []
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/maintenance/parts"
+    method: GET
+
+# ===== Partner Tools (4) =====
+- name: list_partner_vehicles
+  description: "รถร่วมทั้งหมด — เจ้าของ ทะเบียน ประเภท ราคา rating"
+  args: []
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/partners"
+    method: GET
+
+- name: find_available_partners
+  description: "ค้นหารถร่วมว่าง — ตาม zone ประเภทรถ วันที่"
+  args:
+  - name: zone
+    description: "พื้นที่ เช่น เชียงใหม่, ลำพูน"
+    type: string
+    required: true
+  - name: vehicle_type
+    description: "ประเภทรถ: 6ล้อ, 10ล้อ, หัวลาก"
+    type: string
+    required: false
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/partners/find-available"
+    method: POST
+    argsToJsonBody: true
+
+- name: create_partner_booking
+  description: "จองรถร่วม — เลือกรถร่วมแล้วส่งงาน"
+  args:
+  - name: partner_id
+    description: "Partner Vehicle ID"
+    type: string
+    required: true
+  - name: trip_id
+    description: "Trip ID"
+    type: string
+    required: true
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/partners/book"
+    method: POST
+    argsToJsonBody: true
+
+- name: get_partner_settlements
+  description: "รายการจ่ายเงินรถร่วม — ยอดจ่าย หัก ณ ที่จ่าย สถานะ"
+  args: []
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/partners/settlements"
+    method: GET
+
+# ===== Expense Tools (3) =====
+- name: list_expenses
+  description: "ค่าใช้จ่ายทั้งหมด — น้ำมัน ทางด่วน ซ่อม ค่าปรับ"
+  args:
+  - name: vehicle_id
+    description: "กรองตามรถ"
+    type: string
+    required: false
+  - name: type
+    description: "ประเภท: fuel, toll, parking, repair, fine, other"
+    type: string
+    required: false
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/expenses"
+    method: GET
+    argsToUrlParam: true
+
+- name: create_expense
+  description: "บันทึกค่าใช้จ่าย — เติมน้ำมัน ทางด่วน จอดรถ"
+  args:
+  - name: vehicle_id
+    description: "Vehicle ID"
+    type: string
+    required: true
+  - name: type
+    description: "ประเภท: fuel, toll, parking, repair, fine, other"
+    type: string
+    required: true
+  - name: amount
+    description: "จำนวนเงิน (บาท)"
+    type: number
+    required: true
+  - name: description
+    description: "รายละเอียด"
+    type: string
+    required: false
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/expenses"
+    method: POST
+    argsToJsonBody: true
+
+- name: get_fuel_report
+  description: "รายงานน้ำมัน — ลิตร ราคา กม./ลิตร แยกตามรถ"
+  args: []
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/expenses/fuel-report"
+    method: GET
+
+# ===== GPS Tools (2) =====
+- name: get_all_vehicle_locations
+  description: "ตำแหน่งรถทุกคัน real-time — ละติจูด ลองจิจูด ความเร็ว"
+  args: []
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/gps/vehicles"
+    method: GET
+
+- name: report_gps_location
+  description: "รายงานตำแหน่ง GPS ของรถ"
+  args:
+  - name: vehicle_id
+    description: "Vehicle ID"
+    type: string
+    required: true
+  - name: lat
+    description: "ละติจูด"
+    type: number
+    required: true
+  - name: lng
+    description: "ลองจิจูด"
+    type: number
+    required: true
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/gps/location"
+    method: POST
+    argsToJsonBody: true
+
+# ===== Dashboard & Reports (6) =====
+- name: get_fleet_summary
+  description: "สรุปภาพรวมกองรถ — รถ active/maintenance/critical เที่ยววิ่งวันนี้ รายได้ ต้นทุน กำไร"
+  args: []
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/dashboard/summary"
+    method: GET
+
+- name: get_fleet_kpi
+  description: "KPI ภาพรวม — Vehicle Utilization, On-time Rate, Fuel Efficiency"
+  args: []
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/dashboard/kpi"
+    method: GET
+
+- name: get_active_alerts
+  description: "แจ้งเตือน active ทั้งหมด — ประกันหมด ภาษี พ.ร.บ. ซ่อม ใบขับขี่หมดอายุ"
+  args: []
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/dashboard/alerts"
+    method: GET
+
+- name: get_cost_report
+  description: "รายงานต้นทุนขนส่ง — ต้นทุนต่อเที่ยว แยกประเภท"
+  args: []
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/reports/cost-per-trip"
+    method: GET
+
+- name: get_vehicle_utilization
+  description: "อัตราการใช้รถ — กี่คันวิ่ง กี่คันว่าง กี่คันซ่อม"
+  args: []
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/reports/vehicle-utilization"
+    method: GET
+
+- name: get_driver_leaderboard
+  description: "อันดับคนขับตามคะแนน KPI — score สูงสุดอยู่บน"
+  args: []
+  requestTemplate:
+    url: "http://smlfleet-api:8080/api/v1/fleet/reports/driver-performance"
+    method: GET

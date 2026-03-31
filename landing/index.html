@@ -3,21 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SML Fleet — ระบบควบคุมรถขนส่งครบวงจรสำหรับ SME ไทย</title>
+    <title>SML Fleet — AI-Powered Fleet Management for Thai SME</title>
     <style>
-        :root { --primary: #1565C0; --primary-dark: #0D47A1; --accent: #FF6F00; --bg: #F5F7FA; --card: #fff; --success: #2E7D32; --warning: #F57F17; --danger: #C62828; }
+        :root { --primary: #1565C0; --primary-dark: #0D47A1; --accent: #FF6F00; --bg: #F5F7FA; --card: #fff; --success: #2E7D32; --warning: #F57F17; --danger: #C62828; --hiclaw: #7C3AED; --hiclaw-dark: #5B21B6; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Sarabun', 'Segoe UI', sans-serif; background: var(--bg); color: #212121; line-height: 1.6; }
-        .hero { background: linear-gradient(135deg, #0D47A1, #1E88E5); color: white; padding: 60px 20px; text-align: center; }
+        .hero { background: linear-gradient(135deg, #5B21B6, #7C3AED, #1E88E5); color: white; padding: 60px 20px; text-align: center; }
         .hero h1 { font-size: 2.8em; margin-bottom: 12px; }
-        .hero p { font-size: 1.2em; opacity: 0.9; max-width: 650px; margin: 0 auto 20px; }
-        .hero-stats { display: flex; justify-content: center; gap: 24px; flex-wrap: wrap; margin-top: 20px; }
+        .hero .tagline { font-size: 1.4em; opacity: 0.95; max-width: 700px; margin: 0 auto 8px; font-weight: 600; }
+        .hero p { font-size: 1.1em; opacity: 0.85; max-width: 650px; margin: 0 auto 20px; }
+        .hero-stats { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin-top: 20px; }
         .hero-stat { background: rgba(255,255,255,0.15); padding: 8px 20px; border-radius: 24px; }
         .hero-stat strong { font-size: 1.3em; }
         .container { max-width: 1100px; margin: 0 auto; padding: 40px 20px; }
-        .section { padding: 48px 0; }
         .section-title { text-align: center; font-size: 1.8em; color: var(--primary-dark); margin-bottom: 8px; }
         .section-sub { text-align: center; color: #666; margin-bottom: 24px; }
+
+        /* HiClaw Hero Section */
+        .hiclaw-hero { background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460); color: white; padding: 48px 20px; }
+        .hiclaw-hero .container { max-width: 1100px; margin: 0 auto; }
+        .hiclaw-hero h2 { font-size: 2em; text-align: center; margin-bottom: 8px; }
+        .hiclaw-hero h2 span { color: #A78BFA; }
+        .hiclaw-hero .subtitle { text-align: center; color: #94A3B8; margin-bottom: 32px; font-size: 1.1em; }
+        .agents-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 20px; }
+        .agent-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 24px; text-align: center; transition: transform 0.2s, border-color 0.2s; }
+        .agent-card:hover { transform: translateY(-4px); border-color: #A78BFA; }
+        .agent-avatar { font-size: 48px; margin-bottom: 12px; }
+        .agent-card h3 { color: #E0E7FF; font-size: 1.1em; margin-bottom: 4px; }
+        .agent-card .role { color: #A78BFA; font-size: 0.85em; font-weight: 600; margin-bottom: 8px; }
+        .agent-card p { color: #94A3B8; font-size: 0.85em; }
+        .agent-card .tools-count { display: inline-block; background: rgba(167,139,250,0.2); color: #C4B5FD; padding: 2px 10px; border-radius: 10px; font-size: 0.8em; margin-top: 8px; }
+        .hiclaw-flow { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; margin-top: 32px; padding: 20px; background: rgba(255,255,255,0.04); border-radius: 12px; }
+        .flow-step { background: rgba(167,139,250,0.15); border: 1px solid rgba(167,139,250,0.3); border-radius: 10px; padding: 10px 16px; text-align: center; color: #E0E7FF; font-size: 0.9em; }
+        .flow-arrow { color: #A78BFA; font-size: 1.4em; }
+
         .apps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
         .app-card { background: var(--card); border-radius: 16px; padding: 32px; text-align: center; box-shadow: 0 4px 16px rgba(0,0,0,0.1); transition: transform 0.2s; text-decoration: none; color: #212121; display: block; }
         .app-card:hover { transform: translateY(-6px); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
@@ -31,7 +50,7 @@
         .feature-card p { color: #555; font-size: 0.9em; }
         .feature-card ul { margin-top: 8px; padding-left: 20px; color: #555; font-size: 0.9em; }
         .feature-card ul li { margin-bottom: 4px; }
-        .tech-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+        .tech-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
         .tech-card { background: var(--card); border-radius: 10px; padding: 16px; text-align: center; box-shadow: 0 1px 6px rgba(0,0,0,0.06); }
         .tech-card .icon { font-size: 32px; margin-bottom: 8px; }
         .tech-card h4 { color: var(--primary); font-size: 0.95em; }
@@ -42,20 +61,73 @@
         .footer a { color: #4FC3F7; text-decoration: none; }
         .status { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #4CAF50; margin-right: 6px; }
         .divider { border: none; border-top: 1px solid #E0E0E0; margin: 48px 0; }
-        @media (max-width: 768px) { .hero h1 { font-size: 2em; } .hero-stats { gap: 12px; } }
+        @media (max-width: 768px) { .hero h1 { font-size: 2em; } .hero-stats { gap: 12px; } .hiclaw-hero h2 { font-size: 1.5em; } .flow-arrow { display: none; } }
     </style>
 </head>
 <body>
 
 <!-- HERO -->
 <div class="hero">
-    <h1>🚛 SML Fleet</h1>
-    <p>ระบบควบคุมรถขนส่งครบวงจรสำหรับ SME ไทย — บริหารรถ คนขับ เที่ยววิ่ง ซ่อมบำรุง ต้นทุน ทั้งหมดในที่เดียว</p>
+    <h1>SML Fleet</h1>
+    <div class="tagline">AI Team บริหารรถขนส่งให้คุณ 24/7</div>
+    <p>ระบบควบคุมรถขนส่งครบวงจร + HiClaw AI Agent Team — CEO สั่งงาน Workers ทำงานอัตโนมัติ ผ่าน 43 MCP Tools</p>
     <div class="hero-stats">
-        <span class="hero-stat"><strong>6</strong> Apps</span>
-        <span class="hero-stat"><strong>46</strong> MCP Tools</span>
+        <span class="hero-stat"><strong>4</strong> AI Workers</span>
+        <span class="hero-stat"><strong>43</strong> MCP Tools</span>
         <span class="hero-stat"><strong>60+</strong> API Endpoints</span>
-        <span class="hero-stat"><strong>198</strong> Files</span>
+        <span class="hero-stat"><strong>3</strong> Flutter Apps</span>
+        <span class="hero-stat"><strong>1</strong> AI Gateway</span>
+    </div>
+</div>
+
+<!-- HICLAW AI TEAM -->
+<div class="hiclaw-hero">
+    <div class="container" style="padding-top:0;padding-bottom:0;">
+        <h2>HiClaw <span>AI Agent Team</span></h2>
+        <p class="subtitle">AI ทำงานเป็นทีม — CEO แจกงาน Workers ลงมือทำ สื่อสารผ่าน Matrix Chat</p>
+
+        <div class="agents-grid">
+            <div class="agent-card">
+                <div class="agent-avatar">👔</div>
+                <h3>Fleet CEO</h3>
+                <div class="role">ผู้บริหาร / สั่งงาน</div>
+                <p>ดูภาพรวม KPI สั่งงาน Workers ตามงาน ตัดสินใจ อนุมัติ สรุปรายงาน</p>
+                <span class="tools-count">43 tools</span>
+            </div>
+            <div class="agent-card">
+                <div class="agent-avatar">🚛</div>
+                <h3>Fleet Ops</h3>
+                <div class="role">จัดการรถ + คนขับ + เที่ยววิ่ง</div>
+                <p>ลงทะเบียนรถ มอบหมายงาน ติดตาม GPS จัดเที่ยววิ่ง คำนวณราคา</p>
+                <span class="tools-count">20 tools</span>
+            </div>
+            <div class="agent-card">
+                <div class="agent-avatar">🔧</div>
+                <h3>Fleet Maint</h3>
+                <div class="role">ซ่อมบำรุง + อะไหล่</div>
+                <p>สร้างใบสั่งซ่อม อนุมัติ ตรวจสต๊อก แจ้งเตือนประกัน/ภาษี/พ.ร.บ.</p>
+                <span class="tools-count">12 tools</span>
+            </div>
+            <div class="agent-card">
+                <div class="agent-avatar">💬</div>
+                <h3>Fleet CS</h3>
+                <div class="role">บริการลูกค้า + จอง</div>
+                <p>รับจอง ค้นหารถว่าง คำนวณราคา ติดตาม ดู POD จัดหารถร่วม</p>
+                <span class="tools-count">15 tools</span>
+            </div>
+        </div>
+
+        <div class="hiclaw-flow">
+            <div class="flow-step">Admin สั่งงาน<br><small>ผ่าน Matrix Chat</small></div>
+            <span class="flow-arrow">&rarr;</span>
+            <div class="flow-step">CEO วิเคราะห์<br><small>ดึง KPI + สถานะ</small></div>
+            <span class="flow-arrow">&rarr;</span>
+            <div class="flow-step">แจกงาน Workers<br><small>@fleet-ops @fleet-maint</small></div>
+            <span class="flow-arrow">&rarr;</span>
+            <div class="flow-step">Workers ทำงาน<br><small>เรียก 43 MCP Tools</small></div>
+            <span class="flow-arrow">&rarr;</span>
+            <div class="flow-step">SML Fleet API<br><small>MongoDB &rarr; Kafka &rarr; PG</small></div>
+        </div>
     </div>
 </div>
 
@@ -68,19 +140,19 @@
         <a href="/dashboard/" class="app-card">
             <div class="app-icon">🖥️</div>
             <h3>Web Dashboard</h3>
-            <p>จัดการรถ คนขับ เที่ยววิ่ง ซ่อมบำรุง รถร่วม รายงาน P&L Export Excel</p>
+            <p>จัดการรถ คนขับ เที่ยววิ่ง ซ่อมบำรุง รถร่วม รายงาน P&L</p>
             <span class="badge">แอดมิน / ฝ่ายบัญชี</span>
         </a>
         <a href="/boss/" class="app-card">
             <div class="app-icon">👔</div>
             <h3>Boss App</h3>
-            <p>Dashboard KPI แผนที่รถ real-time อนุมัติซ่อม ติดตามต้นทุน แจ้งเตือน</p>
+            <p>Dashboard KPI แผนที่รถ real-time อนุมัติซ่อม ติดตามต้นทุน</p>
             <span class="badge">เจ้าของ / ผู้จัดการ</span>
         </a>
         <a href="/driver/" class="app-card">
             <div class="app-icon">📱</div>
             <h3>Driver App</h3>
-            <p>รับงาน เช็คลิสต์ นำทาง ถ่ายรูป POD ลายเซ็น บันทึกน้ำมัน แจ้งซ่อม</p>
+            <p>รับงาน เช็คลิสต์ นำทาง ถ่ายรูป POD ลายเซ็น บันทึกน้ำมัน</p>
             <span class="badge">คนขับรถ</span>
         </a>
         <a href="/api/v1/fleet/vehicles" class="app-card">
@@ -92,7 +164,7 @@
         <a href="/docs/index.html" class="app-card">
             <div class="app-icon">📖</div>
             <h3>Documentation</h3>
-            <p>สถาปัตยกรรม API Reference 46 MCP Tools UCP Protocol Tech Stack</p>
+            <p>สถาปัตยกรรม API Reference MCP Tools UCP Protocol Tech Stack</p>
             <span class="badge">Showcase</span>
         </a>
         <a href="/health" class="app-card">
@@ -112,15 +184,26 @@
     <p class="section-sub">ระบบครบวงจร ออกแบบสำหรับธุรกิจขนส่ง SME ไทยโดยเฉพาะ</p>
 
     <div class="features-grid">
+        <div class="feature-card" style="border-left-color: var(--hiclaw);">
+            <h4 style="color: var(--hiclaw-dark);">🤖 HiClaw AI Agent Team</h4>
+            <p>AI ทำงานเป็นทีม — Manager-Worker architecture บน Higress AI Gateway</p>
+            <ul>
+                <li>4 AI Workers: CEO, Ops, Maintenance, Customer Service</li>
+                <li>43 MCP Tools เชื่อม SML Fleet API ผ่าน Higress</li>
+                <li>สื่อสารผ่าน Matrix Chat (Element Web)</li>
+                <li>Auto-start Workers เมื่อมี task / Auto-stop เมื่อ idle</li>
+                <li>Multi-LLM: Gemini Flash, GPT, Claude ผ่าน OpenRouter</li>
+                <li>MinIO file sync ระหว่าง Manager-Workers</li>
+            </ul>
+        </div>
+
         <div class="feature-card">
             <h4>🚛 ทะเบียนรถ (Vehicle Management)</h4>
             <p>ลงทะเบียนรถทุกประเภท ข้อมูลครบถ้วน</p>
             <ul>
                 <li>รองรับ: 4ล้อ, 6ล้อ, 10ล้อ, หัวลาก, กระบะ</li>
-                <li>ประกันภัย / ภาษีรถ / พ.ร.บ. — แจ้งเตือนก่อนหมดอายุ</li>
-                <li>ประวัติซ่อมบำรุง ทุกครั้ง</li>
+                <li>ประกัน / ภาษี / พ.ร.บ. แจ้งเตือนก่อนหมดอายุ</li>
                 <li>สุขภาพรถ: เขียว / เหลือง / แดง</li>
-                <li>เอกสาร: ทะเบียน, กรมธรรม์ (เก็บใน R2)</li>
                 <li>รองรับรถเช่า + รถร่วม</li>
             </ul>
         </div>
@@ -129,11 +212,8 @@
             <h4>👤 คนขับ (Driver Management)</h4>
             <p>จัดการคนขับ ตารางเวร KPI คะแนน</p>
             <ul>
-                <li>ข้อมูลครบ: ใบขับขี่, บัตร กรมขนส่ง, สุขภาพ</li>
-                <li>KPI Score 0-100 (ตรงเวลา, ประหยัดน้ำมัน, Rating)</li>
-                <li>ตารางเวร + วันลา + OT</li>
-                <li>คำนวณเงินเดือนอัตโนมัติ (ฐาน + เบี้ยเลี้ยง + โบนัส)</li>
-                <li>ประวัติอุบัติเหตุ + ฝ่าฝืน</li>
+                <li>KPI Score 0-100 (ตรงเวลา, น้ำมัน, Rating)</li>
+                <li>ตารางเวร + วันลา + OT + เงินเดือนอัตโนมัติ</li>
                 <li>AI แนะนำคนขับที่เหมาะสม</li>
             </ul>
         </div>
@@ -142,10 +222,7 @@
             <h4>📋 เที่ยววิ่ง (Trip Management)</h4>
             <p>จัดเที่ยว มอบหมาย ติดตาม คำนวณต้นทุน/กำไร</p>
             <ul>
-                <li>สร้างเที่ยว → มอบหมายรถ+คนขับ → ติดตาม</li>
-                <li>Status flow: draft → pending → started → completed</li>
-                <li>หลายจุดส่งในเที่ยวเดียว</li>
-                <li>คำนวณค่าขนส่งอัตโนมัติ (OpenStreetMap)</li>
+                <li>สร้างเที่ยว &rarr; มอบหมาย &rarr; ติดตาม &rarr; POD</li>
                 <li>ต้นทุน: น้ำมัน + ทางด่วน + คนขับ = กำไร/ขาดทุน</li>
                 <li>POD: รูปถ่าย + ลายเซ็นดิจิทัลผู้รับ</li>
             </ul>
@@ -153,118 +230,51 @@
 
         <div class="feature-card">
             <h4>📍 GPS Tracking Real-time</h4>
-            <p>ติดตามรถทุกคันแบบ real-time บนแผนที่</p>
+            <p>ติดตามรถทุกคันบนแผนที่ OpenStreetMap (ฟรี)</p>
             <ul>
                 <li>GPS จาก Driver App ทุก 30 วินาที</li>
-                <li>แผนที่ OpenStreetMap แสดงรถทุกคัน</li>
-                <li>ดูเส้นทางย้อนหลัง (Trail)</li>
-                <li>ความเร็ว, ทิศทาง, แบตเตอรี่</li>
-                <li>แจ้งเตือน Geofence + ขับเร็วเกิน</li>
-                <li>WebSocket สำหรับ real-time update</li>
+                <li>Markers ทะเบียนรถ + สีตามสถานะ</li>
+                <li>เส้นทางย้อนหลัง + Geofence + ขับเร็วเกิน</li>
             </ul>
         </div>
 
         <div class="feature-card">
             <h4>🔧 ซ่อมบำรุง (Maintenance)</h4>
-            <p>ใบสั่งซ่อม อนุมัติ ติดตาม สต๊อกอะไหล่</p>
+            <p>ใบสั่งซ่อม อนุมัติ สต๊อกอะไหล่</p>
             <ul>
                 <li>3 ประเภท: ซ่อมตามรอบ / ตามอาการ / ฉุกเฉิน</li>
-                <li>Approval flow: draft → รออนุมัติ → อนุมัติ → เสร็จ</li>
-                <li>คิดค่าอะไหล่ + ค่าแรง รายชิ้น</li>
-                <li>รูปก่อน/หลังซ่อม</li>
-                <li>สต๊อกอะไหล่ + แจ้งเตือนเมื่อต่ำกว่า min</li>
-                <li>เชื่อม BC Account บัญชี (journal entry)</li>
+                <li>Approval flow + ค่าอะไหล่ + ค่าแรง</li>
+                <li>สต๊อกอะไหล่ + แจ้งเตือนต่ำกว่า min</li>
             </ul>
         </div>
 
         <div class="feature-card">
             <h4>🤝 รถร่วม (Partner Vehicles)</h4>
-            <p>ลงทะเบียนรถร่วม จอง จ่ายเงิน AI จับคู่</p>
+            <p>ลงทะเบียน จอง จ่ายเงิน AI จับคู่</p>
             <ul>
-                <li>ลงทะเบียนรถร่วม: ข้อมูลเจ้าของ + รถ + คนขับ</li>
                 <li>ราคา: ต่อเที่ยว / ต่อ กม. / ต่อวัน</li>
-                <li>ค้นหารถว่าง ตาม zone + ประเภท + วัน</li>
-                <li>AI Matching Score 100 คะแนน</li>
-                <li>จ่ายเงิน + หัก ณ ที่จ่าย (ภ.ง.ด.3)</li>
+                <li>AI Matching Score + หัก ณ ที่จ่าย</li>
                 <li>Rating + ประวัติเที่ยว</li>
             </ul>
         </div>
 
         <div class="feature-card">
-            <h4>💰 ต้นทุนขนส่ง (Cost Analysis)</h4>
+            <h4>💰 ต้นทุน + รายงาน</h4>
             <p>P&L ต่อคัน/เดือน รายงานน้ำมัน วิเคราะห์กำไร</p>
             <ul>
-                <li>P&L ต่อคัน: รายได้ vs ต้นทุน (น้ำมัน, ทางด่วน, ซ่อม, คนขับ)</li>
-                <li>รายงานน้ำมัน: ลิตร, ราคา, กม./ลิตร ต่อคัน</li>
-                <li>ต้นทุนต่อเที่ยว + กำไรต่อเที่ยว</li>
-                <li>อัตราการใช้รถ (Vehicle Utilization)</li>
-                <li>เปรียบเทียบรายเดือน/รายสัปดาห์</li>
+                <li>Dashboard KPI + Vehicle Utilization</li>
+                <li>Driver Leaderboard (อันดับคนขับ)</li>
                 <li>Export Excel / PDF</li>
             </ul>
         </div>
 
         <div class="feature-card">
-            <h4>⚠️ แจ้งเตือนอัตโนมัติ (Alerts)</h4>
-            <p>Cron job ตรวจทุกชั่วโมง แจ้งเตือน 7 ประเภท</p>
+            <h4>⚠️ แจ้งเตือน 7 ประเภท</h4>
+            <p>Cron job ตรวจทุกชั่วโมง แจ้งเตือนอัตโนมัติ</p>
             <ul>
-                <li>ประกันภัยใกล้หมดอายุ (30/15/7 วัน)</li>
-                <li>ภาษีรถใกล้กำหนด</li>
-                <li>พ.ร.บ. ใกล้กำหนด</li>
-                <li>ใบขับขี่หมดอายุ</li>
+                <li>ประกัน / ภาษี / พ.ร.บ. / ใบขับขี่</li>
                 <li>ซ่อมบำรุงครบกำหนด (กม. / วัน)</li>
-                <li>ขับเร็วเกินกำหนด + ออกนอก Geofence</li>
-            </ul>
-        </div>
-
-        <div class="feature-card">
-            <h4>🤖 AI Agent + LINE Bot</h4>
-            <p>ลูกค้าทัก LINE → AI ตอบทันที จองรถ ติดตามงาน</p>
-            <ul>
-                <li>Claude AI + 46 MCP Tools</li>
-                <li>ค้นหารถว่าง คำนวณราคา จองเที่ยว อัตโนมัติ</li>
-                <li>ตอบภาษาไทย เข้าใจบริบทขนส่ง</li>
-                <li>Rich Menu: ดูรถว่าง / จอง / ติดตาม / แจ้งซ่อม / ต้นทุน / AI</li>
-                <li>Push Notification: งานใหม่, ส่งเสร็จ, อนุมัติ</li>
-                <li>Reply ฟรีไม่จำกัด (LINE Messaging API)</li>
-            </ul>
-        </div>
-
-        <div class="feature-card">
-            <h4>🔗 UCP + A2A Gateway</h4>
-            <p>Universal Commerce Protocol — AI จากระบบอื่นจองรถได้</p>
-            <ul>
-                <li>Service Catalog: ประเภทรถ + ราคา</li>
-                <li>Availability Check: รถว่าง ตาม zone + วัน</li>
-                <li>Booking + Payment (PromptPay / Stripe)</li>
-                <li>Fulfillment: ติดตาม real-time + POD</li>
-                <li>A2A Agent Card: AI-to-AI communication</li>
-                <li>รองรับ Claude Desktop, OpenClaw, HiClaw</li>
-            </ul>
-        </div>
-
-        <div class="feature-card">
-            <h4>🗺️ OpenStreetMap (flutter_map)</h4>
-            <p>แผนที่ฟรี 100% — ไม่ต้อง API Key ไม่ต้องสมัคร</p>
-            <ul>
-                <li>แผนที่ไทยครบถ้วน (OSM tiles)</li>
-                <li>Markers รถ: ทะเบียน + สีตามสถานะ</li>
-                <li>GPS Tracking บนแผนที่ real-time</li>
-                <li>ดูเส้นทางย้อนหลัง (Trail)</li>
-                <li>Zoom / Pan / FullScreen</li>
-                <li>ใช้ได้ทั้ง Mobile + Web ไม่มีค่าใช้จ่าย</li>
-            </ul>
-        </div>
-
-        <div class="feature-card">
-            <h4>📊 Dashboard + KPI + Reports</h4>
-            <p>สรุปภาพรวม ตัวเลขสำคัญ รายงานครบ</p>
-            <ul>
-                <li>รถทั้งหมด / active / maintenance / critical</li>
-                <li>เที่ยววิ่งวันนี้ / รายได้ / ต้นทุน / กำไร</li>
-                <li>Vehicle Utilization Rate</li>
-                <li>On-time Delivery Rate</li>
-                <li>Fuel Efficiency (กม./ลิตร)</li>
-                <li>Driver Leaderboard (อันดับคนขับ)</li>
+                <li>ขับเร็วเกิน + ออกนอก Geofence</li>
             </ul>
         </div>
     </div>
@@ -275,26 +285,27 @@
 <!-- TECH STACK -->
 <div class="container">
     <h2 class="section-title">Tech Stack</h2>
-    <p class="section-sub">สถาปัตยกรรม Event-driven — MongoDB → Kafka → PostgreSQL</p>
+    <p class="section-sub">Event-driven: MongoDB &rarr; Kafka &rarr; PostgreSQL + HiClaw AI Gateway</p>
 
     <div class="tech-grid">
+        <div class="tech-card" style="border: 2px solid var(--hiclaw);"><div class="icon">🧠</div><h4 style="color:var(--hiclaw)">HiClaw</h4><p>AI Agent Team</p></div>
+        <div class="tech-card" style="border: 2px solid var(--hiclaw);"><div class="icon">🌐</div><h4 style="color:var(--hiclaw)">Higress</h4><p>AI Gateway + MCP</p></div>
         <div class="tech-card"><div class="icon">⚙️</div><h4>Go 1.23 (Gin)</h4><p>Backend API</p></div>
         <div class="tech-card"><div class="icon">🍃</div><h4>MongoDB 7</h4><p>Source of Truth</p></div>
         <div class="tech-card"><div class="icon">🐘</div><h4>PostgreSQL 16</h4><p>Query Layer</p></div>
         <div class="tech-card"><div class="icon">📡</div><h4>Apache Kafka</h4><p>Event Stream</p></div>
-        <div class="tech-card"><div class="icon">📱</div><h4>Flutter 3.24</h4><p>Mobile + Web</p></div>
-        <div class="tech-card"><div class="icon">🗺️</div><h4>OpenStreetMap</h4><p>Free Map (No Key)</p></div>
-        <div class="tech-card"><div class="icon">🤖</div><h4>Claude AI</h4><p>46 MCP Tools</p></div>
+        <div class="tech-card"><div class="icon">📱</div><h4>Flutter 3.41</h4><p>Mobile + Web</p></div>
+        <div class="tech-card"><div class="icon">🗺️</div><h4>OpenStreetMap</h4><p>Free Map</p></div>
+        <div class="tech-card"><div class="icon">🤖</div><h4>Claude / Gemini</h4><p>Multi-LLM</p></div>
+        <div class="tech-card"><div class="icon">💬</div><h4>Matrix Chat</h4><p>Agent Comms</p></div>
         <div class="tech-card"><div class="icon">☁️</div><h4>Cloudflare R2</h4><p>File Storage</p></div>
-        <div class="tech-card"><div class="icon">💬</div><h4>LINE OA</h4><p>Chatbot</p></div>
         <div class="tech-card"><div class="icon">🔒</div><h4>Caddy 2</h4><p>Auto SSL</p></div>
     </div>
 
     <div class="api-info" style="margin-top: 32px;">
-        <h3>🔗 API Base URL</h3>
+        <h3>API Base URL</h3>
         <code>https://smlfleet.satistang.com/api/v1/fleet/</code>
         <p style="margin-top: 12px; color: #666;">
-            ตัวอย่าง:
             <code style="display:inline; padding:2px 8px;">GET /vehicles</code>
             <code style="display:inline; padding:2px 8px;">GET /drivers</code>
             <code style="display:inline; padding:2px 8px;">GET /trips</code>
@@ -305,14 +316,14 @@
 
 <!-- FOOTER -->
 <div class="footer">
-    <h3 style="color: white; margin-bottom: 8px;">SML Fleet v1.0</h3>
-    <p>ระบบควบคุมรถขนส่งครบวงจรสำหรับ SME ไทย</p>
+    <h3 style="color: white; margin-bottom: 8px;">SML Fleet v1.1 — Powered by HiClaw AI</h3>
+    <p>ระบบควบคุมรถขนส่งครบวงจร + AI Agent Team สำหรับ SME ไทย</p>
     <p style="margin-top: 12px;">
-        <a href="https://github.com/jaturapornchai/smlfleet">GitHub</a> &middot;
+        <a href="https://github.com/jaturapornchai/bcfleet">GitHub</a> &middot;
         BC AI Solution Co., Ltd.
     </p>
     <p style="margin-top: 8px; font-size: 0.85em;">
-        6 Apps &middot; 46 MCP Tools &middot; 60+ APIs &middot; 198 Files &middot; Go + Flutter + MongoDB + Kafka + PostgreSQL
+        4 AI Workers &middot; 43 MCP Tools &middot; 60+ APIs &middot; Go + Flutter + HiClaw + Higress + MongoDB + Kafka + PostgreSQL
     </p>
 </div>
 

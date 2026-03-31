@@ -1,211 +1,161 @@
-# 🚛 SML Fleet — ระบบควบคุมรถขนส่งครบวงจรสำหรับ SME ไทย
+# SML Fleet — AI-Powered Fleet Management for Thai SME
 
-> โมดูลขยายจาก BC Account ERP — บริหารจัดการรถ คนขับ เที่ยววิ่ง ซ่อมบำรุง รถร่วม ต้นทุน ทั้งหมดในที่เดียว
+> ระบบควบคุมรถขนส่งครบวงจร + **HiClaw AI Agent Team** — CEO สั่งงาน Workers ทำงานอัตโนมัติ ผ่าน 43 MCP Tools
 
-## 🌐 Demo
+## Demo
 
 **https://smlfleet.satistang.com**
 
 | URL | ระบบ | สำหรับ |
 |-----|------|--------|
-| [smlfleet.satistang.com](https://smlfleet.satistang.com) | Landing Page | หน้าแรก เลือกระบบ |
+| [smlfleet.satistang.com](https://smlfleet.satistang.com) | Landing Page | หน้าแรก |
 | [/dashboard/](https://smlfleet.satistang.com/dashboard/) | Web Dashboard | แอดมิน / ฝ่ายบัญชี |
-| [/boss/](https://smlfleet.satistang.com/boss/) | Boss App (Web) | เจ้าของ / ผู้จัดการ |
-| [/driver/](https://smlfleet.satistang.com/driver/) | Driver App (Web) | คนขับรถ |
+| [/boss/](https://smlfleet.satistang.com/boss/) | Boss App | เจ้าของ / ผู้จัดการ |
+| [/driver/](https://smlfleet.satistang.com/driver/) | Driver App | คนขับรถ |
 | [/health](https://smlfleet.satistang.com/health) | Health Check | API Status |
-| [/docs/](https://smlfleet.satistang.com/docs/index.html) | Documentation | Showcase + API Docs |
 
-## 📊 สถาปัตยกรรม
+## HiClaw AI Agent Team
+
+SML Fleet ขับเคลื่อนด้วย **HiClaw** — AI Agent orchestration platform ที่ทำงานเป็นทีม:
 
 ```
-Flutter/Web/LINE → Go API (Gin) → MongoDB (Source of Truth)
-                                          ↓ Kafka Event
-                                   PostgreSQL (Query Layer)
+Admin (Matrix Chat) → CEO วิเคราะห์ → แจกงาน Workers → MCP Tools → SML Fleet API
+```
+
+### 4 AI Workers
+
+| Agent | ชื่อเล่น | หน้าที่ | Tools |
+|-------|----------|---------|-------|
+| **fleet-ceo** | บอส | สั่งงาน ตามงาน ตัดสินใจ สรุปรายงาน | 43 tools |
+| **fleet-ops** | แอดมินรถ | จัดการรถ คนขับ เที่ยววิ่ง GPS | 20 tools |
+| **fleet-maint** | ช่าง | ซ่อมบำรุง อะไหล่ แจ้งเตือนประกัน/ภาษี | 12 tools |
+| **fleet-cs** | พี่บริการ | จอง ค้นหารถว่าง ติดตาม รถร่วม | 15 tools |
+
+### HiClaw Architecture
+
+```
+┌─────────────────────────────────────────────────┐
+│  HiClaw Manager                                 │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐      │
+│  │ fleet-ceo│  │fleet-ops │  │fleet-maint│ ...  │
+│  │ (CEO)    │  │(Ops)     │  │(Maint)   │      │
+│  └────┬─────┘  └────┬─────┘  └────┬─────┘      │
+│       └──────────────┼──────────────┘            │
+│                      ▼                           │
+│           ┌─────────────────┐                    │
+│           │ Higress Gateway │ ← AI Gateway       │
+│           │  43 MCP Tools   │                    │
+│           └────────┬────────┘                    │
+│                    ▼                             │
+│           ┌─────────────────┐                    │
+│           │ SML Fleet API   │ ← Go (Gin)        │
+│           │  (smlfleet-api) │                    │
+│           └────────┬────────┘                    │
+└────────────────────┼────────────────────────────┘
+                     ▼
+        MongoDB → Kafka → PostgreSQL
+```
+
+### MCP Tools (43 tools)
+
+| กลุ่ม | จำนวน | ตัวอย่าง |
+|-------|--------|---------|
+| Vehicle | 8 | `list_vehicles`, `get_vehicle_health`, `get_vehicle_cost` |
+| Driver | 6 | `get_driver_score`, `calculate_driver_salary`, `check_driver_schedule` |
+| Trip | 8 | `create_trip`, `assign_trip`, `track_shipment`, `calculate_route_cost` |
+| Maintenance | 6 | `create_work_order`, `approve_work_order`, `list_parts_inventory` |
+| Partner | 4 | `find_available_partners`, `create_partner_booking` |
+| Expense | 3 | `create_expense`, `get_fuel_report` |
+| GPS | 2 | `get_all_vehicle_locations`, `report_gps_location` |
+| Dashboard | 6 | `get_fleet_summary`, `get_fleet_kpi`, `get_driver_leaderboard` |
+
+## Data Architecture
+
+```
+Flutter/Web → Go API (Gin) → MongoDB (Source of Truth)
+                                     ↓ Kafka Event
+                              PostgreSQL (Query Layer)
 ```
 
 - **Write**: API → MongoDB → Kafka → PostgreSQL
 - **Read**: API → PostgreSQL (เร็ว, JOIN ได้)
 - **Rebuild**: PostgreSQL สามารถ DROP แล้ว rebuild จาก MongoDB ได้ทุกเมื่อ
 
-## 🏗️ Tech Stack
+## Tech Stack
 
-| Component | Technology |
-|-----------|-----------|
-| Backend API | Go 1.23 (Gin) |
-| Primary DB | MongoDB 7 |
-| Query DB | PostgreSQL 16 |
-| Stream | Apache Kafka (KRaft) |
-| Mobile + Web | Flutter 3.24 |
-| Maps | OpenStreetMap (flutter_map) — ฟรี ไม่ต้อง Key |
-| AI | Claude API (MCP) |
-| Storage | Cloudflare R2 |
-| LINE Bot | LINE Messaging API |
-| Payment | PromptPay + Stripe |
-| Reverse Proxy | Caddy 2 (Auto SSL) |
+| Component | Technology | หมายเหตุ |
+|-----------|-----------|----------|
+| **AI Orchestration** | **HiClaw v1.0.8** | Manager-Worker AI agents |
+| **AI Gateway** | **Higress** | MCP Tools routing + auth |
+| **Agent Chat** | **Matrix (Element Web)** | AI สื่อสารกันผ่าน rooms |
+| **Multi-LLM** | **Gemini Flash / Claude / GPT** | ผ่าน OpenRouter |
+| Backend API | Go 1.23 (Gin) | 60+ REST endpoints |
+| Primary DB | MongoDB 7 | Source of truth |
+| Query DB | PostgreSQL 16 | JOIN, aggregate, report |
+| Stream | Apache Kafka (KRaft) | Event-driven sync |
+| Mobile + Web | Flutter 3.41 | iOS/Android/Web |
+| Maps | OpenStreetMap | ฟรี ไม่ต้อง API Key |
+| File Storage | Cloudflare R2 | รูป POD, เอกสาร |
+| Reverse Proxy | Caddy 2 | Auto SSL (Let's Encrypt) |
 
-## 📱 6 แอปพลิเคชัน
+## Apps
 
 | # | App | Platform | หน้าจอ |
 |---|-----|----------|--------|
-| 1 | **Go Backend API** | Docker | 60+ REST endpoints, 46 MCP tools |
-| 2 | **Driver App** | Flutter (iOS/Android/Web) | 10 screens — รับงาน, GPS, POD, เช็คลิสต์ |
-| 3 | **Boss App** | Flutter (iOS/Android/Web) | 10 screens — Dashboard, Map, อนุมัติ |
-| 4 | **Web Dashboard** | Flutter Web | 15+ screens — DataTable, Reports, Export |
-| 5 | **LINE OA Chatbot** | Go + Claude AI | AI Agent ตอบลูกค้าอัตโนมัติ |
-| 6 | **UCP Gateway** | Go | A2A protocol สำหรับ AI agents ภายนอก |
+| 1 | **Go Backend API** | Docker | 60+ REST endpoints, 43 MCP tools |
+| 2 | **Driver App** | Flutter Web/iOS/Android | รับงาน, GPS, POD, เช็คลิสต์ |
+| 3 | **Boss App** | Flutter Web/iOS/Android | Dashboard, Map, อนุมัติ |
+| 4 | **Web Dashboard** | Flutter Web | DataTable, Reports, Export |
+| 5 | **HiClaw AI Team** | Matrix Chat | 4 AI Workers, 43 MCP Tools |
 
-## 🔧 MCP Tools (46 tools)
-
-| กลุ่ม | จำนวน | ตัวอย่าง |
-|-------|--------|---------|
-| Vehicle | 8 | list_vehicles, get_vehicle_health, get_vehicle_cost |
-| Driver | 10 | get_driver_score, calculate_driver_salary, suggest_best_driver |
-| Trip | 8 | create_trip, track_shipment, get_trip_cost_breakdown |
-| Maintenance | 8 | create_work_order, approve_work_order, list_parts_inventory |
-| Partner | 6 | find_available_partners, calculate_partner_payment |
-| Dashboard | 6 | get_fleet_summary, get_fleet_kpi, get_driver_leaderboard |
-
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 - Docker + Docker Compose
 - Go 1.23+ (สำหรับ local dev)
-- Flutter 3.24+ (สำหรับ mobile/web)
+- Flutter 3.41+ (สำหรับ mobile/web)
 - PostgreSQL 16+
 
 ### Run with Docker
 
 ```bash
-# 1. Clone
-git clone https://github.com/jaturapornchai/smlfleet.git
-cd smlfleet
-
-# 2. Start infrastructure
-docker compose up -d mongodb postgres kafka
-
-# 3. Run migrations
-for f in backend/migrations/postgres/*.sql; do
-  psql -h localhost -U smlfleet -d smlfleet -f "$f"
-done
-
-# 4. Build & Start API
-docker compose up -d api kafka-consumer
-
-# 5. Check
-curl http://localhost:8081/health
+git clone https://github.com/jaturapornchai/bcfleet.git
+cd bcfleet
+docker compose up -d
+curl http://localhost:8082/health
 ```
 
-### Run Flutter Web (local)
+### Chat with AI Team
 
-```bash
-# Dashboard
-cd flutter/web_dashboard
-flutter pub get
-flutter run -d chrome
+เข้า Element Web → login → พิมพ์ภาษาไทยในห้อง fleet-ceo:
+- "สรุปภาพรวมกองรถวันนี้"
+- "รถว่างมีกี่คัน"
+- "คำนวณค่าส่งเชียงใหม่ไปลำพูน"
 
-# Boss App
-cd flutter/boss_app
-flutter pub get
-flutter run -d chrome
+## Features
 
-# Driver App
-cd flutter/driver_app
-flutter pub get
-flutter run -d chrome
-```
+- **Vehicle Management** — ลงทะเบียน สุขภาพรถ ประกัน/ภาษี/พ.ร.บ.
+- **Driver Management** — KPI Score, ตารางเวร, เงินเดือนอัตโนมัติ
+- **Trip Management** — สร้าง → มอบหมาย → GPS ติดตาม → POD
+- **GPS Real-time** — OpenStreetMap ฟรี, Markers, Trail
+- **Maintenance** — ใบสั่งซ่อม, Approval flow, สต๊อกอะไหล่
+- **Partner Vehicles** — รถร่วม, AI Matching, หัก ณ ที่จ่าย
+- **Alerts** — 7 ประเภท แจ้งเตือนอัตโนมัติ (30/15/7 วัน)
+- **Cost Analysis** — P&L ต่อคัน, รายงานน้ำมัน, Export Excel/PDF
 
-## 📁 โครงสร้างโปรเจค
-
-```
-sml-fleet/
-├── backend/                    # Go Backend (82 Go files)
-│   ├── cmd/                    # Entry points (api, kafka-consumer, rebuild)
-│   ├── internal/
-│   │   ├── config/             # Configuration
-│   │   ├── database/           # MongoDB, PostgreSQL, Kafka connections
-│   │   ├── models/             # Domain models (8 files)
-│   │   ├── repository/mongo/   # Write operations (7 repos)
-│   │   ├── repository/postgres/# Read operations (9 queries)
-│   │   ├── service/            # Business logic (10 services)
-│   │   ├── handler/            # HTTP handlers (9 handlers)
-│   │   ├── kafka/              # Producer, Consumer, Sync, Rebuild
-│   │   ├── mcp/                # MCP Server + 46 tools
-│   │   ├── line/               # LINE OA Bot + AI Agent
-│   │   ├── ucp/                # UCP Gateway + A2A
-│   │   ├── longdo/             # Longdo Map integration
-│   │   └── r2/                 # Cloudflare R2 storage
-│   └── migrations/postgres/    # 9 SQL files
-├── flutter/
-│   ├── packages/fleet_core/    # Shared models + services (16 files)
-│   ├── driver_app/             # Driver App (20 files)
-│   ├── boss_app/               # Boss App (23 files)
-│   └── web_dashboard/          # Web Dashboard (25 files)
-├── scripts/                    # Deploy, seed, rebuild, kafka-topics
-├── docs/                       # API.md, DATABASE.md, MCP-TOOLS.md, index.html
-├── landing/                    # Landing page
-├── docker-compose.yml
-├── Makefile
-└── CLAUDE.md                   # PRD (Project Requirements Document)
-```
-
-## 🎯 คุณสมบัติหลัก
-
-### ทะเบียนรถ (Vehicle Management)
-- รองรับ: 4ล้อ, 6ล้อ, 10ล้อ, หัวลาก, กระบะ
-- สุขภาพรถ: เขียว/เหลือง/แดง — ประกัน/ภาษี/พ.ร.บ. แจ้งเตือนก่อนหมดอายุ
-- ประวัติซ่อมบำรุง + เอกสาร (เก็บใน R2)
-
-### คนขับ (Driver Management)
-- KPI Score 0-100 (ตรงเวลา, ประหยัดน้ำมัน, Rating ลูกค้า)
-- ตารางเวร + วันลา + OT + คำนวณเงินเดือนอัตโนมัติ
-- AI แนะนำคนขับที่เหมาะสม
-
-### เที่ยววิ่ง (Trip Management)
-- สร้าง → มอบหมาย → ติดตาม GPS → ส่งมอบ POD
-- ต้นทุนต่อเที่ยว: น้ำมัน + ทางด่วน + คนขับ = กำไร/ขาดทุน
-- POD: รูปถ่าย + ลายเซ็นดิจิทัลผู้รับ
-
-### GPS Tracking Real-time
-- แผนที่ OpenStreetMap (ฟรี ไม่ต้อง API Key)
-- GPS จาก Driver App ทุก 30 วินาที + Markers ทะเบียนรถ
-- เส้นทางย้อนหลัง + แจ้งเตือน Geofence/ขับเร็ว
-
-### ซ่อมบำรุง (Maintenance)
-- ใบสั่งซ่อม: ซ่อมตามรอบ / ตามอาการ / ฉุกเฉิน
-- Approval flow + คิดค่าอะไหล่+แรง + สต๊อกอะไหล่
-
-### รถร่วม (Partner Vehicles)
-- ลงทะเบียนรถร่วม + ราคาต่อเที่ยว/กม./วัน
-- AI Matching Score 100 คะแนน + จ่ายเงิน + หัก ณ ที่จ่าย
-
-### แจ้งเตือนอัตโนมัติ (7 ประเภท)
-- ประกัน / ภาษี / พ.ร.บ. / ใบขับขี่ / ซ่อมบำรุง / ขับเร็ว / Geofence
-
-### AI Agent + LINE Bot
-- Claude AI + 46 MCP Tools — ตอบลูกค้าอัตโนมัติ
-- ค้นหารถว่าง คำนวณราคา จองเที่ยว ผ่าน LINE
-
-### UCP + A2A Gateway
-- AI จากระบบอื่นจองรถได้ (Claude Desktop, OpenClaw, HiClaw)
-- PromptPay + Stripe payment
-
-### ต้นทุนขนส่ง (Cost Analysis)
-- P&L ต่อคัน/เดือน + รายงานน้ำมัน + Export Excel/PDF
-
-## 📊 Project Stats
+## Project Stats
 
 | Metric | Value |
 |--------|-------|
-| Total Files | 198 |
+| AI Workers | 4 (CEO, Ops, Maint, CS) |
+| MCP Tools | 43 |
+| API Endpoints | 60+ |
 | Go Files | 82 |
 | Dart Files | 84 |
-| SQL Files | 9 |
-| API Endpoints | 60+ |
-| MCP Tools | 46 |
 | MongoDB Collections | 10 |
 | PostgreSQL Tables | 8 + 2 views |
 | Kafka Topics | 10 |
 
-## 📄 License
+## License
 
 Private — BC AI Solution Co., Ltd.

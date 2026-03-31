@@ -186,14 +186,14 @@ class _ActionButton extends StatelessWidget {
         return const SizedBox.shrink();
     }
 
-    final onTap = () {
+    void onTap() {
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (_) => TripDetailScreen(trip: trip),
         ),
       );
-    };
+    }
 
     if (isFilled) {
       return SizedBox(

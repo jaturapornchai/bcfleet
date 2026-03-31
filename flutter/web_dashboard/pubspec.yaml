@@ -1,0 +1,24 @@
+name: web_dashboard
+description: BC Fleet Web Dashboard - แดชบอร์ดสำหรับแอดมิน/ฝ่ายบัญชี
+version: 1.0.0+1
+publish_to: 'none'
+
+environment:
+  sdk: ">=3.5.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  fleet_core:
+    path: ../packages/fleet_core
+  flutter_bloc: ^8.1.6
+  dio: ^5.7.0
+  fl_chart: ^0.69.2
+  data_table_2: ^2.5.15
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true

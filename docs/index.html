@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BC Fleet — ระบบควบคุมรถขนส่งครบวงจรสำหรับ SME ไทย</title>
+    <style>
+        :root {
+            --primary: #1565C0;
+            --primary-light: #1E88E5;
+            --primary-dark: #0D47A1;
+            --accent: #FF6F00;
+            --success: #2E7D32;
+            --warning: #F57F17;
+            --danger: #C62828;
+            --bg: #F5F7FA;
+            --card: #FFFFFF;
+            --text: #212121;
+            --text-secondary: #616161;
+            --border: #E0E0E0;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Sarabun', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+
+        /* === HERO === */
+        .hero {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary-light));
+            color: white;
+            padding: 80px 20px;
+            text-align: center;
+        }
+        .hero h1 { font-size: 3em; margin-bottom: 16px; }
+        .hero p { font-size: 1.3em; opacity: 0.9; max-width: 700px; margin: 0 auto 32px; }
+        .hero-badges { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+        .badge { background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; font-size: 0.9em; }
+
+        /* === CONTAINER === */
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+        /* === SECTION === */
+        .section { padding: 60px 0; }
+        .section-title { text-align: center; font-size: 2em; color: var(--primary-dark); margin-bottom: 8px; }
+        .section-subtitle { text-align: center; color: var(--text-secondary); margin-bottom: 40px; font-size: 1.1em; }
+
+        /* === ARCHITECTURE === */
+        .arch-flow {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .arch-flow .flow-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 1.1em;
+            margin: 20px 0;
+        }
+        .flow-box {
+            background: var(--primary);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+        .flow-box.mongo { background: #4CAF50; }
+        .flow-box.kafka { background: #FF6F00; }
+        .flow-box.pg { background: #1565C0; }
+        .flow-arrow { font-size: 1.5em; color: var(--text-secondary); }
+
+        /* === APPS GRID === */
+        .apps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 24px;
+        }
+        .app-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            transition: transform 0.2s;
+        }
+        .app-card:hover { transform: translateY(-4px); }
+        .app-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 16px;
+        }
+        .app-card h3 { font-size: 1.3em; margin-bottom: 8px; }
+        .app-card p { color: var(--text-secondary); margin-bottom: 12px; }
+        .app-card .tech { font-size: 0.85em; color: var(--primary); background: #E3F2FD; padding: 4px 8px; border-radius: 4px; display: inline-block; }
+
+        /* === FEATURES === */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .feature-card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+            border-left: 4px solid var(--primary);
+        }
+        .feature-card h4 { color: var(--primary-dark); margin-bottom: 8px; }
+        .feature-card p { color: var(--text-secondary); font-size: 0.95em; }
+        .feature-card .example {
+            background: #F5F5F5;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 12px;
+            font-family: monospace;
+            font-size: 0.85em;
+            color: #333;
+            white-space: pre-wrap;
+        }
+
+        /* === API TABLE === */
+        .api-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--card);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        .api-table th {
+            background: var(--primary-dark);
+            color: white;
+            padding: 12px 16px;
+            text-align: left;
+        }
+        .api-table td { padding: 10px 16px; border-bottom: 1px solid var(--border); }
+        .api-table tr:hover { background: #F5F7FA; }
+        .method { padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 0.8em; color: white; }
+        .method.get { background: #2E7D32; }
+        .method.post { background: #1565C0; }
+        .method.put { background: #F57F17; color: #333; }
+        .method.delete { background: #C62828; }
+
+        /* === MCP TOOLS === */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+        }
+        .tool-group {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+        }
+        .tool-group h4 { color: var(--primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .tool-group .count { background: var(--primary); color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8em; }
+        .tool-list { list-style: none; }
+        .tool-list li { padding: 4px 0; color: var(--text-secondary); font-size: 0.9em; }
+        .tool-list li::before { content: "▸ "; color: var(--primary); }
+
+        /* === SCREENS SHOWCASE === */
+        .screens-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+        .screen-card {
+            background: var(--card);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        .screen-preview {
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+        }
+        .screen-card .info { padding: 20px; }
+        .screen-card h4 { margin-bottom: 6px; }
+        .screen-card p { color: var(--text-secondary); font-size: 0.9em; }
+        .screen-card .capabilities { margin-top: 12px; }
+        .screen-card .cap-item { display: inline-block; background: #E8F5E9; color: #2E7D32; padding: 2px 8px; border-radius: 4px; font-size: 0.8em; margin: 2px; }
+
+        /* === DATA FLOW === */
+        .data-flow-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+        .data-flow-card h4 { color: var(--primary-dark); margin-bottom: 12px; }
+        .data-flow-card code {
+            display: block;
+            background: #263238;
+            color: #A5D6A7;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            overflow-x: auto;
+            white-space: pre;
+        }
+
+        /* === STATS === */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin: 40px 0;
+        }
+        .stat-box {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            box-shadow: 0 1px 8px rgba(0,0,0,0.06);
+        }
+        .stat-box .number { font-size: 2.5em; color: var(--primary); font-weight: bold; }
+        .stat-box .label { color: var(--text-secondary); font-size: 0.9em; }
+
+        /* === FOOTER === */
+        .footer {
+            background: #263238;
+            color: #B0BEC5;
+            text-align: center;
+            padding: 40px 20px;
+        }
+        .footer a { color: #4FC3F7; text-decoration: none; }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2em; }
+            .hero p { font-size: 1em; }
+            .arch-flow .flow-diagram { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ==================== HERO ==================== -->
+<div class="hero">
+    <h1>🚛 BC Fleet</h1>
+    <p>ระบบควบคุมรถขนส่งครบวงจรสำหรับ SME ไทย — บริหารจัดการรถ คนขับ เที่ยววิ่ง ซ่อมบำรุง ต้นทุน ทั้งหมดในที่เดียว</p>
+    <div class="hero-badges">
+        <span class="badge">🏗️ Go Backend</span>
+        <span class="badge">📱 Flutter Mobile</span>
+        <span class="badge">🌐 Web Dashboard</span>
+        <span class="badge">💬 LINE OA Bot</span>
+        <span class="badge">🤖 AI Agent (Claude)</span>
+        <span class="badge">🗺️ Longdo Map</span>
+        <span class="badge">🔗 46 MCP Tools</span>
+    </div>
+</div>
+
+<!-- ==================== STATS ==================== -->
+<div class="container">
+    <div class="stats-row">
+        <div class="stat-box"><div class="number">6</div><div class="label">แอปพลิเคชัน</div></div>
+        <div class="stat-box"><div class="number">46</div><div class="label">MCP Tools</div></div>
+        <div class="stat-box"><div class="number">60+</div><div class="label">API Endpoints</div></div>
+        <div class="stat-box"><div class="number">10</div><div class="label">MongoDB Collections</div></div>
+        <div class="stat-box"><div class="number">8</div><div class="label">PostgreSQL Tables</div></div>
+        <div class="stat-box"><div class="number">10</div><div class="label">Kafka Topics</div></div>
+    </div>
+</div>
+
+<!-- ==================== ARCHITECTURE ==================== -->
+<div class="section" style="background: white;">
+    <div class="container">
+        <h2 class="section-title">สถาปัตยกรรมข้อมูล</h2>
+        <p class="section-subtitle">Event-driven architecture — MongoDB เป็น Source of Truth, PostgreSQL เป็น Query Layer</p>
+
+        <div class="arch-flow">
+            <h3 style="margin-bottom: 20px;">Data Flow</h3>
+            <div class="flow-diagram">
+                <div class="flow-box" style="background:#7B1FA2">📱 Flutter/Web/LINE</div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-box" style="background:#1565C0">⚙️ Go API (Gin)</div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-box mongo">🍃 MongoDB</div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-box kafka">📡 Kafka</div>
+                <span class="flow-arrow">→</span>
+                <div class="flow-box pg">🐘 PostgreSQL</div>
+            </div>
+            <p style="color: #666; margin-top: 16px;">
+                <strong>Write:</strong> API → MongoDB (source of truth) → Kafka event → PostgreSQL upsert<br>
+                <strong>Read:</strong> API → PostgreSQL (เร็ว, JOIN ได้)<br>
+                <strong>Rebuild:</strong> PostgreSQL สามารถ DROP แล้ว rebuild จาก MongoDB ได้ทุกเมื่อ
+            </p>
+        </div>
+
+        <div class="data-flow-card">
+            <h4>ตัวอย่าง: สร้างรถใหม่ (Write Path)</h4>
+            <code>// 1. เขียนลง MongoDB (source of truth)
+result, err := mongoCollection.InsertOne(ctx, vehicle)
+
+// 2. บันทึก Event Log (audit trail)
+eventLogger.Log(ctx, "vehicle.created", vehicle)
+
+// 3. Produce event → Kafka
+producer.Produce("fleet.vehicles", KafkaEvent{
+    Type: "vehicle.created",
+    Payload: vehicle,
+})
+
+// 4. Kafka Consumer อ่าน event → upsert ลง PostgreSQL
+// INSERT INTO fleet_vehicles (...) ON CONFLICT (id) DO UPDATE SET ...</code>
+        </div>
+
+        <div class="data-flow-card">
+            <h4>ตัวอย่าง: ค้นหารถ (Read Path)</h4>
+            <code>// อ่านจาก PostgreSQL เสมอ (เร็วกว่า, JOIN ได้)
+SELECT v.*, d.name as driver_name
+FROM fleet_vehicles v
+LEFT JOIN fleet_drivers d ON v.current_driver_id = d.id
+WHERE v.shop_id = $1 AND v.status = 'active'
+ORDER BY v.updated_at DESC
+LIMIT 20 OFFSET 0</code>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== 6 APPS ==================== -->
+<div class="section">
+    <div class="container">
+        <h2 class="section-title">6 แอปพลิเคชัน</h2>
+        <p class="section-subtitle">ระบบนิเวศครบวงจร — ทุกส่วนเชื่อมกัน real-time</p>
+
+        <div class="apps-grid">
+            <div class="app-card">
+                <div class="app-icon" style="background: #E3F2FD;">⚙️</div>
+                <h3>App 1: Go Backend API</h3>
+                <p>REST API + MCP Server + Kafka Producer/Consumer — หัวใจของระบบ รองรับ multi-tenant ผ่าน shop_id</p>
+                <span class="tech">Go 1.22+ (Gin)</span>
+                <span class="tech">60+ endpoints</span>
+                <span class="tech">46 MCP tools</span>
+            </div>
+
+            <div class="app-card">
+                <div class="app-icon" style="background: #E8F5E9;">📱</div>
+                <h3>App 2: Driver App</h3>
+                <p>แอปสำหรับคนขับรถ — รับงาน, นำทาง, เช็คลิสต์, ถ่ายรูป POD, บันทึกน้ำมัน, แจ้งซ่อม, GPS tracking</p>
+                <span class="tech">Flutter</span>
+                <span class="tech">iOS + Android</span>
+                <span class="tech">Offline Support</span>
+            </div>
+
+            <div class="app-card">
+                <div class="app-icon" style="background: #FFF3E0;">👔</div>
+                <h3>App 3: Boss App</h3>
+                <p>แอปสำหรับเจ้าของ/ผู้จัดการ — Dashboard, แผนที่ real-time, จัดเที่ยว, อนุมัติซ่อม, ติดตามต้นทุน</p>
+                <span class="tech">Flutter</span>
+                <span class="tech">iOS + Android</span>
+                <span class="tech">Push Notifications</span>
+            </div>
+
+            <div class="app-card">
+                <div class="app-icon" style="background: #E8EAF6;">🖥️</div>
+                <h3>App 4: Web Dashboard</h3>
+                <p>แดชบอร์ดสำหรับแอดมิน/บัญชี — Drag & drop จัดเที่ยว, Work Order, Parts Inventory, P&L, Export Excel/PDF</p>
+                <span class="tech">Flutter Web</span>
+                <span class="tech">Responsive</span>
+                <span class="tech">DataTable</span>
+            </div>
+
+            <div class="app-card">
+                <div class="app-icon" style="background: #E0F7FA;">💬</div>
+                <h3>App 5: LINE OA Chatbot</h3>
+                <p>AI Agent ผ่าน LINE — ลูกค้าถามรถว่าง จองเที่ยว ติดตามงาน ดูต้นทุน ทั้งหมดผ่านแชท</p>
+                <span class="tech">LINE Messaging API</span>
+                <span class="tech">Claude AI</span>
+                <span class="tech">MCP Tools</span>
+            </div>
+
+            <div class="app-card">
+                <div class="app-icon" style="background: #FCE4EC;">🔗</div>
+                <h3>App 6: UCP + A2A Gateway</h3>
+                <p>Universal Commerce Protocol — ให้ AI agents ภายนอก จองรถ ติดตามงาน ชำระเงิน ผ่าน API มาตรฐาน</p>
+                <span class="tech">UCP Protocol</span>
+                <span class="tech">A2A Agent Card</span>
+                <span class="tech">PromptPay/Stripe</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== FEATURES DETAIL ==================== -->
+<div class="section" style="background: white;">
+    <div class="container">
+        <h2 class="section-title">ฟีเจอร์หลัก — ทำอะไรได้บ้าง</h2>
+        <p class="section-subtitle">ทุกฟีเจอร์ออกแบบสำหรับ SME ขนส่งไทย — ภาษาไทย, พ.ศ., บาท, กม.</p>
+
+        <div class="features-grid">
+            <!-- Vehicle Management -->
+            <div class="feature-card">
+                <h4>🚛 ทะเบียนรถ (Vehicle Management)</h4>
+                <p>ลงทะเบียนรถทุกประเภท — 4ล้อ, 6ล้อ, 10ล้อ, หัวลาก, กระบะ — ข้อมูลครบทั้งประกัน ภาษี พ.ร.บ.</p>
+                <div class="example">POST /api/v1/fleet/vehicles
+{
+  "plate": "กท-1234",
+  "brand": "ISUZU",
+  "model": "FRR 210",
+  "type": "6ล้อ",
+  "year": 2023,
+  "fuel_type": "ดีเซล",
+  "max_weight_kg": 6000
+}</div>
+            </div>
+
+            <div class="feature-card">
+                <h4>🔴🟡🟢 สุขภาพรถ (Vehicle Health)</h4>
+                <p>ระบบให้คะแนนสุขภาพรถอัตโนมัติ — เขียว=พร้อมใช้, เหลือง=ควรดูแล, แดง=ห้ามออกวิ่ง</p>
+                <div class="example">GET /api/v1/fleet/vehicles/:id/health
+→ {
+  "health_status": "yellow",
+  "issues": [
+    "ประกันหมดอายุในอีก 15 วัน",
+    "ครบรอบเปลี่ยนน้ำมันเครื่อง"
+  ]
+}</div>
+            </div>
+
+            <!-- Driver Management -->
+            <div class="feature-card">
+                <h4>👤 KPI คนขับ (Driver Score)</h4>
+                <p>คะแนน 0-100 จาก: ตรงเวลา (30%), ประหยัดน้ำมัน (25%), Rating ลูกค้า (20%), ไม่มีอุบัติเหตุ (15%), ไม่ฝ่าฝืน (10%)</p>
+                <div class="example">GET /api/v1/fleet/drivers/:id/score
+→ {
+  "score": 92,
+  "on_time_rate": 0.95,
+  "fuel_efficiency": 5.2,  // km/L
+  "customer_rating": 4.8,
+  "accident_count": 1,
+  "total_trips": 450
+}</div>
+            </div>
+
+            <div class="feature-card">
+                <h4>💰 คำนวณเงินเดือน</h4>
+                <p>คำนวณอัตโนมัติ: เงินเดือนฐาน + เบี้ยเลี้ยง × วัน + โบนัสเที่ยว × เที่ยว + OT</p>
+                <div class="example">GET /api/v1/fleet/drivers/:id/salary
+→ {
+  "base_salary": 15000,
+  "daily_allowance": 6000,  // 300×20 วัน
+  "trip_bonus": 4000,       // 200×20 เที่ยว
+  "overtime": 1200,
+  "total": 26200
+}</div>
+            </div>
+
+            <!-- Trip Management -->
+            <div class="feature-card">
+                <h4>📋 เที่ยววิ่ง (Trip Management)</h4>
+                <p>จัดเที่ยว — มอบหมายรถ+คนขับ — ติดตาม GPS — ส่งมอบ POD — คำนวณต้นทุน/กำไร</p>
+                <div class="example">Trip Status Flow:
+draft → pending → accepted → started
+→ arrived → delivering → completed
+                      ↓
+               POD + ลายเซ็น</div>
+            </div>
+
+            <div class="feature-card">
+                <h4>📍 GPS Tracking Real-time</h4>
+                <p>ติดตามรถทุกคันแบบ real-time — คนขับส่ง GPS ทุก 30 วินาที — ดู speed, heading, battery</p>
+                <div class="example">POST /api/v1/fleet/gps/location
+{
+  "trip_id": "trip_001",
+  "lat": 18.7883,
+  "lng": 98.9853,
+  "speed": 65.5,
+  "heading": 180,
+  "battery": 85
+}
+// → ส่งทุก 30 วินาทีจาก Driver App</div>
+            </div>
+
+            <!-- Maintenance -->
+            <div class="feature-card">
+                <h4>🔧 ซ่อมบำรุง (Maintenance)</h4>
+                <p>ใบสั่งซ่อม — อนุมัติ — ติดตามงาน — คิดค่าอะไหล่+แรง — เชื่อม BC Account บัญชี</p>
+                <div class="example">Work Order Types:
+• preventive — ซ่อมตามรอบ (น้ำมัน, เบรค, ยาง)
+• corrective — ซ่อมตามอาการ
+• emergency — ซ่อมฉุกเฉิน
+
+Approval Flow:
+draft → pending_approval → approved
+→ in_progress → completed</div>
+            </div>
+
+            <div class="feature-card">
+                <h4>⚠️ แจ้งเตือนอัตโนมัติ</h4>
+                <p>Cron job ตรวจทุกชั่วโมง — ประกัน/ภาษี/พ.ร.บ./ใบขับขี่ หมดอายุ, ซ่อมครบรอบ, ขับเร็ว, ออกนอก geofence</p>
+                <div class="example">Alert Types:
+📋 insurance_expiry  — ประกันใกล้หมดอายุ
+💵 tax_due          — ภาษีรถใกล้กำหนด
+📄 act_due          — พ.ร.บ. ใกล้กำหนด
+🪪 license_expiry   — ใบขับขี่หมดอายุ
+🔧 maintenance_due  — ซ่อมบำรุงครบกำหนด
+🚨 speeding         — ขับเร็วเกินกำหนด
+📍 geofence_alert   — ออกนอกเขตพื้นที่</div>
+            </div>
+
+            <!-- Partners -->
+            <div class="feature-card">
+                <h4>🤝 รถร่วม (Partners)</h4>
+                <p>ลงทะเบียนรถร่วม — ค้นหารถว่าง — จอง — จ่ายเงิน — หัก ณ ที่จ่าย — AI จับคู่อัตโนมัติ</p>
+                <div class="example">AI Matching Score (100 คะแนน):
+• Zone coverage   — 30 คะแนน
+• Vehicle type    — 25 คะแนน
+• Rating          — 20 คะแนน
+• Price           — 15 คะแนน
+• Availability    — 10 คะแนน</div>
+            </div>
+
+            <!-- Costs -->
+            <div class="feature-card">
+                <h4>📊 ต้นทุนขนส่ง (Cost Analysis)</h4>
+                <p>P&L ต่อคัน/เดือน — ค่าน้ำมัน, ทางด่วน, ซ่อม, เบี้ยเลี้ยง vs รายได้ — รู้กำไรทุกเที่ยว</p>
+                <div class="example">GET /api/v1/fleet/expenses/pl/:vehicle_id
+→ {
+  "vehicle": "กท-1234",
+  "month": "2024-12",
+  "revenue": 75000,
+  "costs": {
+    "fuel": 24000,
+    "toll": 1800,
+    "maintenance": 4040,
+    "driver": 18000,
+    "other": 500
+  },
+  "total_cost": 48340,
+  "profit": 26660,
+  "margin": "35.5%"
+}</div>
+            </div>
+
+            <!-- LINE Bot -->
+            <div class="feature-card">
+                <h4>🤖 AI Agent (LINE Bot + MCP)</h4>
+                <p>ลูกค้าทัก LINE → AI ตอบทันที ใช้ MCP tools ค้นหารถว่าง คำนวณราคา จองเที่ยว — ไม่ต้องมีคนรับ</p>
+                <div class="example">ลูกค้า: "มีรถ 6 ล้อว่างพรุ่งนี้ไหม ส่งไปลำพูน"
+   ↓
+AI → MCP: list_vehicles(type="6ล้อ")
+AI → MCP: check_driver_schedule(tomorrow)
+AI → MCP: calculate_route_cost("เชียงใหม่→ลำพูน")
+   ↓
+AI ตอบ: "รถ กท-1234 ว่างครับ
+  คนขับ: สมชาย
+  ค่าขนส่ง: 2,500 บาท
+  [ปุ่ม: จองเลย]"</div>
+            </div>
+
+            <!-- UCP -->
+            <div class="feature-card">
+                <h4>🔗 UCP — ให้ AI ภายนอกจองรถได้</h4>
+                <p>Universal Commerce Protocol — AI agents จากระบบอื่นสามารถค้นหา จอง ชำระเงิน ติดตาม ผ่าน API มาตรฐาน</p>
+                <div class="example">UCP Endpoints:
+POST /ucp/discovery/catalog    — ดูประเภทรถ+ราคา
+POST /ucp/discovery/availability — ค้นหารถว่าง
+POST /ucp/cart/quote           — ขอใบเสนอราคา
+POST /ucp/cart/booking         — จอง
+POST /ucp/checkout/payment     — ชำระเงิน
+GET  /ucp/fulfillment/track/:id — ติดตาม
+GET  /ucp/fulfillment/pod/:id   — หลักฐานส่ง</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== MCP TOOLS ==================== -->
+<div class="section">
+    <div class="container">
+        <h2 class="section-title">46 MCP Tools</h2>
+        <p class="section-subtitle">เครื่องมือสำหรับ AI Agent เรียกใช้ระบบ — ทั้ง LINE Bot และ Claude Desktop</p>
+
+        <div class="tools-grid">
+            <div class="tool-group">
+                <h4>🚛 Vehicle Tools <span class="count">8</span></h4>
+                <ul class="tool-list">
+                    <li>list_vehicles — ค้นหารถ (type, status, ownership)</li>
+                    <li>get_vehicle — ข้อมูลรถ by ID</li>
+                    <li>create_vehicle — ลงทะเบียนรถใหม่</li>
+                    <li>update_vehicle — อัปเดตข้อมูล</li>
+                    <li>get_vehicle_health — สุขภาพรถ 🟢🟡🔴</li>
+                    <li>get_vehicle_location — ตำแหน่ง GPS</li>
+                    <li>get_vehicle_cost — ต้นทุนรวมต่อคัน</li>
+                    <li>get_vehicle_history — ประวัติทั้งหมด</li>
+                </ul>
+            </div>
+
+            <div class="tool-group">
+                <h4>👤 Driver Tools <span class="count">10</span></h4>
+                <ul class="tool-list">
+                    <li>list_drivers — ค้นหาคนขับ</li>
+                    <li>get_driver — ข้อมูลคนขับ</li>
+                    <li>create_driver — ลงทะเบียนใหม่</li>
+                    <li>update_driver — อัปเดตข้อมูล</li>
+                    <li>get_driver_score — KPI 0-100</li>
+                    <li>check_driver_schedule — ตารางเวร</li>
+                    <li>assign_driver_to_trip — มอบหมายงาน</li>
+                    <li>get_driver_expense — ค่าใช้จ่าย</li>
+                    <li>calculate_driver_salary — คำนวณเงินเดือน</li>
+                    <li>suggest_best_driver — AI แนะนำคนขับ</li>
+                </ul>
+            </div>
+
+            <div class="tool-group">
+                <h4>📋 Trip Tools <span class="count">8</span></h4>
+                <ul class="tool-list">
+                    <li>list_trips — ค้นหาเที่ยววิ่ง</li>
+                    <li>create_trip — สร้างเที่ยวใหม่</li>
+                    <li>update_trip_status — เปลี่ยนสถานะ</li>
+                    <li>assign_trip — มอบหมายรถ+คนขับ</li>
+                    <li>calculate_route_cost — คำนวณค่าขนส่ง</li>
+                    <li>track_shipment — ติดตาม GPS</li>
+                    <li>get_trip_pod — หลักฐานส่งมอบ</li>
+                    <li>get_trip_cost_breakdown — ต้นทุนต่อเที่ยว</li>
+                </ul>
+            </div>
+
+            <div class="tool-group">
+                <h4>🔧 Maintenance Tools <span class="count">8</span></h4>
+                <ul class="tool-list">
+                    <li>list_maintenance_schedule — ตารางซ่อม</li>
+                    <li>create_work_order — สร้างใบสั่งซ่อม</li>
+                    <li>get_work_order — รายละเอียด</li>
+                    <li>update_work_order — อัปเดต</li>
+                    <li>approve_work_order — อนุมัติ</li>
+                    <li>complete_work_order — ปิดงาน</li>
+                    <li>get_maintenance_cost — ต้นทุนซ่อม</li>
+                    <li>list_parts_inventory — สต๊อกอะไหล่</li>
+                </ul>
+            </div>
+
+            <div class="tool-group">
+                <h4>🤝 Partner Tools <span class="count">6</span></h4>
+                <ul class="tool-list">
+                    <li>register_partner_vehicle — ลงทะเบียนรถร่วม</li>
+                    <li>list_partner_vehicles — รายการรถร่วม</li>
+                    <li>find_available_partners — ค้นหารถว่าง</li>
+                    <li>create_partner_booking — จองรถร่วม</li>
+                    <li>get_partner_settlement — รายการจ่ายเงิน</li>
+                    <li>calculate_partner_payment — คำนวณค่าจ้าง+หัก ณ ที่จ่าย</li>
+                </ul>
+            </div>
+
+            <div class="tool-group">
+                <h4>📊 Dashboard Tools <span class="count">6</span></h4>
+                <ul class="tool-list">
+                    <li>get_fleet_summary — สรุปภาพรวม</li>
+                    <li>get_fleet_kpi — KPI metrics</li>
+                    <li>get_active_alerts — แจ้งเตือน active</li>
+                    <li>get_cost_report — รายงานต้นทุน</li>
+                    <li>get_fuel_report — รายงานน้ำมัน</li>
+                    <li>get_driver_leaderboard — อันดับคนขับ</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== SCREENS SHOWCASE ==================== -->
+<div class="section" style="background: white;">
+    <div class="container">
+        <h2 class="section-title">หน้าจอหลัก — แต่ละ App</h2>
+        <p class="section-subtitle">ตัวอย่างหน้าจอและความสามารถของแต่ละแอป</p>
+
+        <h3 style="margin: 30px 0 16px; color: var(--primary-dark);">📱 Driver App — 10 หน้าจอ</h3>
+        <div class="screens-grid">
+            <div class="screen-card">
+                <div class="screen-preview" style="background: linear-gradient(135deg, #E3F2FD, #BBDEFB);">📋</div>
+                <div class="info">
+                    <h4>หน้าหลัก — รายการเที่ยววิ่ง</h4>
+                    <p>3 tabs: รอรับงาน | กำลังวิ่ง | เสร็จแล้ว — กดรับงาน เริ่มวิ่ง ส่งมอบ</p>
+                    <div class="capabilities">
+                        <span class="cap-item">รับงาน</span>
+                        <span class="cap-item">เริ่มวิ่ง</span>
+                        <span class="cap-item">GPS tracking</span>
+                    </div>
+                </div>
+            </div>
+            <div class="screen-card">
+                <div class="screen-preview" style="background: linear-gradient(135deg, #E8F5E9, #C8E6C9);">✅</div>
+                <div class="info">
+                    <h4>Checklist ก่อนออก</h4>
+                    <p>ตรวจ 8 รายการ: เบรค ยาง ไฟ น้ำมัน น้ำ กระจก — ถ่ายรูปถ้าผิดปกติ</p>
+                    <div class="capabilities">
+                        <span class="cap-item">8 รายการ</span>
+                        <span class="cap-item">ถ่ายรูป</span>
+                        <span class="cap-item">ปกติ/ระวัง/ผิดปกติ</span>
+                    </div>
+                </div>
+            </div>
+            <div class="screen-card">
+                <div class="screen-preview" style="background: linear-gradient(135deg, #FFF3E0, #FFE0B2);">📸</div>
+                <div class="info">
+                    <h4>POD — หลักฐานส่งมอบ</h4>
+                    <p>ถ่ายรูปสินค้า + ลายเซ็นดิจิทัลผู้รับ + หมายเหตุ — อัปโหลดอัตโนมัติ</p>
+                    <div class="capabilities">
+                        <span class="cap-item">ถ่ายรูป</span>
+                        <span class="cap-item">ลายเซ็น</span>
+                        <span class="cap-item">Offline support</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h3 style="margin: 40px 0 16px; color: var(--primary-dark);">👔 Boss App — 10 หน้าจอ</h3>
+        <div class="screens-grid">
+            <div class="screen-card">
+                <div class="screen-preview" style="background: linear-gradient(135deg, #1565C0, #1E88E5); color: white;">📊</div>
+                <div class="info">
+                    <h4>Dashboard — สรุปภาพรวม</h4>
+                    <p>KPI cards + กราฟรายได้/ต้นทุน 7 วัน + สถานะรถ (เขียว/เหลือง/แดง) + แจ้งเตือน</p>
+                    <div class="capabilities">
+                        <span class="cap-item">KPI realtime</span>
+                        <span class="cap-item">Charts</span>
+                        <span class="cap-item">Alerts</span>
+                    </div>
+                </div>
+            </div>
+            <div class="screen-card">
+                <div class="screen-preview" style="background: linear-gradient(135deg, #4CAF50, #66BB6A); color: white;">🗺️</div>
+                <div class="info">
+                    <h4>Live Map — แผนที่รถทุกคัน</h4>
+                    <p>Longdo Map แสดงตำแหน่งรถ real-time + กดเลือกดู trail + speed + battery</p>
+                    <div class="capabilities">
+                        <span class="cap-item">Longdo Map</span>
+                        <span class="cap-item">Real-time</span>
+                        <span class="cap-item">WebSocket</span>
+                    </div>
+                </div>
+            </div>
+            <div class="screen-card">
+                <div class="screen-preview" style="background: linear-gradient(135deg, #FF6F00, #FFA726); color: white;">🔧</div>
+                <div class="info">
+                    <h4>ซ่อมบำรุง + อนุมัติ</h4>
+                    <p>ดูใบสั่งซ่อม กดอนุมัติ/ปฏิเสธ ดูค่าอะไหล่+แรง + รูปก่อน/หลังซ่อม</p>
+                    <div class="capabilities">
+                        <span class="cap-item">อนุมัติ</span>
+                        <span class="cap-item">รูปก่อน/หลัง</span>
+                        <span class="cap-item">Push notify</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h3 style="margin: 40px 0 16px; color: var(--primary-dark);">🖥️ Web Dashboard — 15+ หน้าจอ</h3>
+        <div class="screens-grid">
+            <div class="screen-card">
+                <div class="screen-preview" style="background: linear-gradient(135deg, #263238, #37474F); color: white;">📈</div>
+                <div class="info">
+                    <h4>KPI Dashboard</h4>
+                    <p>เต็มจอ — Vehicle Utilization, On-time Rate, Fuel Efficiency, Profit Margin, Driver Leaderboard</p>
+                    <div class="capabilities">
+                        <span class="cap-item">4 KPI Cards</span>
+                        <span class="cap-item">Charts</span>
+                        <span class="cap-item">Filters</span>
+                        <span class="cap-item">Export</span>
+                    </div>
+                </div>
+            </div>
+            <div class="screen-card">
+                <div class="screen-preview" style="background: linear-gradient(135deg, #4527A0, #7C4DFF); color: white;">📝</div>
+                <div class="info">
+                    <h4>Work Order Form</h4>
+                    <p>ฟอร์มเต็ม: เลือกรถ + ช่าง + อะไหล่ (เพิ่มได้หลายรายการ) + ค่าแรง + รูปถ่าย + อนุมัติ</p>
+                    <div class="capabilities">
+                        <span class="cap-item">Parts list</span>
+                        <span class="cap-item">Labor cost</span>
+                        <span class="cap-item">Photos</span>
+                        <span class="cap-item">Approval</span>
+                    </div>
+                </div>
+            </div>
+            <div class="screen-card">
+                <div class="screen-preview" style="background: linear-gradient(135deg, #00695C, #26A69A); color: white;">💰</div>
+                <div class="info">
+                    <h4>P&L ต่อคัน/เดือน</h4>
+                    <p>DataTable — รายได้ vs ต้นทุน (น้ำมัน+ทางด่วน+ซ่อม+คนขับ) = กำไร/ขาดทุน ทุกคัน</p>
+                    <div class="capabilities">
+                        <span class="cap-item">Per vehicle</span>
+                        <span class="cap-item">Monthly</span>
+                        <span class="cap-item">Export Excel</span>
+                        <span class="cap-item">Sort/Filter</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== API ENDPOINTS ==================== -->
+<div class="section">
+    <div class="container">
+        <h2 class="section-title">API Endpoints (ตัวอย่าง)</h2>
+        <p class="section-subtitle">60+ REST API endpoints — ทั้งหมด multi-tenant ผ่าน shop_id</p>
+
+        <table class="api-table">
+            <thead>
+                <tr><th>Method</th><th>Endpoint</th><th>คำอธิบาย</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><span class="method get">GET</span></td><td>/api/v1/fleet/vehicles</td><td>รายการรถ (?status=active&type=6ล้อ)</td></tr>
+                <tr><td><span class="method post">POST</span></td><td>/api/v1/fleet/vehicles</td><td>สร้างรถใหม่ → MongoDB → Kafka → PG</td></tr>
+                <tr><td><span class="method get">GET</span></td><td>/api/v1/fleet/vehicles/:id/health</td><td>สุขภาพรถ (green/yellow/red)</td></tr>
+                <tr><td><span class="method get">GET</span></td><td>/api/v1/fleet/drivers/:id/score</td><td>KPI score คนขับ (0-100)</td></tr>
+                <tr><td><span class="method post">POST</span></td><td>/api/v1/fleet/trips</td><td>สร้างเที่ยววิ่ง</td></tr>
+                <tr><td><span class="method put">PUT</span></td><td>/api/v1/fleet/trips/:id/status</td><td>เปลี่ยนสถานะ (pending→accepted→started...)</td></tr>
+                <tr><td><span class="method post">POST</span></td><td>/api/v1/fleet/trips/:id/assign</td><td>มอบหมายรถ+คนขับ</td></tr>
+                <tr><td><span class="method post">POST</span></td><td>/api/v1/fleet/gps/location</td><td>รับ GPS จาก driver app (ทุก 30 วินาที)</td></tr>
+                <tr><td><span class="method get">GET</span></td><td>/api/v1/fleet/gps/vehicles</td><td>ตำแหน่งรถทุกคัน real-time</td></tr>
+                <tr><td><span class="method post">POST</span></td><td>/api/v1/fleet/maintenance/work-orders</td><td>สร้างใบสั่งซ่อม</td></tr>
+                <tr><td><span class="method put">PUT</span></td><td>/api/v1/fleet/maintenance/work-orders/:id/approve</td><td>อนุมัติใบสั่งซ่อม</td></tr>
+                <tr><td><span class="method post">POST</span></td><td>/api/v1/fleet/partners/find-available</td><td>ค้นหารถร่วมว่าง</td></tr>
+                <tr><td><span class="method get">GET</span></td><td>/api/v1/fleet/expenses/pl/:vehicle_id</td><td>P&L ต่อคัน</td></tr>
+                <tr><td><span class="method get">GET</span></td><td>/api/v1/fleet/dashboard/summary</td><td>สรุปภาพรวมวันนี้</td></tr>
+                <tr><td><span class="method get">GET</span></td><td>/api/v1/fleet/dashboard/kpi</td><td>KPI metrics ทั้งหมด</td></tr>
+                <tr><td><span class="method get">GET</span></td><td>/api/v1/fleet/reports/fuel-efficiency</td><td>ประสิทธิภาพน้ำมันต่อคัน</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ==================== TECH STACK ==================== -->
+<div class="section" style="background: white;">
+    <div class="container">
+        <h2 class="section-title">Tech Stack</h2>
+        <div class="features-grid">
+            <div class="feature-card" style="border-color: #4CAF50;">
+                <h4>🏗️ Backend</h4>
+                <p>Go 1.22+ (Gin) — REST API, MCP Server, Kafka Producer/Consumer, LINE Webhook, UCP Gateway</p>
+            </div>
+            <div class="feature-card" style="border-color: #4CAF50;">
+                <h4>🍃 Primary DB</h4>
+                <p>MongoDB 7+ — Source of truth, flexible schema, event sourcing, audit trail</p>
+            </div>
+            <div class="feature-card" style="border-color: #1565C0;">
+                <h4>🐘 Query DB</h4>
+                <p>PostgreSQL 16+ — JOIN, aggregate, report, analytics — rebuildable จาก MongoDB</p>
+            </div>
+            <div class="feature-card" style="border-color: #FF6F00;">
+                <h4>📡 Stream</h4>
+                <p>Apache Kafka (KRaft mode) — Real-time sync MongoDB → PostgreSQL, 10 topics</p>
+            </div>
+            <div class="feature-card" style="border-color: #7B1FA2;">
+                <h4>📱 Mobile + Web</h4>
+                <p>Flutter 3.24+ — iOS, Android, Web จาก codebase เดียว, shared fleet_core package</p>
+            </div>
+            <div class="feature-card" style="border-color: #00695C;">
+                <h4>🗺️ Maps</h4>
+                <p>Longdo Map API v3 — แผนที่ไทย, geocoding, routing, search — ถูกกว่า Google Maps</p>
+            </div>
+            <div class="feature-card" style="border-color: #C62828;">
+                <h4>🤖 AI</h4>
+                <p>Claude API (Haiku/Sonnet) — ภาษาไทยดี, MCP native, 46 fleet tools</p>
+            </div>
+            <div class="feature-card" style="border-color: #F57F17;">
+                <h4>☁️ Storage</h4>
+                <p>Cloudflare R2 — เก็บรูป POD/เอกสาร, ไม่มีค่า egress, S3-compatible API</p>
+            </div>
+            <div class="feature-card" style="border-color: #0D47A1;">
+                <h4>💳 Payment</h4>
+                <p>PromptPay QR (ฟรี) + Stripe (UCP) — รองรับทั้งไทยและต่างประเทศ</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== FOOTER ==================== -->
+<div class="footer">
+    <h3 style="color: white; margin-bottom: 8px;">BC Fleet v1.0</h3>
+    <p>ระบบควบคุมรถขนส่งครบวงจรสำหรับ SME ไทย</p>
+    <p style="margin-top: 12px;">
+        โดย <a href="#">BC AI Solution Co., Ltd.</a> —
+        Built with Go + Flutter + MongoDB + Kafka + PostgreSQL
+    </p>
+    <p style="margin-top: 8px; font-size: 0.85em;">
+        6 Apps • 46 MCP Tools • 60+ API Endpoints • 10 Kafka Topics • Multi-tenant
+    </p>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,107 @@
+version: '3.8'
+
+# Development overrides
+# Usage: docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+
+services:
+
+  # MongoDB — expose port + named volume
+  mongodb:
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ""
+      MONGO_INITDB_ROOT_PASSWORD: ""
+    command: mongod --noauth
+
+  # PostgreSQL — expose port
+  postgres:
+    ports:
+      - "5432:5432"
+
+  # Kafka — expose additional ports for local dev tools
+  kafka:
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+    environment:
+      # ลด retention สำหรับ dev
+      KAFKA_LOG_RETENTION_HOURS: 24
+      KAFKA_LOG_RETENTION_BYTES: 104857600  # 100 MB
+
+  # Go API Server — hot reload ด้วย air
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    ports:
+      - "8080:8080"
+      - "2345:2345"  # delve debugger port
+    volumes:
+      - ./backend:/app
+      - go-mod-cache:/go/pkg/mod
+    environment:
+      ENV: development
+      GIN_MODE: debug
+    command: ["air", "-c", ".air.toml"]
+    restart: on-failure
+
+  # Kafka Consumer — hot reload
+  kafka-consumer:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./backend:/app
+      - go-mod-cache:/go/pkg/mod
+    environment:
+      ENV: development
+    command: ["air", "-c", ".air.consumer.toml"]
+    restart: on-failure
+
+  # Kafka UI — web interface สำหรับดู topics/messages
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    ports:
+      - "8090:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: bc-fleet-dev
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+    depends_on:
+      - kafka
+    profiles:
+      - tools
+
+  # MongoDB Express — web UI สำหรับ MongoDB
+  mongo-express:
+    image: mongo-express:latest
+    ports:
+      - "8091:8081"
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://mongodb:27017/
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: admin123
+      ME_CONFIG_MONGODB_ENABLE_ADMIN: "true"
+    depends_on:
+      - mongodb
+    profiles:
+      - tools
+
+  # pgAdmin — web UI สำหรับ PostgreSQL
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    ports:
+      - "8092:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@bcfleet.local
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    profiles:
+      - tools
+
+volumes:
+  go-mod-cache:
+  pgadmin-data:

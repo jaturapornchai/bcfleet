@@ -1,0 +1,27 @@
+name: driver_app
+description: BC Fleet Driver App - แอปสำหรับคนขับรถ
+version: 1.0.0+1
+publish_to: 'none'
+
+environment:
+  sdk: ">=3.5.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  fleet_core:
+    path: ../packages/fleet_core
+  flutter_bloc: ^8.1.6
+  dio: ^5.7.0
+  geolocator: ^13.0.2
+  camera: ^0.11.0+2
+  hand_signature: ^3.0.2
+  flutter_local_notifications: ^18.0.1
+  sqflite: ^2.4.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true

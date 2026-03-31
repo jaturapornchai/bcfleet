@@ -1,0 +1,32 @@
+# Go
+backend/bin/
+backend/vendor/
+*.exe
+*.test
+
+# Flutter
+flutter/**/build/
+flutter/**/.dart_tool/
+flutter/**/.packages
+flutter/**/.flutter-plugins
+flutter/**/.flutter-plugins-dependencies
+flutter/**/pubspec.lock
+
+# IDE
+.idea/
+.vscode/
+*.iml
+.DS_Store
+
+# Environment
+.env
+*.env.local
+
+# Docker
+docker-compose.override.yml
+
+# Logs
+*.log
+
+# OS
+Thumbs.db

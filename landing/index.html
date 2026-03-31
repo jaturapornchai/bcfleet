@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BC Fleet — ระบบควบคุมรถขนส่ง Demo</title>
+    <style>
+        :root { --primary: #1565C0; --accent: #FF6F00; --bg: #F5F7FA; --card: #fff; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Sarabun', 'Segoe UI', sans-serif; background: var(--bg); color: #212121; }
+        .hero { background: linear-gradient(135deg, #0D47A1, #1E88E5); color: white; padding: 60px 20px; text-align: center; }
+        .hero h1 { font-size: 2.5em; margin-bottom: 12px; }
+        .hero p { font-size: 1.2em; opacity: 0.9; max-width: 600px; margin: 0 auto; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 40px 20px; }
+        .apps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-top: 32px; }
+        .app-card {
+            background: var(--card); border-radius: 16px; padding: 32px; text-align: center;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1); transition: transform 0.2s;
+            text-decoration: none; color: #212121; display: block;
+        }
+        .app-card:hover { transform: translateY(-6px); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
+        .app-icon { font-size: 48px; margin-bottom: 16px; }
+        .app-card h3 { font-size: 1.3em; color: var(--primary); margin-bottom: 8px; }
+        .app-card p { color: #666; font-size: 0.95em; margin-bottom: 16px; }
+        .app-card .badge { background: #E3F2FD; color: var(--primary); padding: 4px 12px; border-radius: 12px; font-size: 0.85em; }
+        .section-title { text-align: center; font-size: 1.8em; color: #0D47A1; margin-bottom: 8px; }
+        .section-sub { text-align: center; color: #666; margin-bottom: 16px; }
+        .api-info { background: var(--card); border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-top: 24px; }
+        .api-info code { background: #263238; color: #A5D6A7; padding: 12px; border-radius: 8px; display: block; margin-top: 8px; font-size: 0.9em; }
+        .footer { text-align: center; padding: 32px; color: #999; font-size: 0.9em; }
+        .status { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #4CAF50; margin-right: 6px; }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>🚛 BC Fleet Demo</h1>
+        <p>ระบบควบคุมรถขนส่งครบวงจรสำหรับ SME ไทย — ทดลองใช้งานได้เลย</p>
+    </div>
+
+    <div class="container">
+        <h2 class="section-title">เลือกระบบที่ต้องการทดลอง</h2>
+        <p class="section-sub">ทุกระบบเชื่อมกัน real-time ผ่าน MongoDB → Kafka → PostgreSQL</p>
+
+        <div class="apps-grid">
+            <a href="/dashboard/" class="app-card">
+                <div class="app-icon">🖥️</div>
+                <h3>Web Dashboard</h3>
+                <p>แดชบอร์ดสำหรับแอดมิน — จัดการรถ คนขับ เที่ยววิ่ง ซ่อมบำรุง รถร่วม รายงาน</p>
+                <span class="badge">แอดมิน / ฝ่ายบัญชี</span>
+            </a>
+
+            <a href="/boss/" class="app-card">
+                <div class="app-icon">👔</div>
+                <h3>Boss App</h3>
+                <p>แอปสำหรับเจ้าของ — Dashboard KPI, แผนที่ real-time, อนุมัติซ่อม, ต้นทุน</p>
+                <span class="badge">เจ้าของ / ผู้จัดการ</span>
+            </a>
+
+            <a href="/driver/" class="app-card">
+                <div class="app-icon">📱</div>
+                <h3>Driver App</h3>
+                <p>แอปสำหรับคนขับ — รับงาน, เช็คลิสต์, นำทาง, ถ่ายรูป POD, บันทึกน้ำมัน</p>
+                <span class="badge">คนขับรถ</span>
+            </a>
+
+            <a href="/api/v1/fleet/dashboard/summary" class="app-card">
+                <div class="app-icon">⚙️</div>
+                <h3>REST API</h3>
+                <p>60+ endpoints — Vehicles, Drivers, Trips, Maintenance, Partners, GPS, Reports</p>
+                <span class="badge">Developer</span>
+            </a>
+
+            <a href="/docs/" class="app-card">
+                <div class="app-icon">📖</div>
+                <h3>Documentation</h3>
+                <p>สถาปัตยกรรม, API Reference, MCP Tools (46), UCP Protocol, Tech Stack</p>
+                <span class="badge">เอกสาร</span>
+            </a>
+
+            <a href="/health" class="app-card">
+                <div class="app-icon">💚</div>
+                <h3>System Status</h3>
+                <p><span class="status"></span>API Server &nbsp; <span class="status"></span>MongoDB &nbsp; <span class="status"></span>PostgreSQL &nbsp; <span class="status"></span>Kafka</p>
+                <span class="badge">Health Check</span>
+            </a>
+        </div>
+
+        <div class="api-info">
+            <h3>🔗 API Base URL</h3>
+            <code>https://bcfleet.satistang.com/api/v1/fleet/</code>
+            <p style="margin-top: 12px; color: #666;">ตัวอย่าง: <code style="display:inline; padding:2px 6px;">GET /api/v1/fleet/vehicles?status=active</code></p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>BC Fleet v1.0 — BC AI Solution Co., Ltd.</p>
+        <p>Go + Flutter + MongoDB + Kafka + PostgreSQL + 46 MCP Tools</p>
+    </div>
+</body>
+</html>

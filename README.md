@@ -36,7 +36,7 @@ Flutter/Web/LINE → Go API (Gin) → MongoDB (Source of Truth)
 | Query DB | PostgreSQL 16 |
 | Stream | Apache Kafka (KRaft) |
 | Mobile + Web | Flutter 3.24 |
-| Maps | Longdo Map API v3 |
+| Maps | OpenStreetMap (flutter_map) — ฟรี ไม่ต้อง Key |
 | AI | Claude API (MCP) |
 | Storage | Cloudflare R2 |
 | LINE Bot | LINE Messaging API |
@@ -147,6 +147,50 @@ bc-fleet/
 ├── Makefile
 └── CLAUDE.md                   # PRD (Project Requirements Document)
 ```
+
+## 🎯 คุณสมบัติหลัก
+
+### ทะเบียนรถ (Vehicle Management)
+- รองรับ: 4ล้อ, 6ล้อ, 10ล้อ, หัวลาก, กระบะ
+- สุขภาพรถ: เขียว/เหลือง/แดง — ประกัน/ภาษี/พ.ร.บ. แจ้งเตือนก่อนหมดอายุ
+- ประวัติซ่อมบำรุง + เอกสาร (เก็บใน R2)
+
+### คนขับ (Driver Management)
+- KPI Score 0-100 (ตรงเวลา, ประหยัดน้ำมัน, Rating ลูกค้า)
+- ตารางเวร + วันลา + OT + คำนวณเงินเดือนอัตโนมัติ
+- AI แนะนำคนขับที่เหมาะสม
+
+### เที่ยววิ่ง (Trip Management)
+- สร้าง → มอบหมาย → ติดตาม GPS → ส่งมอบ POD
+- ต้นทุนต่อเที่ยว: น้ำมัน + ทางด่วน + คนขับ = กำไร/ขาดทุน
+- POD: รูปถ่าย + ลายเซ็นดิจิทัลผู้รับ
+
+### GPS Tracking Real-time
+- แผนที่ OpenStreetMap (ฟรี ไม่ต้อง API Key)
+- GPS จาก Driver App ทุก 30 วินาที + Markers ทะเบียนรถ
+- เส้นทางย้อนหลัง + แจ้งเตือน Geofence/ขับเร็ว
+
+### ซ่อมบำรุง (Maintenance)
+- ใบสั่งซ่อม: ซ่อมตามรอบ / ตามอาการ / ฉุกเฉิน
+- Approval flow + คิดค่าอะไหล่+แรง + สต๊อกอะไหล่
+
+### รถร่วม (Partner Vehicles)
+- ลงทะเบียนรถร่วม + ราคาต่อเที่ยว/กม./วัน
+- AI Matching Score 100 คะแนน + จ่ายเงิน + หัก ณ ที่จ่าย
+
+### แจ้งเตือนอัตโนมัติ (7 ประเภท)
+- ประกัน / ภาษี / พ.ร.บ. / ใบขับขี่ / ซ่อมบำรุง / ขับเร็ว / Geofence
+
+### AI Agent + LINE Bot
+- Claude AI + 46 MCP Tools — ตอบลูกค้าอัตโนมัติ
+- ค้นหารถว่าง คำนวณราคา จองเที่ยว ผ่าน LINE
+
+### UCP + A2A Gateway
+- AI จากระบบอื่นจองรถได้ (Claude Desktop, OpenClaw, HiClaw)
+- PromptPay + Stripe payment
+
+### ต้นทุนขนส่ง (Cost Analysis)
+- P&L ต่อคัน/เดือน + รายงานน้ำมัน + Export Excel/PDF
 
 ## 📊 Project Stats
 

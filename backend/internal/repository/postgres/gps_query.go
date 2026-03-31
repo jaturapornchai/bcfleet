@@ -90,7 +90,7 @@ func (q *GPSQuery) GetMovingVehicles(ctx context.Context, shopID string, minDist
 			AND l.prev_lng IS NOT NULL
 			AND l.lat IS NOT NULL
 			AND l.lng IS NOT NULL
-			AND l.updated_at > NOW() - ($2 || ' minutes')::INTERVAL
+			AND l.updated_at > NOW() - ($2 * INTERVAL '1 minute')
 			AND 2 * 6371000 * asin(sqrt(
 				power(sin(radians((l.lat - l.prev_lat) / 2)), 2) +
 				cos(radians(l.prev_lat)) * cos(radians(l.lat)) *

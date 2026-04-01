@@ -13,6 +13,7 @@ const nav = [
   { href: '/expenses', icon: '💰', label: 'ค่าใช้จ่าย' },
   { href: '/alerts', icon: '⚠️', label: 'แจ้งเตือน' },
   { href: '/gps', icon: '📍', label: 'GPS & Movement' },
+  { href: '/map', icon: '🗺️', label: 'แผนที่รถ' },
 ]
 
 export default function Sidebar() {

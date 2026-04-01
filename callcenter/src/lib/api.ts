@@ -61,6 +61,13 @@ export const api = {
   getAlerts: (page = 1, limit = 20) =>
     apiFetch<any>(`/dashboard/alerts?page=${page}&limit=${limit}`),
 
+  // Reports
+  getVehicleUtilization: () => apiFetch<any>('/reports/vehicle-utilization'),
+  getDriverPerformance: (page = 1, limit = 20) =>
+    apiFetch<any>(`/reports/driver-performance?page=${page}&limit=${limit}`),
+  getCostPerTrip: (page = 1, limit = 20) =>
+    apiFetch<any>(`/reports/cost-per-trip?page=${page}&limit=${limit}`),
+
   // GPS
   getVehicleLocations: () => apiFetch<any>('/gps/vehicles'),
   getMovingVehicles: () => apiFetch<any>('/gps/moving'),

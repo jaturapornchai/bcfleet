@@ -26,6 +26,13 @@ export default function Header() {
         />
       </form>
       <div className="flex items-center gap-4 text-sm text-slate-500">
+        <button
+          onClick={() => { const e = new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, bubbles: true }); window.dispatchEvent(e) }}
+          className="hidden sm:flex items-center gap-2 px-3 py-1.5 border rounded-lg text-xs text-slate-400 hover:bg-slate-50 hover:text-slate-600 transition-colors"
+        >
+          <span>🔍 ค้นหา</span>
+          <kbd className="bg-slate-100 px-1.5 py-0.5 rounded text-xs font-mono">Ctrl+K</kbd>
+        </button>
         <span>👤 Call Center Agent</span>
       </div>
     </header>

@@ -14,6 +14,7 @@ const nav = [
   { href: '/alerts', icon: '⚠️', label: 'แจ้งเตือน' },
   { href: '/gps', icon: '📍', label: 'GPS & Movement' },
   { href: '/map', icon: '🗺️', label: 'แผนที่รถ' },
+  { href: '/reports', icon: '📈', label: 'รายงาน' },
 ]
 
 export default function Sidebar() {

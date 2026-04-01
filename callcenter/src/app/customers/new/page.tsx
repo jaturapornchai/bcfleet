@@ -1,8 +1,11 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { api } from '@/lib/api'
 
 export default function NewCustomerPage() {
+  const router = useRouter()
   const [form, setForm] = useState({
     name: '', company: '', phone: '', email: '', address: '',
     tax_id: '', credit_limit: '', credit_days: '30', notes: '',
@@ -29,7 +32,7 @@ export default function NewCustomerPage() {
         contacts: contacts.filter(c => c.name.trim()),
       }
       await api.createCustomer(payload)
-      window.location.href = '/customers'
+      router.push('/customers')
     } catch (err: any) {
       setError(err.message || 'เกิดข้อผิดพลาด')
     } finally {
@@ -40,7 +43,7 @@ export default function NewCustomerPage() {
   return (
     <div className="max-w-2xl">
       <div className="flex items-center gap-3 mb-6">
-        <a href="/customers" className="text-slate-400 hover:text-slate-600 text-sm">← กลับ</a>
+        <Link href="/customers" className="text-slate-400 hover:text-slate-600 text-sm">← กลับ</Link>
         <h2 className="text-xl font-bold">👤 เพิ่มลูกค้าใหม่</h2>
       </div>
 
@@ -104,7 +107,7 @@ export default function NewCustomerPage() {
             className="flex-1 bg-blue-600 text-white py-3 rounded-xl font-medium hover:bg-blue-700 disabled:opacity-50">
             {loading ? 'กำลังบันทึก...' : '💾 บันทึกลูกค้า'}
           </button>
-          <a href="/customers" className="px-6 py-3 border rounded-xl text-slate-600 hover:bg-slate-50 text-center">ยกเลิก</a>
+          <Link href="/customers" className="px-6 py-3 border rounded-xl text-slate-600 hover:bg-slate-50 text-center">ยกเลิก</Link>
         </div>
       </form>
     </div>

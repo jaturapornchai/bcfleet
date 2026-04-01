@@ -1,10 +1,13 @@
 'use client'
 import { useState } from 'react'
 import useSWR from 'swr'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { api } from '@/lib/api'
 import { TRIP_STATUS, formatMoney, formatDate } from '@/lib/constants'
 
 export default function TripsPage() {
+  const router = useRouter()
   const [page, setPage] = useState(1)
   const [status, setStatus] = useState('')
   const { data } = useSWR(['trips', page, status], () => api.getTrips(page, 20, status), { refreshInterval: 15000 })
@@ -13,7 +16,7 @@ export default function TripsPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-bold">📋 เที่ยววิ่ง</h2>
-        <a href="/trips/new" className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700">+ สร้างเที่ยว</a>
+        <Link href="/trips/new" className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700">+ สร้างเที่ยว</Link>
       </div>
       <div className="flex gap-2 mb-4">
         {['', 'pending', 'started', 'delivering', 'completed'].map(s => (
@@ -42,7 +45,7 @@ export default function TripsPage() {
             {data?.data?.map((t: any) => {
               const st = TRIP_STATUS[t.status] || { label: t.status, color: 'bg-gray-100' }
               return (
-                <tr key={t.id} className="border-b hover:bg-blue-50/50 cursor-pointer" onClick={() => window.location.href = `/trips/${t.id}`}>
+                <tr key={t.id} className="border-b hover:bg-blue-50/50 cursor-pointer" onClick={() => router.push(`/trips/${t.id}`)}>
                   <td className="px-4 py-3 font-mono text-xs">{t.trip_no || t.id.slice(-8)}</td>
                   <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded text-xs ${st.color}`}>{st.label}</span></td>
                   <td className="px-4 py-3 truncate max-w-[150px]">{t.origin_name || '-'}</td>

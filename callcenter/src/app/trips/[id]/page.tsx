@@ -1,11 +1,11 @@
 'use client'
-import { use } from 'react'
 import useSWR from 'swr'
+import Link from 'next/link'
 import { api } from '@/lib/api'
 import { TRIP_STATUS, formatMoney, formatDate } from '@/lib/constants'
 
-export default function TripDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
+export default function TripDetailPage({ params }: { params: { id: string } }) {
+  const { id } = params
   const { data, isLoading } = useSWR(['trip', id], () => api.getTrip(id))
 
   if (isLoading) return <div className="p-8 text-slate-400">กำลังโหลด...</div>
@@ -17,7 +17,7 @@ export default function TripDetailPage({ params }: { params: Promise<{ id: strin
   return (
     <div className="max-w-4xl">
       <div className="flex items-center gap-3 mb-6">
-        <a href="/trips" className="text-slate-400 hover:text-slate-600 text-sm">← กลับ</a>
+        <Link href="/trips" className="text-slate-400 hover:text-slate-600 text-sm">← กลับ</Link>
         <h2 className="text-xl font-bold">📋 {t.trip_no || `เที่ยว #${id.slice(-8)}`}</h2>
         <span className={`px-2.5 py-1 rounded-lg text-sm font-medium ${st.color}`}>{st.label}</span>
       </div>

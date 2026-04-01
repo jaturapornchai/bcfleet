@@ -1,9 +1,12 @@
 'use client'
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { api } from '@/lib/api'
 import { formatMoney } from '@/lib/constants'
 
 export default function NewTripPage() {
+  const router = useRouter()
   const [vehicles, setVehicles] = useState<any[]>([])
   const [drivers, setDrivers] = useState<any[]>([])
   const [form, setForm] = useState({
@@ -74,7 +77,7 @@ export default function NewTripPage() {
         distance_km: route?.distance_km || null,
       }
       await api.createTrip(payload)
-      window.location.href = '/trips'
+      router.push('/trips')
     } catch (err: any) {
       setError(err.message || 'เกิดข้อผิดพลาด')
     } finally {
@@ -85,7 +88,7 @@ export default function NewTripPage() {
   return (
     <div className="max-w-2xl">
       <div className="flex items-center gap-3 mb-6">
-        <a href="/trips" className="text-slate-400 hover:text-slate-600 text-sm">← กลับ</a>
+        <Link href="/trips" className="text-slate-400 hover:text-slate-600 text-sm">← กลับ</Link>
         <h2 className="text-xl font-bold">📋 สร้างเที่ยววิ่งใหม่</h2>
       </div>
 
@@ -179,7 +182,7 @@ export default function NewTripPage() {
             className="flex-1 bg-blue-600 text-white py-3 rounded-xl font-medium hover:bg-blue-700 disabled:opacity-50">
             {loading ? 'กำลังสร้าง...' : '🚚 สร้างเที่ยววิ่ง'}
           </button>
-          <a href="/trips" className="px-6 py-3 border rounded-xl text-slate-600 hover:bg-slate-50 text-center">ยกเลิก</a>
+          <Link href="/trips" className="px-6 py-3 border rounded-xl text-slate-600 hover:bg-slate-50 text-center">ยกเลิก</Link>
         </div>
       </form>
     </div>

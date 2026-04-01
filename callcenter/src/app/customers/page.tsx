@@ -1,10 +1,12 @@
 'use client'
 import { useState, Suspense } from 'react'
 import useSWR from 'swr'
+import Link from 'next/link'
 import { api } from '@/lib/api'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 
 function CustomersContent() {
+  const router = useRouter()
   const searchParams = useSearchParams()
   const initialQ = searchParams.get('q') || ''
   const [search, setSearch] = useState(initialQ)
@@ -26,9 +28,9 @@ function CustomersContent() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-bold">👥 ฐานข้อมูลลูกค้า</h2>
-        <a href="/customers/new" className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700">
+        <Link href="/customers/new" className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700">
           + เพิ่มลูกค้าใหม่
-        </a>
+        </Link>
       </div>
 
       <div className="mb-4">
@@ -57,7 +59,7 @@ function CustomersContent() {
           </thead>
           <tbody>
             {customers?.map((c: any) => (
-              <tr key={c.id} className="border-b hover:bg-blue-50/50 cursor-pointer" onClick={() => window.location.href = `/customers/${c.id}`}>
+              <tr key={c.id} className="border-b hover:bg-blue-50/50 cursor-pointer" onClick={() => router.push(`/customers/${c.id}`)}>
                 <td className="px-4 py-3 font-mono text-xs text-slate-500">{c.customer_no}</td>
                 <td className="px-4 py-3 font-medium">{c.name}</td>
                 <td className="px-4 py-3">{c.phone || '-'}</td>

@@ -1,11 +1,13 @@
 'use client'
-import { use } from 'react'
 import useSWR from 'swr'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { api } from '@/lib/api'
 import { formatMoney, formatDate, TRIP_STATUS } from '@/lib/constants'
 
-export default function CustomerDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
+export default function CustomerDetailPage({ params }: { params: { id: string } }) {
+  const { id } = params
+  const router = useRouter()
   const { data: customer, isLoading } = useSWR(['customer', id], () => api.getCustomer(id))
   const { data: tripsData } = useSWR(['trips-customer', id], () => api.getTrips(1, 10))
 
@@ -17,7 +19,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
   return (
     <div className="max-w-4xl">
       <div className="flex items-center gap-3 mb-6">
-        <a href="/customers" className="text-slate-400 hover:text-slate-600 text-sm">← กลับ</a>
+        <Link href="/customers" className="text-slate-400 hover:text-slate-600 text-sm">← กลับ</Link>
         <h2 className="text-xl font-bold">👤 {c.name}</h2>
         <span className={`px-2 py-0.5 rounded text-xs ${c.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
           {c.status === 'active' ? 'Active' : 'Inactive'}
@@ -93,7 +95,7 @@ export default function CustomerDetailPage({ params }: { params: Promise<{ id: s
             {tripsData?.data?.slice(0, 10).map((t: any) => {
               const st = TRIP_STATUS[t.status] || { label: t.status, color: 'bg-gray-100' }
               return (
-                <tr key={t.id} className="border-b hover:bg-blue-50/50 cursor-pointer" onClick={() => window.location.href = `/trips/${t.id}`}>
+                <tr key={t.id} className="border-b hover:bg-blue-50/50 cursor-pointer" onClick={() => router.push(`/trips/${t.id}`)}>
                   <td className="px-4 py-3 font-mono text-xs">{t.trip_no || t.id?.slice(-8)}</td>
                   <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded text-xs ${st.color}`}>{st.label}</span></td>
                   <td className="px-4 py-3">{t.origin_name || '-'}</td>

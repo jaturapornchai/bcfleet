@@ -42,7 +42,7 @@ services:
       dockerfile: Dockerfile
     container_name: smlfleet-callcenter
     ports:
-      - "3001:3000"
+      - "3002:3000"
     networks:
       - smlfleet
     environment:

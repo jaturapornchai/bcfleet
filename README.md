@@ -9,6 +9,7 @@
 | URL | ระบบ | สำหรับ |
 |-----|------|--------|
 | [smlfleet.satistang.com](https://smlfleet.satistang.com) | Landing Page | หน้าแรก |
+| [/callcenter](https://smlfleet.satistang.com/callcenter) | **Call Center** (Next.js) | **พนักงาน Call Center** |
 | [/dashboard/](https://smlfleet.satistang.com/dashboard/) | Web Dashboard | แอดมิน / ฝ่ายบัญชี |
 | [/boss/](https://smlfleet.satistang.com/boss/) | Boss App | เจ้าของ / ผู้จัดการ |
 | [/driver/](https://smlfleet.satistang.com/driver/) | Driver App | คนขับรถ |
@@ -127,6 +128,8 @@ Flutter/Web → Go API (Gin) → MongoDB (Source of Truth)
 | Primary DB | MongoDB 7 | Source of truth |
 | Query DB | PostgreSQL 16 | JOIN, aggregate, report |
 | Stream | Apache Kafka (KRaft) | Event-driven sync |
+| **Call Center** | **Next.js 14 + Tailwind** | 10 หน้า, ค้นหาลูกค้า, จองรถ |
+| **LINE OA** | **LINE Messaging API** | แจ้งเตือนลูกค้า + ตรวจสถานะ |
 | Mobile + Web | Flutter 3.41 | iOS/Android/Web |
 | Maps | OpenStreetMap | ฟรี ไม่ต้อง API Key |
 | **Routing** | **OSRM** | เส้นทางตามถนนจริง (พร้อมอัปเกรด Valhalla) |
@@ -138,10 +141,12 @@ Flutter/Web → Go API (Gin) → MongoDB (Source of Truth)
 | # | App | Platform | หน้าจอ |
 |---|-----|----------|--------|
 | 1 | **Go Backend API** | Docker | 60+ REST endpoints, 47 MCP tools |
-| 2 | **Driver App** | Flutter Web/iOS/Android | รับงาน, GPS, POD, เช็คลิสต์ |
-| 3 | **Boss App** | Flutter Web/iOS/Android | Dashboard, Map, อนุมัติ |
-| 4 | **Web Dashboard** | Flutter Web | DataTable, Reports, Export |
-| 5 | **HiClaw AI Team** | Matrix Chat | 4 AI Workers, 47 MCP Tools |
+| 2 | **Call Center** | **Next.js 14 + Tailwind** | **ลูกค้า, เที่ยว, รถ, คนขับ, ซ่อม, แจ้งเตือน, GPS** |
+| 3 | **Driver App** | Flutter Web/iOS/Android | รับงาน, GPS, POD, เช็คลิสต์ |
+| 4 | **Boss App** | Flutter Web/iOS/Android | Dashboard, Map, อนุมัติ |
+| 5 | **Web Dashboard** | Flutter Web | DataTable, Reports, Export |
+| 6 | **HiClaw AI Team** | Matrix Chat | 4 AI Workers, 47 MCP Tools |
+| 7 | **LINE OA** | LINE Messaging API | ลูกค้าตรวจสถานะ + แจ้งเตือนอัตโนมัติ |
 
 ## Quick Start
 
@@ -167,6 +172,32 @@ curl http://localhost:8082/health
 - "รถว่างมีกี่คัน"
 - "คำนวณค่าส่งเชียงใหม่ไปลำพูน"
 
+## Call Center App (Next.js)
+
+ระบบสำหรับพนักงาน Call Center — เข้าถึงทุกข้อมูล จองรถให้ลูกค้า จัดการทุกอย่าง
+
+- **10 หน้า**: Dashboard, Customers, Trips, Vehicles, Drivers, Maintenance, Partners, Expenses, Alerts, GPS
+- **ค้นหาลูกค้า**: ชื่อ / เบอร์โทร / LINE ID / รหัสลูกค้า
+- **Live Dashboard**: สรุป KPI + alerts + รถเคลื่อนที่ (auto-refresh)
+- **Tech**: Next.js 14 + Tailwind CSS + SWR + TypeScript
+- **URL**: https://smlfleet.satistang.com/callcenter
+
+## Customer Database (ฐานข้อมูลลูกค้า)
+
+- **MongoDB** `fleet_customers` → **Kafka** → **PostgreSQL** (ตามกฎ: MongoDB เป็น Source of Truth)
+- เชื่อม `customer_id` กับ `fleet_trips` — รู้ว่าลูกค้าไหนจองเที่ยวอะไร
+- ค้นหาด้วย phone, LINE User ID, ชื่อ, รหัสลูกค้า
+- Contacts หลายคนต่อลูกค้า + Credit terms
+
+## LINE OA Integration
+
+- **ลูกค้าตรวจสถานะ**: ส่งเลขเที่ยว → ระบบตอบสถานะ GPS ทันที
+- **แจ้งเตือนอัตโนมัติ**:
+  - Trip เปลี่ยนสถานะ (assigned → started → delivering → completed)
+  - "รถใกล้ถึงแล้ว อีก X กม." (proximity notification)
+  - ส่งรูป POD หลังส่งมอบ
+- **Webhook**: `/webhook/line` (outside auth — LINE verify ด้วย signature)
+
 ## Features
 
 - **Vehicle Management** — ลงทะเบียน สุขภาพรถ ประกัน/ภาษี/พ.ร.บ.
@@ -180,6 +211,9 @@ curl http://localhost:8082/health
 - **Partner Vehicles** — รถร่วม, AI Matching, หัก ณ ที่จ่าย
 - **Alerts** — 7+ ประเภท แจ้งเตือนอัตโนมัติ + AI movement alerts
 - **Cost Analysis** — P&L ต่อคัน, รายงานน้ำมัน, Export Excel/PDF
+- **Call Center** — Next.js app สำหรับพนักงาน, ค้นหาลูกค้า, จองรถให้ลูกค้า
+- **Customer Database** — ฐานข้อมูลลูกค้า, เชื่อมกับ trips, ค้นหาด้วย LINE ID
+- **LINE OA** — ลูกค้าตรวจสถานะ, แจ้งเตือน trip + รถใกล้ถึง + POD
 
 ## Project Stats
 
@@ -191,9 +225,13 @@ curl http://localhost:8082/health
 | Movement Event Types | 8 (speeding, geofence, night, erratic, ...) |
 | Go Files | 82 |
 | Dart Files | 84 |
-| MongoDB Collections | 11 (+fleet_movement_events) |
-| PostgreSQL Tables | 8 + 2 views |
-| Kafka Topics | 11 (+fleet.movement.analysis) |
+| MongoDB Collections | 12 (+fleet_customers, fleet_movement_events) |
+| PostgreSQL Tables | 9 + 2 views (+fleet_customers) |
+| Kafka Topics | 12 (+fleet.customers, fleet.movement.analysis) |
+| Customers (demo) | 11 |
+| Vehicles (demo) | 102 |
+| Trips (demo) | 51 (with cost/revenue/profit) |
+| Alerts (demo) | 188 |
 
 ## License
 

@@ -8,6 +8,7 @@ import (
 	"sml-fleet/internal/config"
 	"sml-fleet/internal/database"
 	"sml-fleet/internal/handler"
+	"sml-fleet/internal/line"
 	"sml-fleet/internal/middleware"
 	"sml-fleet/internal/service"
 
@@ -59,6 +60,14 @@ func main() {
 		handler.RegisterGPSRoutes(api, mongoDB, pgDB, kafkaProducer)
 		handler.RegisterCustomerRoutes(api, mongoDB, pgDB, kafkaProducer)
 		handler.RegisterDashboardRoutes(api, pgDB)
+	}
+
+	// LINE OA Webhook (ไม่ต้อง auth — LINE verify ด้วย signature)
+	if cfg.LineChannelSecret != "" && cfg.LineChannelAccessToken != "" {
+		aiAgent := line.NewAIAgent(cfg.AnthropicAPIKey, cfg.ClaudeModel, nil)
+		lineWebhook := line.NewWebhookHandler(cfg.LineChannelSecret, cfg.LineChannelAccessToken, aiAgent)
+		r.POST("/webhook/line", lineWebhook.Handle)
+		log.Println("LINE webhook registered at /webhook/line")
 	}
 
 	// Alert cron job — ตรวจสอบ พ.ร.บ./ภาษี/ซ่อม/ใบขับขี่ ทุกชั่วโมง
